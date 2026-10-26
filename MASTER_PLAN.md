@@ -99,26 +99,38 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## 🔘 10. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
+## 🎚️ 10. Critical Operational Policy Rules & UI-Functioning Safeguards
+1. **Emergency Beacon & Audio Muting Safeguard (Volume Override Policy):**
+   - *System Function:* When the Emergency Siren or 2-second SOS hold guard is triggered, the app automatically overrides media/alarm audio streams to **Maximum Safe Volume** (respecting Android AudioManager limits) to guarantee alarms and audio beacons are heard immediately even if the phone was set to silent or vibrate mode.
+2. **Notification Channel Priority & Foreground Service Lock (Android 14+ Compliance):**
+   - *System Function:* Upon activating app monitoring or SOS mode, the app registers a permanent, un-dismissible **High-Priority Emergency Notification Channel** (*"PH-ResQ Vanguard Active Shield"*) featuring instant quick-action buttons (*"Ligtas Ako"* and *"Cancel SOS"*), ensuring full compliance with Android 14+ Foreground Service exemptions for public safety.
+3. **Emergency PIN Vault "Duress Mode" / Panic Wipe Option (Advanced Privacy Safeguard):**
+   - *System Function:* Provides an optional **"Duress PIN"** (reverse/panic passcode). If entered instead of the true Master PIN during duress or coercion, the app safely opens a clean/dummy vault containing zero sensitive personal contacts while silently dispatching a discreet distress signal.
+4. **Accessibility & High-Contrast Visual Emergency Mode (PWD & Elderly UI Standard):**
+   - *System Function:* A permanent toggle on the Main Screen header for **"High-Contrast Big Text Mode"** which instantly maximizes font scale, enhances color contrast ratios, and strips non-essential glassmorphic layers to ensure ultra-clear readability for senior citizens and users with visual impairments during power failures.
+
+---
+
+## 🔘 11. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
 - **Multi-Mode Selector:** General / All Mode, Student Mode, Motorist Mode, Senior Citizen & PWD Mode, Worker & OFW Mode, and Pet Owner / Animal Welfare Mode.
 - **Stealth Background Lazy Caching & Wi-Fi Maximizer:** Background downloading of auxiliary assets during Wi-Fi connectivity without blocking UI performance.
 - **Smart Garbage Collector & Version Rotation Agent:** Purges deprecated data when new updates arrive while preserving stable local cached data indefinitely.
 
 ---
 
-## 🔒 11. Legal Framework, Data Privacy Compliance (RA 10173), Cybersecurity & Permissions Policy
+## 🔒 12. Legal Framework, Data Privacy Compliance (RA 10173), Cybersecurity & Permissions Policy
 - **Data Privacy Act of 2012 (RA 10173) & NPC Compliance:** Strict adherence to transparency and proportionality. Personal contacts, voice recordings, and GPS coordinates remain strictly local.
 - **Client-Side Encryption & User-Defined Master PIN Vault:** 
   - Secured via **AES-GCM client-side encryption**.
   - **User-Defined PIN/Passcode:** Users set a personal Master PIN to lock their emergency contacts and medical profile against physical snooping.
   - **Emergency SOS Bypass:** During actual disaster scenarios, triggering the SOS action uses an internal secure decryption token to dispatch GPS coordinates instantly via SMS without requiring manual PIN entry.
 - **User-Consent & Intent-Driven Emergency Data Sharing Policy:** Zero silent background tracking; location, audio notes, and SMS are shared externally **exclusively** when the user actively triggers an emergency action (Vital Interest exception under RA 10173 and Google Play policies).
-- **Google Play Store Policy & Device Permissions Framework:** Transparent in-app disclosures for `ACCESS_FINE_LOCATION`, `CALL_PHONE` (`tel:`), `SEND_SMS`, `RECORD_AUDIO`, `RECEIVE_BOOT_COMPLETED`, and `INTERNET`.
+- **Google Play Store Policy & Device Permissions Framework:** Transparent in-app disclosures for `ACCESS_FINE_LOCATION`, `CALL_PHONE` (`tel:`), `SEND_SMS`, `RECORD_AUDIO`, `RECEIVE_BOOT_COMPLETED`, `MODIFY_AUDIO_SETTINGS`, `FOREGROUND_SERVICE`, and `INTERNET`.
 - **Strict Sanitization & Checksum Verification:** Regex input filters and startup SHA-256 database integrity checks.
 
 ---
 
-## 🚨 12. Home Screen SOS Toggle, Anti-Accidental Hold Guard & Tagalog SMS Broadcast
+## 🚨 13. Home Screen SOS Toggle, Anti-Accidental Hold Guard & Tagalog SMS Broadcast
 - **1-Tap Home Screen SOS Toggle & Floating Widget:**
   - Provides instant access to emergency broadcasting directly from the Android home screen or notification area.
 - **Anti-Accidental Tap Protection ("Press & Hold for 2 Seconds"):**
@@ -129,7 +141,7 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## ⚡ 13. Additional Offline Emergency Tools, Utilities & P2P Emergency Mesh Sync
+## ⚡ 14. Additional Offline Emergency Tools, Utilities & P2P Emergency Mesh Sync
 1. **Offline Emergency Flashlight & Strobe (SOS Morse Code):**
    - Instant camera LED flashlight control with a dedicated SOS strobe mode (`3 short, 3 long, 3 short`) for signaling rescuers during power outages or dark environments.
 2. **Offline Emergency Siren / Loud Alarm:**
@@ -143,50 +155,50 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## 📞 14. Device Integrations, Phonebook Export & App Intent Dispatch
+## 📞 15. Device Integrations, Phonebook Export & App Intent Dispatch
 - Direct Phone Dialer (`tel:`), Direct SMS Broadcast (`sms:`), Direct Email Dispatch (`mailto:` with app chooser), Web/Calling App Handlers, and Save to Phonebook (vCard Export).
 
 ---
 
-## 🗺️ 15. Universal Granular Map-Based Proximity Radar (All 42,046 Barangays & Coastal Waters)
+## 🗺️ 16. Universal Granular Map-Based Proximity Radar (All 42,046 Barangays & Coastal Waters)
 - Exhaustive geofencing across all 42,046 barangays, municipal halls, hospitals, police/fire stations, coastal/marine Coast Guard detachments, and transport terminals.
 
 ---
 
-## 🏪 16. Nationwide 24/7 Convenience Stores, Roadside Pit Stops & Sari-Sari Store Networks
+## 🏪 17. Nationwide 24/7 Convenience Stores, Roadside Pit Stops & Sari-Sari Store Networks
 - Geo-mapped 7-Eleven, Uncle John's, Alfamart, FamilyMart, and local roadside sari-sari store networks.
 
 ---
 
-## 🐾 17. Nationwide Veterinary Clinics, Animal Hospitals & Pet Care Directory
+## 🐾 18. Nationwide Veterinary Clinics, Animal Hospitals & Pet Care Directory
 - Biyaya Animal Care, PAWS, Vets in Practice, and municipal/provincial veterinary offices.
 
 ---
 
-## ♿ 18. PWD & Senior Citizen Support, Reporting & Advocacy Framework
+## ♿ 19. PWD & Senior Citizen Support, Reporting & Advocacy Framework
 - NCDA, municipal OSCA desks, COSE, PFRD, and accessibility reporting channels.
 
 ---
 
-## ✈️ 19. OFW, First-Time Jobseeker & Migrant Worker Protection Framework
+## ✈️ 20. OFW, First-Time Jobseeker & Migrant Worker Protection Framework
 - Arrival guides for VisMin travelers in Luzon, DMW, OWWA (1348), DFA, TESDA, and recruitment agencies.
 
 ---
 
-## 🍔 20. Nationwide Fast Food, Dining & Coffee Shop Directory
+## 🍔 21. Nationwide Fast Food, Dining & Coffee Shop Directory
 - Jollibee (`#87000`), McDonald's (`#8-6236`), Greenwich, Chowking, Starbucks, and local food hubs.
 
 ---
 
-## 🚗 21. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
+## 🚗 22. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
 - Nationwide directory of auto repair shops, motorcycle mechanics, 24/7 vulcanizing shops, and major expressway SOS hotlines (NLEx, SLEX, Skyway, TPLEX, etc.).
 
 ---
 
-## 📡 22. Smart Hybrid Sync, P2P Mesh & "Free Data / Wi-Fi Maximizer" Architecture
+## 📡 23. Smart Hybrid Sync, P2P Mesh & "Free Data / Wi-Fi Maximizer" Architecture
 - Wi-Fi maximizer bandwidth optimization, RA 10639 Free Mobile Disaster Alerts integration, offline pre-loaded core database, and P2P local Bluetooth/Wi-Fi mesh sharing under strict privacy and battery preservation rules.
 
 ---
 
-## 🏛️ 23. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
+## 🏛️ 24. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
 - Complete directory of National Unified Hotlines (911, PNP, NDRRMC, PRC, BFP, PCG) and major public/private hospitals (PGH, East Avenue, Makati Med, St. Luke's, Cardinal Santos, The Medical City, Asian Hospital, Vicente Sotto, SPMC, etc.).
