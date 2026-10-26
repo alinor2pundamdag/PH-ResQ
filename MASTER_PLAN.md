@@ -13,14 +13,17 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📱 2. Starting Page, Mandatory Privacy Policy Acceptance & First-Time Onboarding Architecture
+## 📱 2. Starting Page, Non-Bypassable Persistent Consent Loop & First-Time Onboarding Architecture
 - **Complete Starting Page & App Initialization Flow:**
   1. **Splash Screen (Instant Launch & Integrity Check):** A clean, rapid initial loading screen featuring the infinite color-looping title **"PH-ResQ Vanguard"** and wind-swaying flag background. In the background (within 1-2 seconds), it performs a silent SHA-256 integrity verification of the local 42,046 barangays database and loads the 6-layer persistence state.
   2. **Mandatory Privacy, Data Protection & License Policy Acceptance Screen (First Launch):** 
      - Before reaching the dashboard or onboarding steps on first launch, every user is presented with an un-bypassable policy agreement detailing adherence to **RA 10173 (Data Privacy Act of 2012)**, client-side encryption, local storage rules, and the **Apache License 2.0** legal governance framework.
-     - **Explicit Consent Buttons (`[Tanggapin at Sumang-ayon / Accept]` / `[Tumanggi / Decline]`):**
-       - If the user taps **`[Accept]`**: The app saves the cryptographic consent flag locally, proceeds to onboarding/dashboard, and unlocks all safety features.
-       - If the user taps **`[Decline]`**: The app displays a clear, resolute warning (*"Hindi mo magagamit ang mga features at sistema ng aplikasyon nang hindi sinasang-ayunan ang patakaran sa privacy at kaligtasan"*), halts initialization, and executes an **automatic persistent force-stop / exit to device home screen**, ensuring strict regulatory and privacy compliance.
+     - **Non-Bypassable Persistent Consent Loop & Force-Stop Architecture:**
+       - **No Auto-Force Stop on Read:** When the application opens and displays the Mandatory Privacy & License Acceptance Screen, the app **never auto-closes or force-stops** while the user is actively reading or reviewing the terms on screen. Complete freedom to read and examine the policy without abrupt exits.
+       - **Explicit Consent Buttons (`[Tanggapin at Sumang-ayon / Accept]` / `[Tumanggi / Decline]`):**
+         - If the user taps **`[Accept]`**: The app encrypts and saves the cryptographic consent flag locally, unlocks the interface, starts background integrity checks, and proceeds directly to onboarding/dashboard.
+         - If the user taps **`[Decline]`**: The app displays a clear warning (*"Paunawa: Hindi mo magagamit ang mga features, database, at emergency system ng PH-ResQ Vanguard 2026 nang hindi sinasang-ayunan ang patakaran sa privacy (RA 10173) at lisensya. Ang aplikasyon ay aalis na."*), locks navigation routes, executes an **automatic persistent force-stop / exit to device home screen**, and sets the consent state to `DECLINED`.
+       - **Persistent Loop Block (No Dashboard Bypass):** Whenever the user re-opens the app from the app drawer or home screen after declining, the app inspects the stored consent flag before loading any dashboard. Because it is marked `DECLINED`, the app **never reaches the Main Dashboard** and instead routes the user straight back to the Mandatory Privacy & License Acceptance Screen. This loop repeats indefinitely until the user consciously taps `[Accept]`, ensuring absolute compliance without unwanted sudden shutdowns during reading.
   3. **First-Time Onboarding Walkthrough (Senior & PWD Optimized):** A quick, intuitive 3-step guide explaining offline capabilities, the 10-slot PIN vault, and the 2-second SOS hold guard, equipped with a `[Magsimula Na / Skip]` button.
   4. **Mode Selection & Quick Landing Prompt:** Direct transition to the Main Dashboard Hub featuring the sticky global search bar and mode switcher.
 
@@ -125,7 +128,19 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## 🎚️ 11. Critical Operational Policy Rules & UI-Functioning Safeguards
+## ⚡ 11. Advanced Disaster Resiliency & Optimization Modules (Core Feature Extensions)
+1. **Auto-Switching Cellular Bandwidth Optimizer (2G/3G/HSPA+/4G/5G Fallback & SMS-Only Mode):**
+   - Automatically detects cellular congestion or low signal strength (<1 bar) during disasters. Instantly switches packet compression or prompts the user to switch to **SMS-Only Text Mode**, packing precise GPS coordinates into compact text packets for guaranteed emergency dispatch.
+2. **Offline Battery & Power Saving "Emergency Mode" Widget (Quick Toggle):**
+   - A dedicated 1-tap toggle on the main dashboard that instantly switches the UI to a pure OLED black theme, suspends non-essential background sensor polling, and preserves core modules (GPS reader, Emergency Vault, SOS button) to maximize battery life for stranded users.
+3. **P2P Emergency Mesh "Relay Node" Status Indicator & Protocol:**
+   - Integrates a live visual indicator on the app UI displaying the number of nearby connected PH-ResQ user devices via Bluetooth LE and Wi-Fi Direct (e.g., *"3 nearby mesh relays connected"*). Operates a decentralized packet relay routine to hop encrypted SOS coordinates across peers without cell towers.
+4. **Offline First-Aid & Emergency Survival Quick-Guide (Tagalog / English):**
+   - A pre-loaded offline manual detailing step-by-step emergency instructions for wound care, earthquake safety, whistle/flashlight signaling, and essential disaster survival protocols.
+
+---
+
+## 🎚️ 12. Critical Operational Policy Rules & UI-Functioning Safeguards
 1. **Emergency Beacon & Audio Muting Safeguard (Volume Override Policy):**
    - *System Function:* When the Emergency Siren or 2-second SOS hold guard is triggered, the app automatically overrides media/alarm audio streams to **Maximum Safe Volume** (respecting Android AudioManager limits) to guarantee alarms and audio beacons are heard immediately even if the phone was set to silent or vibrate mode.
 2. **Notification Channel Priority & Foreground Service Lock (Android 14+ Compliance):**
@@ -137,14 +152,14 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## 🔘 12. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
+## 🔘 13. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
 - **Multi-Mode Selector:** General / All Mode, Student Mode, Motorist Mode, Senior Citizen & PWD Mode, Worker & OFW Mode, and Pet Owner / Animal Welfare Mode.
 - **Stealth Background Lazy Caching & Wi-Fi Maximizer:** Background downloading of auxiliary assets during Wi-Fi connectivity without blocking UI performance.
 - **Smart Garbage Collector & Version Rotation Agent:** Purges deprecated data when new updates arrive while preserving stable local cached data indefinitely.
 
 ---
 
-## 🔒 13. Legal Framework, Apache License 2.0, Data Privacy Compliance (RA 10173 & RA 10639), Cybersecurity & Permissions Policy
+## 🔒 14. Legal Framework, Apache License 2.0, Data Privacy Compliance (RA 10173 & RA 10639), Cybersecurity & Permissions Policy
 - **Apache License 2.0 Governance:** Enterprise-grade open-source governance providing explicit patent protection, trademark safety, and clear attribution terms.
 - **Data Privacy Act of 2012 (RA 10173) & NPC Compliance:** Strict adherence to transparency and proportionality. Personal contacts, voice recordings, and GPS coordinates remain strictly local.
 - **Free Mobile Disaster Alerts Act (RA 10639) Compliance:** Full adherence to zero-rated public safety alerting mandates, ensuring emergency broadcasts and weather advisories are delivered without data charges or user friction.
@@ -158,7 +173,7 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## 🚨 14. Home Screen SOS Toggle, Anti-Accidental Hold Guard & Tagalog SMS Broadcast
+## 🚨 15. Home Screen SOS Toggle, Anti-Accidental Hold Guard & Tagalog SMS Broadcast
 - **1-Tap Home Screen SOS Toggle & Floating Widget:**
   - Provides instant access to emergency broadcasting directly from the Android home screen or notification area.
 - **Anti-Accidental Tap Protection ("Press & Hold for 2 Seconds"):**
@@ -169,7 +184,7 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## ⚡ 15. Additional Offline Emergency Tools, Utilities & P2P Emergency Mesh Sync
+## ⚡ 16. Additional Offline Emergency Tools, Utilities & P2P Emergency Mesh Sync
 1. **Offline Emergency Flashlight & Strobe (SOS Morse Code):**
    - Instant camera LED flashlight control with a dedicated SOS strobe mode (`3 short, 3 long, 3 short`) for signaling rescuers during power outages or dark environments.
 2. **Offline Emergency Siren / Loud Alarm:**
@@ -183,50 +198,50 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## 📞 16. Device Integrations, Phonebook Export & App Intent Dispatch
+## 📞 17. Device Integrations, Phonebook Export & App Intent Dispatch
 - Direct Phone Dialer (`tel:`), Direct SMS Broadcast (`sms:`), Direct Email Dispatch (`mailto:` with app chooser), Web/Calling App Handlers, and Save to Phonebook (vCard Export).
 
 ---
 
-## 🗺️ 17. Universal Granular Map-Based Proximity Radar (All 42,046 Barangays & Coastal Waters)
+## 🗺️ 18. Universal Granular Map-Based Proximity Radar (All 42,046 Barangays & Coastal Waters)
 - Exhaustive geofencing across all 42,046 barangays, municipal halls, hospitals, police/fire stations, coastal/marine Coast Guard detachments, and transport terminals.
 
 ---
 
-## 🏪 18. Nationwide 24/7 Convenience Stores, Roadside Pit Stops & Sari-Sari Store Networks
+## 🏪 19. Nationwide 24/7 Convenience Stores, Roadside Pit Stops & Sari-Sari Store Networks
 - Geo-mapped 7-Eleven, Uncle John's, Alfamart, FamilyMart, and local roadside sari-sari store networks.
 
 ---
 
-## 🐾 19. Nationwide Veterinary Clinics, Animal Hospitals & Pet Care Directory
+## 🐾 20. Nationwide Veterinary Clinics, Animal Hospitals & Pet Care Directory
 - Biyaya Animal Care, PAWS, Vets in Practice, and municipal/provincial veterinary offices.
 
 ---
 
-## ♿ 20. PWD & Senior Citizen Support, Reporting & Advocacy Framework
+## ♿ 21. PWD & Senior Citizen Support, Reporting & Advocacy Framework
 - NCDA, municipal OSCA desks, COSE, PFRD, and accessibility reporting channels.
 
 ---
 
-## ✈️ 21. OFW, First-Time Jobseeker & Migrant Worker Protection Framework
+## ✈️ 22. OFW, First-Time Jobseeker & Migrant Worker Protection Framework
 - Arrival guides for VisMin travelers in Luzon, DMW, OWWA (1348), DFA, TESDA, and recruitment agencies.
 
 ---
 
-## 🍔 22. Nationwide Fast Food, Dining & Coffee Shop Directory
+## 🍔 23. Nationwide Fast Food, Dining & Coffee Shop Directory
 - Jollibee (`#87000`), McDonald's (`#8-6236`), Greenwich, Chowking, Starbucks, and local food hubs.
 
 ---
 
-## 🚗 23. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
+## 🚗 24. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
 - Nationwide directory of auto repair shops, motorcycle mechanics, 24/7 vulcanizing shops, and major expressway SOS hotlines (NLEx, SLEX, Skyway, TPLEX, etc.).
 
 ---
 
-## 📡 24. Smart Hybrid Sync, P2P Mesh & "Free Data / Wi-Fi Maximizer" Architecture
+## 📡 25. Smart Hybrid Sync, P2P Mesh & "Free Data / Wi-Fi Maximizer" Architecture
 - Wi-Fi maximizer bandwidth optimization, RA 10639 Free Mobile Disaster Alerts integration, offline pre-loaded core database, and P2P local Bluetooth/Wi-Fi mesh sharing under strict privacy and battery preservation rules.
 
 ---
 
-## 🏛️ 25. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
+## 🏛️ 26. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
 - Complete directory of National Unified Hotlines (911, PNP, NDRRMC, PRC, BFP, PCG) and major public/private hospitals (PGH, East Avenue, Makati Med, St. Luke's, Cardinal Santos, The Medical City, Asian Hospital, Vicente Sotto, SPMC, etc.).
