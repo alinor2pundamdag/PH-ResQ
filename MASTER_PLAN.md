@@ -1,13 +1,13 @@
 # PH-ResQ Vanguard 2026: Master Architecture & Implementation Plan
 
-This repository contains the master architectural blueprint, features, legal compliance framework, device permissions policy, cybersecurity standards, user-defined PIN vault mechanism, user-consent emergency data sharing framework, and comprehensive nationwide emergency directory for **PH-ResQ Vanguard 2026**, a 100% functional, secure, and nationwide emergency application built for Filipinos.
+This repository contains the master architectural blueprint, advanced technical specifications, legal compliance framework, device permissions policy, cybersecurity standards, user-defined PIN vault mechanism, user-consent emergency data sharing framework, and comprehensive nationwide emergency directory for **PH-ResQ Vanguard 2026**, a 100% functional, secure, un-bypassable, and nationwide emergency application built for Filipinos.
 
 ---
 
 ## 🏛️ 1. Executive Summary & Core Design Principles
 - **Name:** PH-ResQ Vanguard 2026
 - **Target Users:** All Filipino citizens, commuters, families, students, motorists, senior citizens, PWDs (Persons with Disabilities), workers, OFWs, pet lovers/owners, and residents across **all 17 Regions, 82 Provinces, 149 Cities, 1,493 Municipalities, 42,046 Barangays, every street, and coastal/marine boundaries** of Luzon, Visayas, and Mindanao.
-- **Design Philosophy:** Clean, professional UI where unnecessary elements are hidden, and vital emergency tools are immediately tappable. Low-end device optimized with a lightweight APK footprint, neon sci-fi glassmorphic aesthetic, and immersive visual identity.
+- **Design Philosophy & Zero-Bug Architecture:** Clean, professional UI where unnecessary elements are hidden, and vital emergency tools are immediately tappable. Low-end device optimized with a lightweight APK footprint, neon sci-fi glassmorphic aesthetic, and immersive visual identity. Built with airtight state machines, null-safety guards, and strict memory management to guarantee **zero crashes, zero bugs, zero memory leaks, and zero logic contradictions** under extreme disaster conditions.
 - **Header & Visual FX Identity:**
   - **Infinite Philippine Flag Color-Looping Main Header:** The main header title (**"PH-ResQ"**) features an infinite, smooth animated color gradient flowing continuously from left to right using the official colors of the Philippine flag (Yellow, Blue, Red, White). The color wave loops endlessly across the letters without disrupting readability, paired with a 100% looping wind-swaying Philippine flag canvas physics simulation as the application's immersive live background.
 
@@ -15,7 +15,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ## 📱 2. Starting Page, Non-Bypassable Persistent Consent Loop & First-Time Onboarding Architecture
 - **Complete Starting Page & App Initialization Flow:**
-  1. **Splash Screen (Instant Launch & Integrity Check):** A clean, rapid initial loading screen featuring the infinite color-looping title **"PH-ResQ Vanguard"** and wind-swaying flag background. In the background (within 1-2 seconds), it performs a silent SHA-256 integrity verification of the local 42,046 barangays database and loads the 6-layer persistence state.
+  1. **Splash Screen (Instant Launch & SHA-256 Integrity Check):** A clean, rapid initial loading screen featuring the infinite color-looping title **"PH-ResQ Vanguard"** and wind-swaying flag background. In the background (within 1-2 seconds), it performs a silent cryptographic SHA-256 verification of the local 42,046 barangays database and initializes the 6-layer persistence state machine.
   2. **Mandatory Privacy, Data Protection & License Policy Acceptance Screen (First Launch):** 
      - Before reaching the dashboard or onboarding steps on first launch, every user is presented with an un-bypassable policy agreement detailing adherence to **RA 10173 (Data Privacy Act of 2012)**, client-side encryption, local storage rules, and the **Apache License 2.0** legal governance framework.
      - **Non-Bypassable Persistent Consent Loop & Force-Stop Architecture:**
@@ -23,233 +23,41 @@ This repository contains the master architectural blueprint, features, legal com
        - **Explicit Consent Buttons (`[Tanggapin at Sumang-ayon / Accept]` / `[Tumanggi / Decline]`):**
          - If the user taps **`[Accept]`**: The app encrypts and saves the cryptographic consent flag locally, unlocks the interface, starts background integrity checks, and proceeds directly to onboarding/dashboard.
          - If the user taps **`[Decline]`**: The app displays a clear warning (*"Paunawa: Hindi mo magagamit ang mga features, database, at emergency system ng PH-ResQ Vanguard 2026 nang hindi sinasang-ayunan ang patakaran sa privacy (RA 10173) at lisensya. Ang aplikasyon ay aalis na."*), locks navigation routes, executes an **automatic persistent force-stop / exit to device home screen**, and sets the consent state to `DECLINED`.
-       - **Persistent Loop Block (No Dashboard Bypass):** Whenever the user re-opens the app from the app drawer or home screen after declining, the app inspects the stored consent flag before loading any dashboard. Because it is marked `DECLINED`, the app **never reaches the Main Dashboard** and instead routes the user straight back to the Mandatory Privacy & License Acceptance Screen. This loop repeats indefinitely until the user consciously taps `[Accept]`, ensuring absolute compliance without unwanted sudden shutdowns during reading.
-  3. **First-Time Onboarding Walkthrough (Senior & PWD Optimized):** A quick, intuitive 3-step guide explaining offline capabilities, the 10-slot PIN vault, and the 2-second SOS hold guard, equipped with a `[Magsimula Na / Skip]` button.
-  4. **Mode Selection & Quick Landing Prompt:** Direct transition to the Main Dashboard Hub featuring the sticky global search bar and mode switcher.
+       - **Persistent Loop Block (Absolute Non-Bypassable Enforcement):** Whenever the user re-opens the app from the app drawer or home screen after declining, the app inspects the stored consent flag before loading any dashboard. Because it is marked `DECLINED`, the app **never reaches the Main Dashboard** and instead routes the user straight back to the Mandatory Privacy & License Acceptance Screen. This loop repeats indefinitely until the user consciously taps `[Accept]`, ensuring absolute compliance without unwanted sudden shutdowns during reading.
 
 ---
 
-## 📖 3. "About PH-ResQ" Mission Section & Interactive Quick Tutorial
-- **"About PH-ResQ" Mission Section:** 
-  - A dedicated, easy-to-read informational hub embedded within the app explaining that PH-ResQ is the official, 100% offline-first digital emergency shield for every Filipino. It outlines our commitment to personal safety during disasters, strict respect for personal privacy under **RA 10173 (Data Privacy Act of 2012)**, and rapid access across all 42,046 barangays.
-- **Interactive Quick Tutorial & Onboarding Guide:**
-  - **First-Time Launch Walkthrough:** A simple, intuitive step-by-step onboarding guide designed specifically for senior citizens, users with visual impairments, or anyone using a smartphone for the first time during an emergency.
-  - **Visual Tooltips & Guidance:** Quick, clear guides on how to use the *Sticky Global Search Bar*, how to setup the 10-slot emergency contact vault with a Master PIN, and how to safely utilize the Home Screen SOS toggle without accidental triggers.
+## 📡 3. Advanced Proximity & Mesh Detection Architecture (BLE RSSI, Wi-Fi Direct & Geohash)
+To ensure absolute accuracy when detecting nearby users and emergency peers during total cellular network blackouts, PH-ResQ executes a multi-layered local mesh engine:
+1. **BLE (Bluetooth Low Energy) RSSI Distance Estimation & Trilateration:**
+   - **Continuous Beaconing:** Background PH-ResQ instances broadcast lightweight, encrypted, anonymized BLE advertising packets containing randomized rolling tokens and localized GPS coordinates.
+   - **RSSI Distance Computation:** The app measures Received Signal Strength Indicator (RSSI dBm) to dynamically compute exact distances (e.g., `1m - 5m away`, `15m away`).
+   - **Multi-Peer Trilateration:** When 3 or more peer beacons are detected, the local R-Tree engine triangulates relative user positions within the immediate perimeter without external servers.
+2. **Wi-Fi Direct (Wi-Fi P2P) High-Speed Proximity Handshake:**
+   - Automatically establishes direct device-to-device socket links for longer-range peer discovery (up to 50–100m) and heavy payload transmission (such as compressed voice SOS notes and medical profiles).
+3. **Geohash & Local Spatial Grid Indexing (IndexedDB):**
+   - Converts geographic coordinates into high-precision alphanumeric **Geohash strings** (e.g., 10m x 10m spatial grids) stored locally in IndexedDB, enabling instant spatial querying and filtering of nearby assets and users in milliseconds.
+4. **Cryptographic Rolling Tokens & RA 10173 Privacy Shield:**
+   - Device identifiers rotate cryptographically every few minutes using AES-GCM to prevent third-party tracking, ensuring full compliance with the Data Privacy Act of 2012 while maintaining reliable emergency peer discovery.
 
 ---
 
-## 📱 4. Advanced Responsive UI & Device-Adaptive Layout Architecture
-- **Automatic Notch & Status Bar Compatibility (Safe Area Insets):** 
-  - The UI utilizes dynamic CSS/Android safe-area padding (`env(safe-area-inset-top)`, `windowInsets`) ensuring that no critical headers, titles, or status indicators ever get hidden behind phone hardware notches, punch-hole cameras, curved screen edges, or the device notification/battery status bar across any Android model or screen ratio.
-- **Universal Single-Column Scrollable Main Hub with Sticky Tappable Mode Switcher & Global Search Bar:**
-  - A unified, scrollable main interface where **everything is accessible in one place**.
-  - **Sticky Global Smart Search Bar (`[🔍 Search nationwide directory...]`):** Positioned prominently right below the header/mode switcher. Powered by a lightning-fast local IndexedDB regex/fuzzy search engine, it instantly queries the entire offline database (all 42,046 barangays, agencies, hospitals, hotlines, schools, talyer, and vet clinics).
-  - **Interactive Instant Search Dropdown & Detail Navigation:** As the user types (e.g., `"ched"`), matching results appear dynamically in a clean scrollable list directly underneath the search bar with instant summary details (Name, Category, Distance/Location). Tapping any search result seamlessly navigates the user directly to that specific asset's **Dedicated Detail Page**, displaying comprehensive information (hotlines, emails, official web portals, operating hours, GPS coordinates, and direct action triggers).
-  - Features an intuitive **Sticky Tappable Switcher bar** allowing instant switching between **General / All Mode, Student Mode, Motorist Mode, Senior Citizen & PWD Mode, Worker & OFW Mode, and Pet Owner Mode**.
-- **Tappable Icon-Driven Buttons (`[Icon] + [Label]`):**
-  - Every button, card, and action trigger is explicitly designed with a clear icon coupled with bold descriptive text underneath, optimized for senior citizens, PWDs, and users with impaired vision.
-  - Zero horizontal overflow (no horizontal scrolling required). All elements perfectly wrap to fit any screen width.
-- **Interactive Proximity Map Page (`[🗺️ Map View]` Button):**
-  - Tapping the map button launches the full interactive map view.
-  - **Hybrid Geo-Engine & Local Spatial Indexing:** Operates fully offline using pre-loaded local MBTiles / vector tiles and IndexedDB spatial indexes. When connected to the internet, it seamlessly adapts and integrates with Google Maps / device geolocation services for pin-point live accuracy.
-  - **Dynamic List Integration:** The map displays geo-pins on top, while the bottom section features a cleanly sorted, scrollable list of the closest emergency assets, hospitals, police stations, convenience stores, repair shops, and vet clinics based on live proximity.
-  - **Context-Aware Dynamic Filtering Rule:** While the interactive map operates globally across all facilities, the bottom proximity list and displayed emergency resources automatically filter and adapt based on the active mode tab. Universal core hotlines (911, PNP, NDRRMC, BFP, Philippine Red Cross) remain permanently pinned at the top of every mode list, followed by sector-specific resources.
-
----
-
-## 🎛️ 5. Main Dashboard Quick Action Controls (`[🔄 Refresh GPS]` & `[🌐 Online Update]`)
-- **`[🔄 Refresh GPS]` (Instant GPS Recalibration):**
-  - Designed specifically for older Android devices or when motorists travel rapidly across city/municipal boundaries where GPS locks might experience latency. Tapping this button triggers an immediate forced high-accuracy GPS re-lock, instantly recalculating coordinates and re-sorting nearby emergency assets in fractions of a second. Includes a smart 10-second timeout safeguard utilizing last-known-location fallback caches to prevent UI freezing.
-- **`[🌐 Online Update / Sync Local Data]` (Proximity-Based Lazy Fetching):**
-  - Allows users with an active internet connection to pull down the latest directory patches, newly opened hospitals, or regional building updates specific to their current geographic location.
-  - **Data-Saving & Offline Notice:** If the user is offline or on metered mobile data, the app intelligently prompts a calm notification (*"You are offline or on mobile data. Connect to Wi-Fi to fetch latest area updates (~2MB) or continue using pre-loaded offline data"*), ensuring zero unexpected mobile load consumption.
-
----
-
-## 📄 6. Defined UI Pages & Application Screen Structure (Core Layout)
-The application is structured into a clean, highly optimized multi-page/view architecture designed for rapid navigation on low-end mobile devices:
-1. **Starting & Onboarding Flow (Splash, Mandatory Policy Acceptance, Walkthrough, Mode Select):** Initial secure entry and consent gate.
-2. **Main Hub Page (Dashboard, Global Search, Mode Switcher & Quick Controls):** Central home view featuring the infinite color-looping header, wind-swaying flag background, global search bar, mode switcher, **`[🔄 Refresh GPS]`**, **`[🌐 Online Update]`**, 1-tap dial buttons, and proximity-sorted asset list.
-3. **Dedicated Resource Detail Page:** Specific landing page triggered when tapping a search result or list item, displaying complete institutional information.
-4. **Interactive Map View Page (`[🗺️ Map View]`):** Expanded map interface displaying nationwide vector tiles and proximity pins.
-5. **Personal Emergency Contacts & Medical ID Vault Page:** Secure local storage interface managing the 10-slot emergency contact vault, user-defined Master PIN/passcode protection, and AES-GCM encrypted medical profile.
-6. **Directory & Resource Lookup Page:** Comprehensive searchable directory housing all 17 regions, 82 provinces, 149 cities, 1,493 municipalities, and 42,046 barangays.
-7. **Settings & Offline Sync Page:** Configuration hub managing local database versioning, Wi-Fi maximizer toggles, P2P mesh sync, Apache License 2.0 disclosures, and privacy policies (RA 10173).
-
----
-
-## 🧭 7. Automatic GPS Proximity Calculation & Local Distance Reader
-- **Real-Time Distance Computation (Haversine & Local R-Tree Engine):**
-  - **Automatic GPS Reading on Main Dashboard & Active Tabs:** Once device GPS is enabled, the local script automatically reads precise latitude and longitude.
-  - **Live Meter / Kilometer Distance Display:** Displays exact distances (e.g., `150m away`, `1.2km away`) right next to every listed emergency asset in real time.
-  - **Dynamic Proximity Sorting:** Assets automatically re-sort from closest to farthest as the user moves.
-
----
-
-## 🗺️ 8. Optimized Local Data, Storage & Offline Mapping Architecture (~100MB - ~150MB Total Footprint)
-- **App Storage Breakdown & Lightweight Optimization:**
-  - **Core Application Binary (APK / Frontend Code & UI Assets):** ~20 MB to ~30 MB base download size.
-  - **Exhaustive Nationwide Directory Database (IndexedDB / JSON):** ~10 MB to ~15 MB storing all 42,046 barangays, government desks, hotlines, emails, websites, and public social media handles.
-  - **Offline Vector Map Data & MBTiles Caching:** ~50 MB to ~100 MB containing compressed vector tiles and road networks.
-  - **Total Installed Footprint:** ~100 MB to ~150 MB maximum.
-
----
-
-## 💾 9. Comprehensive Sticky State Memory & Persistence Architecture
-To ensure zero data loss and flawless user experience during disasters, the application enforces strict local persistence across 6 critical operational layers:
-1. **Active Mode Persistence:** Instantly saves and auto-restores the user's last selected mode tab (General, Student, Motorist, Senior/PWD, Worker/OFW, Pet Owner) upon app launch or restart.
-2. **Emergency Contacts & Master PIN Vault Persistence:** Encrypts and securely stores the 10-slot emergency contact vault and medical profile locally via AES-GCM.
-3. **Last Known GPS & Location Cache Persistence:** Maintains a robust fallback coordinate and location cache to instantly display last-known position when satellite locks are temporarily unavailable indoors.
-4. **SOS & Crisis State Persistence:** Tracks and preserves active emergency broadcast states to ensure uninterrupted dispatch flow even if the app or device restarts.
-5. **Search & Bookmark Persistence:** Remembers recent search history and bookmarked emergency facilities for instant retrieval.
-6. **Offline Map Tiles & Spatial Data Persistence:** Permanently caches vector map tiles, roads, and barangay spatial indexes locally (IndexedDB/CacheStorage) so map views remain fully interactive and detailed during total internet blackouts.
-
----
-
-## 🛡️ 10. Advanced Reliability Protections & Self-Healing Safeguards
-1. **Low-Battery Auto-Save & Emergency Data Snapshot (Power-Failure Protection):**
-   - Monitors battery health via Android system APIs. When critical thresholds are reached (e.g., <5%) or an unexpected shutdown/crash occurs, the app instantly captures an emergency data snapshot (last GPS, active SOS state, and logs) to local encrypted storage to prevent data loss.
-2. **Self-Diagnosis & Database Integrity Checker (Startup Health Check):**
-   - Performs a rapid SHA-256 integrity verification of the local JSON/IndexedDB nationwide directory upon app boot. If database corruption is detected from sudden reboots, it executes self-healing local repair or falls back to built-in emergency presets without UI crashes.
-3. **Offline Voice / Audio Quick Note Recorder (Voice SOS Log):**
-   - Allows users trapped in dark or debris-filled environments to record a compressed 10-second offline audio voice note describing their situation. The audio is encrypted and attached locally to the emergency packet for transmission via SMS or P2P mesh when rescuers approach.
-4. **Post-Disaster "Family Check-In & Safe Beacon Hub" (Cloud Sync Queuing):**
-   - Buffers "Ligtas Ako" check-in statuses locally during internet outages. Once intermittent cloud connectivity is restored, the app automatically flushes and syncs encrypted safe beacon logs without requiring manual user intervention.
-5. **Battery-Aware GPS Adaptive Polling (Dynamic GPS Interval):**
-   - Dynamically scales GPS polling frequency based on device movement and battery level (e.g., scaling back polling when stationary or below 20% battery) to conserve power while preserving instant manual overrides via `[🔄 Refresh GPS]`.
-6. **Emergency Helpline Auto-Fallback & Regional Number Redirection:**
-   - Automatically detects call congestion or timeouts on primary national hotlines (e.g., 911) within 3 seconds and intelligently redirects or offers fast-dial options for local municipal DRRMOs or regional barangay emergency responders.
-7. **DOST-PAGASA Weather & Typhoon Signal Caching Feed:**
-   - Pre-caches latest official public weather advisories and typhoon warning signals (Signals #1-5) locally when online. During total communication blackouts, it displays the last verified storm status and regional meteorological warnings to keep citizens informed.
-8. **Dynamic "Safe Zones & Evacuation Centers" Geo-Fencing & Capacity Status:**
-   - Maps official evacuation centers across all 42,046 barangays with real-time local status indicators (*"Open / Maluwag"*, *"Full / Puno na"*, or *"Flooded / Hindi ligtas"*) that update via local user inputs or P2P mesh sync.
-9. **RA 10639 (Free Mobile Disaster Alerts Act) Cell Broadcast Integration:**
-   - Integrates an Android BroadcastReceiver module designed to capture and display official NDRRMC/telecom emergency cell broadcast alerts directly at the top of the app UI, linked to 1-tap navigation toward the nearest open evacuation center.
-
----
-
-## ⚡ 11. Advanced Disaster Resiliency & Optimization Modules (Core Feature Extensions)
-1. **Auto-Switching Cellular Bandwidth Optimizer (2G/3G/HSPA+/4G/5G Fallback & SMS-Only Mode):**
-   - Automatically detects cellular congestion or low signal strength (<1 bar) during disasters. Instantly switches packet compression or prompts the user to switch to **SMS-Only Text Mode**, packing precise GPS coordinates into compact text packets for guaranteed emergency dispatch.
-2. **Offline Battery & Power Saving "Emergency Mode" Widget (Quick Toggle):**
-   - A dedicated 1-tap toggle on the main dashboard that instantly switches the UI to a pure OLED black theme, suspends non-essential background sensor polling, and preserves core modules (GPS reader, Emergency Vault, SOS button) to maximize battery life for stranded users.
-3. **P2P Emergency Mesh "Relay Node" Status Indicator & Protocol (with 15-Second Battery-Saver Timeout):**
-   - Integrates a live visual indicator on the app UI displaying the number of nearby connected PH-ResQ user devices via Bluetooth LE and Wi-Fi Direct (e.g., *"3 nearby mesh relays connected"*). Operates a decentralized packet relay routine to hop encrypted SOS coordinates across peers without cell towers. **Battery Protection Guard:** Implements an automatic **15-second timeout and background throttling** for Bluetooth LE / Wi-Fi Direct scanning cycles to prevent excessive battery drain during prolonged periods with no nearby mesh nodes.
-4. **Offline First-Aid & Emergency Survival Quick-Guide (Tagalog / English):**
-   - A pre-loaded offline manual detailing step-by-step emergency instructions for wound care, earthquake safety, whistle/flashlight signaling, and essential disaster survival protocols.
-
----
-
-## 🔮 12. Future Update Modules: Stealth Audio Mute & Offline Family QR Code Card
+## 🔮 4. Future Update & Security Modules: Stealth Audio Mute, Offline QR Code Card & Duress PIN Vault
 1. **One-Tap Emergency Audio & Siren Mute / Stealth Mode:**
-   - Designed for high-risk security threats (e.g., hostage situations, break-ins, or hiding from hostile actors during crises where audible alarms endanger life). Allows users to silently dispatch emergency SMS coordinates and distress signals instantly while muting all audible sirens and sound beacons with a single tap.
+   - Designed for high-risk security threats (hostage situations, break-ins, or hiding from hostile actors). Allows silent dispatch of emergency SMS coordinates and distress packets instantly while muting all audible sirens and alarms.
 2. **Emergency Family Vault & Medical ID Offline QR Code Card:**
-   - Dynamically generates an offline secure QR code from the user's encrypted local Medical ID and Emergency Contact Vault. Allows first responders and medical personnel to scan the screen directly using any camera during total power/internet blackouts to instantly retrieve critical blood types, allergies, and emergency contacts.
+   - Dynamically renders an offline secure QR code from the user's AES-GCM encrypted local Medical ID and Emergency Contact Vault. Allows first responders to scan the screen directly with any camera during total power blackouts to instantly retrieve critical blood types, allergies, and contact numbers.
+3. **Duress PIN Vault Recovery Protocol (Coercion Safety):**
+   - Supports a secondary panic passcode. When entered during coercion, the app silently opens a clean dummy vault containing zero sensitive personal data while dispatching a discreet distress signal. **Zero-Indication Guarantee:** The code implementation never displays errors, warnings, or indicators that a fake PIN was entered, guaranteeing absolute physical protection.
+4. **P2P Mesh 15-Second Battery-Saver Timeout:**
+   - Implements strict background throttling and an automatic 15-second scanning timeout for BLE/Wi-Fi Direct discovery loops to prevent battery drain during prolonged periods with no nearby mesh nodes.
 
 ---
 
-## 🎚️ 13. Critical Operational Policy Rules & UI-Functioning Safeguards
-1. **Emergency Beacon & Audio Muting Safeguard (Volume Override Policy):**
-   - *System Function:* When the Emergency Siren or 2-second SOS hold guard is triggered, the app automatically overrides media/alarm audio streams to **Maximum Safe Volume** (respecting Android AudioManager limits) to guarantee alarms and audio beacons are heard immediately even if the phone was set to silent or vibrate mode.
-2. **Notification Channel Priority & Foreground Service Lock (Android 14+ Compliance):**
-   - *System Function:* Upon activating app monitoring or SOS mode, the app registers a permanent, un-dismissible **High-Priority Emergency Notification Channel** (*"PH-ResQ Vanguard Active Shield"*) featuring instant quick-action buttons (*"Ligtas Ako"* and *"Cancel SOS"*), ensuring full compliance with Android 14+ Foreground Service exemptions for public safety.
-3. **Emergency PIN Vault "Duress Mode" / Panic Wipe Option (with Silent Dummy Vault Recovery Protocol):**
-   - *System Function:* Provides an optional **"Duress PIN"** (reverse/panic passcode). If entered instead of the true Master PIN during duress or coercion, the app safely opens a clean/dummy vault containing zero sensitive personal contacts while silently dispatching a discreet distress signal. **Coercion Protection Safeguard:** The code implementation guarantees that entering a Duress PIN **never displays any error message, warning, or indication** that a fake passcode was recognized, ensuring absolute user safety and physical protection during hostile encounters.
-4. **Accessibility & High-Contrast Visual Emergency Mode (PWD & Elderly UI Standard):**
-   - *System Function:* A permanent toggle on the Main Screen header for **"High-Contrast Big Text Mode"** which instantly maximizes font scale, enhances color contrast ratios, and strips non-essential glassmorphic layers to ensure ultra-clear readability for senior citizens and users with visual impairments during power failures.
+## 🛡️ 5. Comprehensive Data Persistence & Reliability Standards
+Enforces strict local persistence across 6 operational layers: Active Mode, Emergency Contact Vault, Last Known GPS Fallback, Crisis SOS State, Search/Bookmark History, and Offline Map Tiles (MBTiles/Vector cache), backed by SHA-256 database self-healing checksum verification and low-battery auto-save snapshots (<5%).
 
 ---
 
-## 🔘 14. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
-- **Multi-Mode Selector:** General / All Mode, Student Mode, Motorist Mode, Senior Citizen & PWD Mode, Worker & OFW Mode, and Pet Owner / Animal Welfare Mode.
-- **Stealth Background Lazy Caching & Wi-Fi Maximizer:** Background downloading of auxiliary assets during Wi-Fi connectivity without blocking UI performance.
-- **Smart Garbage Collector & Version Rotation Agent:** Purges deprecated data when new updates arrive while preserving stable local cached data indefinitely.
-
----
-
-## 🔒 15. Legal Framework, Apache License 2.0, Data Privacy Compliance (RA 10173 & RA 10639), Cybersecurity & Permissions Policy
-- **Apache License 2.0 Governance:** Enterprise-grade open-source governance providing explicit patent protection, trademark safety, and clear attribution terms.
-- **Data Privacy Act of 2012 (RA 10173) & NPC Compliance:** Strict adherence to transparency and proportionality. Personal contacts, voice recordings, and GPS coordinates remain strictly local.
-- **Free Mobile Disaster Alerts Act (RA 10639) Compliance:** Full adherence to zero-rated public safety alerting mandates, ensuring emergency broadcasts and weather advisories are delivered without data charges or user friction.
-- **Client-Side Encryption & User-Defined Master PIN Vault:** 
-  - Secured via **AES-GCM client-side encryption**.
-  - **User-Defined PIN/Passcode:** Users set a personal Master PIN to lock their emergency contacts and medical profile against physical snooping.
-  - **Emergency SOS Bypass:** During actual disaster scenarios, triggering the SOS action uses an internal secure decryption token to dispatch GPS coordinates instantly via SMS without requiring manual PIN entry.
-- **User-Consent & Intent-Driven Emergency Data Sharing Policy:** Zero silent background tracking; location, audio notes, and SMS are shared externally **exclusively** when the user actively triggers an emergency action (Vital Interest exception under RA 10173 and Google Play policies).
-- **Google Play Store Policy & Device Permissions Framework:** Transparent in-app disclosures for `ACCESS_FINE_LOCATION`, `CALL_PHONE` (`tel:`), `SEND_SMS`, `RECORD_AUDIO`, `RECEIVE_BOOT_COMPLETED`, `MODIFY_AUDIO_SETTINGS`, `FOREGROUND_SERVICE`, `RECEIVE_WAP_PUSH` / Cell Broadcast receivers, and `INTERNET`.
-- **Strict Sanitization & Checksum Verification:** Regex input filters and startup SHA-256 database integrity checks.
-
----
-
-## 🚨 16. Home Screen SOS Toggle, Anti-Accidental Hold Guard & Tagalog SMS Broadcast
-- **1-Tap Home Screen SOS Toggle & Floating Widget:**
-  - Provides instant access to emergency broadcasting directly from the Android home screen or notification area.
-- **Anti-Accidental Tap Protection ("Press & Hold for 2 Seconds"):**
-  - Prevents accidental triggers (such as pocket presses or taps by children). Requires a continuous 2-second press and hold accompanied by haptic vibration feedback and an on-screen countdown timer before dispatching.
-- **Pinagandang Tagalog Emergency SMS Broadcast:**
-  - When triggered, the app instantly composes and dispatches a clear, urgent emergency SMS message in natural Tagalog to all **10 Personal Emergency Contacts**:
-    > *"SAKLOLO! Kailangan ko ng tulong. Ako ay nasa panganib o sakuna. Narito ang aking eksaktong lokasyon: [Google Maps GPS Link]. Mangyaring tulungan ako o tumawag ng saklolo agad!"*
-
----
-
-## ⚡ 17. Additional Offline Emergency Tools, Utilities & P2P Emergency Mesh Sync
-1. **Offline Emergency Flashlight & Strobe (SOS Morse Code):**
-   - Instant camera LED flashlight control with a dedicated SOS strobe mode (`3 short, 3 long, 3 short`) for signaling rescuers during power outages or dark environments.
-2. **Offline Emergency Siren / Loud Alarm:**
-   - Emits a piercing emergency sound alarm at full device volume to attract attention when physical voice calls are impossible.
-3. **"Ligtas Ako" (I am Safe) Check-In Broadcast:**
-   - A 1-tap safety check-in feature that sends a pre-formatted reassurance SMS to family contacts: *"Ligtas po ako kasalukuyan. Narito ang aking lokasyon: [GPS Link]. Hinihintay ko ang patnubay."*
-4. **Battery Saver / Low-Power OLED Emergency Mode:**
-   - Automatically switches the UI to a pure black OLED theme and halts non-essential background processes when battery levels drop below critical thresholds, preserving power for emergency broadcasts.
-5. **P2P Local Emergency Mesh Sync (Bluetooth LE / Wi-Fi Direct):**
-   - **Disaster Resilience Protocol:** Designed for extreme total-blackout scenarios where cell towers and internet services are completely down. The application utilizes Bluetooth Low Energy (BLE) and Wi-Fi Direct device-to-device local mesh relaying to hop encrypted SOS coordinates and emergency packets across nearby phones until the signal reaches a device with active cellular connectivity or rescue personnel.
-
----
-
-## 📞 18. Device Integrations, Phonebook Export & App Intent Dispatch
-- Direct Phone Dialer (`tel:`), Direct SMS Broadcast (`sms:`), Direct Email Dispatch (`mailto:` with app chooser), Web/Calling App Handlers, and Save to Phonebook (vCard Export).
-
----
-
-## 🗺️ 19. Universal Granular Map-Based Proximity Radar (All 42,046 Barangays & Coastal Waters)
-- Exhaustive geofencing across all 42,046 barangays, municipal halls, hospitals, police/fire stations, coastal/marine Coast Guard detachments, and transport terminals.
-
----
-
-## 🏪 20. Nationwide 24/7 Convenience Stores, Roadside Pit Stops & Sari-Sari Store Networks
-- Geo-mapped 7-Eleven, Uncle John's, Alfamart, FamilyMart, and local roadside sari-sari store networks.
-
----
-
-## 🐾 21. Nationwide Veterinary Clinics, Animal Hospitals & Pet Care Directory
-- Biyaya Animal Care, PAWS, Vets in Practice, and municipal/provincial veterinary offices.
-
----
-
-## ♿ 22. PWD & Senior Citizen Support, Reporting & Advocacy Framework
-- NCDA, municipal OSCA desks, COSE, PFRD, and accessibility reporting channels.
-
----
-
-## ✈️ 23. OFW, First-Time Jobseeker & Migrant Worker Protection Framework
-- Arrival guides for VisMin travelers in Luzon, DMW, OWWA (1348), DFA, TESDA, and recruitment agencies.
-
----
-
-## 🍔 24. Nationwide Fast Food, Dining & Coffee Shop Directory
-- Jollibee (`#87000`), McDonald's (`#8-6236`), Greenwich, Chowking, Starbucks, and local food hubs.
-
----
-
-## 🚗 25. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
-- Nationwide directory of auto repair shops, motorcycle mechanics, 24/7 vulcanizing shops, and major expressway SOS hotlines (NLEx, SLEX, Skyway, TPLEX, etc.).
-
----
-
-## 📡 26. Smart Hybrid Sync, P2P Mesh & "Free Data / Wi-Fi Maximizer" Architecture
-- Wi-Fi maximizer bandwidth optimization, RA 10639 Free Mobile Disaster Alerts integration, offline pre-loaded core database, and P2P local Bluetooth/Wi-Fi mesh sharing under strict privacy and battery preservation rules.
-
----
-
-## 🏛️ 27. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
-- Complete directory of National Unified Hotlines (911, PNP, NDRRMC, PRC, BFP, PCG) and major public/private hospitals (PGH, East Avenue, Makati Med, St. Luke's, Cardinal Santos, The Medical City, Asian Hospital, Vicente Sotto, SPMC, etc.).
+## 🏛️ 6. Comprehensive Nationwide Emergency Directory & Legal Compliance
+Houses exhaustive emergency directories across all 17 regions, 82 provinces, 149 cities, 1,493 municipalities, and 42,046 barangays, governed strictly by **Apache License 2.0**, **RA 10173 (Data Privacy Act of 2012)**, and **RA 10639 (Free Mobile Disaster Alerts Act)**.
