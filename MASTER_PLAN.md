@@ -1,6 +1,6 @@
 # PH-ResQ Vanguard 2026: Master Architecture & Implementation Plan
 
-This repository contains the master architectural blueprint, features, legal compliance framework, device permissions policy, cybersecurity standards, user-consent emergency data sharing framework, and comprehensive nationwide emergency directory for **PH-ResQ Vanguard 2026**, a 100% functional, secure, and nationwide emergency application built for Filipinos.
+This repository contains the master architectural blueprint, features, legal compliance framework, device permissions policy, cybersecurity standards, user-defined PIN vault mechanism, user-consent emergency data sharing framework, and comprehensive nationwide emergency directory for **PH-ResQ Vanguard 2026**, a 100% functional, secure, and nationwide emergency application built for Filipinos.
 
 ---
 
@@ -37,7 +37,7 @@ The application is structured into a clean, highly optimized multi-page/view arc
 1. **Main Hub Page (Dashboard, Global Search & Mode Switcher):** The central home view featuring the infinite color-looping header, the wind-swaying Philippine flag canvas background, the global instant search bar with live dropdown results, the sticky mode switcher tabs, emergency 1-tap dial buttons, and the real-time GPS distance-sorted asset list.
 2. **Dedicated Resource Detail Page:** The specific landing page triggered when tapping a search result or list item, displaying complete institutional information (Hotlines, Emails, Official Websites, Social Media links, Physical Address, Operating Hours, and GPS Navigation triggers).
 3. **Interactive Map View Page (`[🗺️ Map View]`):** Dedicated full-screen or expanded map interface displaying nationwide vector tiles, regional bounds, coastal/marine points, and interactive proximity pins.
-4. **Personal Emergency Contacts & Medical ID Vault Page:** Secure local storage interface managing the 10-slot emergency contact vault, name/number validation rules, and AES-GCM encrypted medical profile.
+4. **Personal Emergency Contacts & Medical ID Vault Page:** Secure local storage interface managing the 10-slot emergency contact vault, user-defined Master PIN/passcode protection, validation rules, and AES-GCM encrypted medical profile.
 5. **Directory & Resource Lookup Page:** Comprehensive searchable directory housing all 17 regions, 82 provinces, 149 cities, 1,493 municipalities, and 42,046 barangays, including institutional hotlines, hospitals, convenience stores, and transport guides.
 6. **Settings & Offline Sync Page:** Configuration hub managing local database versioning, Wi-Fi maximizer toggles, manual P2P mesh sync triggers, and data privacy disclosures (RA 10173).
 
@@ -85,8 +85,10 @@ The application is structured into a clean, highly optimized multi-page/view arc
 ## 🔒 7. Legal Framework, Data Privacy Compliance (RA 10173), Cybersecurity & Permissions Policy
 - **Data Privacy Act of 2012 (RA 10173) & NPC Compliance:** 
   - Strict adherence to the principle of proportionality and transparency. All personal emergency contacts and device GPS coordinates remain **strictly local and private** (`localStorage` / IndexedDB) with zero unauthorized cloud transmission.
-- **Client-Side Encryption (Zero-Knowledge Local Storage):** 
-  - The 10 personal emergency contacts and sensitive medical inputs are secured via **AES-GCM client-side encryption** with a secure device-bound key to protect against data extraction, malware, or physical snooping.
+- **Client-Side Encryption & User-Defined Master PIN Vault:** 
+  - The 10 personal emergency contacts and sensitive medical inputs are secured via **AES-GCM client-side encryption**.
+  - **User-Defined PIN/Passcode:** The app requires the user to set a personal Master PIN or passcode upon initial vault setup. This PIN derives a device-bound hardware encryption key that locks the 10-slot contact list, preventing unauthorized viewing or physical snooping by others.
+  - **Emergency SOS Bypass:** During actual disaster or emergency scenarios, triggering the *"Send Emergency SOS"* action utilizes an internal secure decryption token to dispatch GPS coordinates instantly via SMS without requiring manual PIN entry during crisis moments.
 - **User-Consent & Intent-Driven Emergency Data Sharing Policy:**
   - **Zero Silent Tracking (Passive Privacy):** The user's location is never silently transmitted or tracked in the background without explicit user awareness.
   - **Explicit User-Initiated SOS Sharing (Emergency Exception):** During critical disaster or emergency scenarios, when the user actively triggers the *"Send Emergency SOS"* action, the app is explicitly authorized to capture current GPS coordinates (lat/long link) and embed them into an SMS text message (`sms:`) dispatched to the pre-configured 10 personal emergency contacts or emergency hotlines.
