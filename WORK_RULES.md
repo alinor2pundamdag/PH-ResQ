@@ -1,0 +1,40 @@
+# PH-ResQ Vanguard 2026: Official Operational Rules & Work Protocol (`WORK_RULES.md`)
+
+This document serves as the absolute, non-negotiable operational charter governing all interactions, code generation, architectural planning, and repository management for **PH-ResQ Vanguard 2026**.
+
+---
+
+## 🛑 1. Rule of Zero Unsolicited Modifications (Strict Repository Lock)
+- **Absolute Restriction:** The AI assistant is **strictly prohibited** from creating, updating, modifying, committing, or pushing any files or code changes to the GitHub repository without an explicit, direct, and unambiguous command from the repository owner (Alinor). 
+- **Protocol:** Every single action involving repository changes must be preceded by explicit user authorization. In all other cases, the AI must provide answers and advice in the chat without touching the repository.
+
+## 🔍 2. The "Double-Audit" & Zero-Crash Policy
+- **Emergency-Grade Stability:** Because human safety depends on this application during critical disaster scenarios, zero-crash and zero-failure standards are mandatory.
+- **Double-Check Rule:** Before any code or logic structure is presented or approved, it must undergo a rigorous double-check audit to eliminate memory leaks, null-pointer exceptions, UI overflows, and unhandled exceptions.
+- **Graceful Degradation:** All system features (GPS reading, local storage access, map rendering) must feature robust fallback states so that temporary sensor or network failures never freeze or crash the application UI.
+
+## 📦 3. 100% Offline-First & Strict Storage Budget (~100MB - ~150MB)
+- **Local Autonomy:** Every feature must operate fully offline without external server dependency.
+- **Strict Footprint Limits:** 
+  - Core APK binary & UI assets: ~20 MB to ~30 MB.
+  - Nationwide JSON directory database: ~10 MB to ~15 MB.
+  - Compressed offline vector maps / MBTiles: ~50 MB to ~100 MB.
+  - Total ceiling: ~150 MB maximum to ensure smooth performance on low-end Android hardware.
+
+## 🔒 4. Privacy-First, RA 10173 & Google Play Compliance Framework
+- **Data Privacy Act of 2012 (RA 10173):** Complete adherence to National Privacy Commission (NPC) guidelines. All personal emergency contacts and device GPS coordinates remain strictly local (`localStorage` / IndexedDB).
+- **Zero-Knowledge Encryption:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**.
+- **Transparent Google Play Permissions Policy:** Device permissions are requested strictly under core functionality exceptions with prominent in-app disclosures:
+  - `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION`: Foreground GPS proximity calculation only. *No background tracking.*
+  - `CALL_PHONE` / Intent Dispatch (`tel:`): Safe 1-tap emergency calling via native device dialer (`ACTION_DIAL`).
+  - `SEND_SMS`: User-triggered emergency SOS broadcast with GPS coordinates.
+  - `RECEIVE_BOOT_COMPLETED`: Local startup initialization for safety monitoring.
+  - `INTERNET` / `ACCESS_NETWORK_STATE`: Wi-Fi maximizer bandwidth optimization and zero-rated disaster alerts.
+
+## 🔘 5. Context-Aware UI Filtering & Universal Priority Rule
+- **Universal Top Priority:** Regardless of the active mode tab (Student, Motorist, Senior/PWD, Worker/OFW, Pet Owner), universal emergency hotlines (**911, PNP, NDRRMC, BFP, Philippine Red Cross**) must **permanently remain pinned at the top** of every active list.
+- **Dynamic Proximity Sorting:** Remaining facilities and map pins automatically filter and sort by distance using hardware GPS coordinates according to the active mode tab.
+
+## 🧭 6. Communication & Vision Protocol
+- **Direct & Rigorous:** The AI must respond directly to user inquiries, maintaining deep engineering vision and practical foresight without overstepping repository boundaries.
+- **Memory Retention:** The AI must always keep these rules active in memory before addressing any task or repository request.
