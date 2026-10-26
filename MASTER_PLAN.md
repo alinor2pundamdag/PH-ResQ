@@ -7,7 +7,9 @@ This repository contains the master architectural blueprint, features, legal com
 ## 🏛️ 1. Executive Summary & Core Design Principles
 - **Name:** PH-ResQ Vanguard 2026
 - **Target Users:** All Filipino citizens, commuters, families, students, motorists, senior citizens, PWDs (Persons with Disabilities), workers, OFWs, pet lovers/owners, and residents across **all 17 Regions, 82 Provinces, 149 Cities, 1,493 Municipalities, 42,046 Barangays, every street, and coastal/marine boundaries** of Luzon, Visayas, and Mindanao.
-- **Design Philosophy:** Clean, professional UI where unnecessary elements are hidden, and vital emergency tools are immediately tappable. Low-end device optimized with a lightweight APK footprint, neon sci-fi glassmorphic aesthetic, and a 100% looping wind-swaying Philippine flag canvas physics simulation.
+- **Design Philosophy:** Clean, professional UI where unnecessary elements are hidden, and vital emergency tools are immediately tappable. Low-end device optimized with a lightweight APK footprint, neon sci-fi glassmorphic aesthetic, and immersive visual identity.
+- **Header & Visual FX Identity:**
+  - **Infinite Philippine Flag Color-Looping Main Header:** The main header title (**"PH-ResQ"**) features an infinite, smooth animated color gradient flowing continuously from left to right using the official colors of the Philippine flag (Yellow, Blue, Red, White). The color wave loops endlessly across the letters without disrupting readability, paired with a 100% looping wind-swaying Philippine flag canvas physics simulation as the application's immersive live background.
 
 ---
 
@@ -163,7 +165,7 @@ The application integrates a massive, exhaustive offline-first national database
   - **East Avenue Medical Center (QC):** `(02) 8928-0611` (ER: 24/7) | Email: `eamc@doh.gov.ph` | Website: `eamc.doh.gov.ph` (For Local / Online)
   - **Vicente Sotto Memorial Medical Center (Cebu):** `(032) 253-9891` (ER: 24/7) | Email: `vsmmc@doh.gov.ph` | Website: `vsmmc.doh.gov.ph` (For Local / Online)
   - **Southern Philippines Medical Center (Davao):** `(082) 227-2731` (ER: 24/7) | Email: `spmc@doh.gov.ph` | Website: `spmc.doh.gov.ph` (For Local / Online)
-- **Private (Operating Hours & ER 24/7):**
+- **Private (Operating Hours@ ER 24/7):**
   - **Makati Medical Center:** `(02) 8888-8999` (ER: 24/7) | Email: `mmc@makatimed.net.ph` | Website: `makatimed.net.ph` (For Local / Online)
   - **St. Luke’s Medical Center (Global City / QC):** `(02) 8789-7700` (ER: 24/7) | Email: `customercare@stlukes.com.ph` | Website: `stlukes.com.ph` (For Local / Online)
   - **Cardinal Santos Medical Center (San Juan):** `(02) 8727-0001` (ER: 24/7) | Email: `csmc@cardinalsantos.com.ph` | Website: `cardinalsantos.com.ph` (For Local / Online)
