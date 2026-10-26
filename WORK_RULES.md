@@ -38,10 +38,17 @@ This document serves as the absolute, non-negotiable operational charter governi
   - `RECEIVE_BOOT_COMPLETED`: Local startup initialization for safety monitoring.
   - `INTERNET` / `ACCESS_NETWORK_STATE`: Wi-Fi maximizer bandwidth optimization and zero-rated disaster alerts.
 
-## 🔘 5. Context-Aware UI Filtering & Universal Priority Rule
+## 🎛️ 5. Dashboard Controls, SOS Toggle & Emergency Utilities Standards
+- **`[🔄 Refresh GPS]` & `[🌐 Online Update]` Controls:** Main dashboard must feature rapid GPS recalibration with 10-second timeout fallbacks and smart online update fetching with data-saving/offline notices.
+- **Home Screen SOS Toggle & Anti-Accidental Hold Guard:** 1-tap / widget SOS toggle requiring a continuous **2-second press-and-hold** with haptic vibration feedback and countdown guard against accidental pocket activation.
+- **Tagalog Emergency SMS Broadcast:** Dispatches clear, natural Tagalog emergency messages to all 10 personal emergency contacts containing exact GPS coordinates.
+- **Offline Emergency Utilities:** Must include Offline Flashlight/Strobe (SOS Morse Code), Emergency Siren/Alarm, "Ligtas Ako" (I am Safe) Check-In Broadcast, and Battery Saver / Low-Power OLED Emergency Mode.
+- **Educational Accessibility:** Built-in "About PH-ResQ" mission section and Interactive Quick Tutorial / Onboarding walkthrough for seniors and first-time smartphone users.
+
+## 🔘 6. Context-Aware UI Filtering & Universal Priority Rule
 - **Universal Top Priority:** Regardless of the active mode tab (Student, Motorist, Senior/PWD, Worker/OFW, Pet Owner), universal emergency hotlines (**911, PNP, NDRRMC, BFP, Philippine Red Cross**) must **permanently remain pinned at the top** of every active list.
 - **Dynamic Proximity Sorting:** Remaining facilities and map pins automatically filter and sort by distance using hardware GPS coordinates according to the active mode tab.
 
-## 🧭 6. Communication & Vision Protocol
+## 🧭 7. Communication & Vision Protocol
 - **Direct & Rigorous:** The AI must respond directly to user inquiries, maintaining deep engineering vision and practical foresight without overstepping repository boundaries.
 - **Memory Retention:** The AI must always keep these rules active in memory before addressing any task or repository request.
