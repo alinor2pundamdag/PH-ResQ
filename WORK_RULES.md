@@ -25,9 +25,10 @@ This document serves as the absolute, non-negotiable operational charter governi
 - **Apache License 2.0 Governance:** Mandatory enterprise-grade open-source governance providing patent protection, trademark safety, and clear attribution terms.
 - **Data Privacy Act of 2012 (RA 10173):** Complete adherence to National Privacy Commission (NPC) guidelines. All personal emergency contacts, voice note recordings, and device GPS coordinates remain strictly local (`localStorage` / IndexedDB).
 - **Free Mobile Disaster Alerts Act (RA 10639):** Full compliance with zero-rated public safety alerting mandates, ensuring emergency broadcasts and weather advisories are delivered without data charges or user friction.
-- **Mandatory First-Launch Policy & Privacy Acceptance Gate:** 
+- **Mandatory First-Launch & Non-Bypassable Persistent Consent Loop:** 
   - *Consent Screen:* Every user must explicitly accept the privacy policy, data handling rules, and Apache License terms on first launch.
-  - *Decline Enforcement Rule:* If a user taps `[Decline]`, the app must display the warning (*"Hindi mo magagamit ang mga features at sistema ng aplikasyon nang hindi sinasang-ayunan ang patakaran sa privacy at kaligtasan"*), halt initialization, and execute an **automatic persistent force-stop / exit to device home screen** to ensure total regulatory compliance.
+  - *No Auto-Force Stop on Read:* The app never auto-closes or force-stops while the user is actively reading or reviewing the policy on screen.
+  - *Decline Enforcement & Persistent Loop:* If a user taps `[Decline]`, the app displays the warning (*"Paunawa: Hindi mo magagamit ang mga features, database, at emergency system ng PH-ResQ Vanguard 2026 nang hindi sinasang-ayunan ang patakaran sa privacy (RA 10173) at lisensya. Ang aplikasyon ay aalis na."*), executes a persistent force-stop / exit to the device home screen, and records the consent state as `DECLINED`. Re-opening the app will inspect the flag and route the user straight back to the Mandatory Privacy & License Acceptance Screen without ever reaching the Main Dashboard until consciously accepted.
 - **Client-Side Encryption & User-Defined Master PIN Vault:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**. 
   - *User-Defined PIN/Passcode:* Users must set a personal Master PIN to lock their emergency contacts and medical data against unauthorized physical snooping.
   - *SOS Bypass:* During emergencies, triggering the SOS broadcast securely uses an internal decryption token without requiring manual PIN entry.
@@ -49,12 +50,13 @@ This document serves as the absolute, non-negotiable operational charter governi
   - `INTERNET` / `ACCESS_NETWORK_STATE`: Wi-Fi maximizer bandwidth optimization and zero-rated disaster alerts.
 
 ## 🎛️ 5. Starting Page, Dashboard Controls, SOS Toggle, Persistence & Reliability Standards
-- **Starting Page & Onboarding Flow:** Splash screen with silent integrity check, mandatory policy acceptance gate with persistent force-stop on decline, first-time walkthrough, and mode selection landing prompt.
+- **Starting Page & Onboarding Flow:** Splash screen with silent integrity check, mandatory non-bypassable policy acceptance gate with persistent consent loop and force-stop on decline, first-time walkthrough, and mode selection landing prompt.
 - **`[🔄 Refresh GPS]` & `[🌐 Online Update]` Controls:** Main dashboard must feature rapid GPS recalibration with 10-second timeout fallbacks and smart online update fetching with data-saving/offline notices.
 - **Home Screen SOS Toggle & Anti-Accidental Hold Guard:** 1-tap / widget SOS toggle requiring a continuous **2-second press-and-hold** with haptic vibration feedback and countdown guard against accidental pocket activation.
 - **Tagalog Emergency SMS Broadcast:** Dispatches clear, natural Tagalog emergency messages to all 10 personal emergency contacts containing exact GPS coordinates.
 - **Persistent Sticky State Memory (6 Layers):** Strict local storage persistence for Active Mode, Emergency Contact Vault, Last Known GPS, Crisis SOS State, Search History, and Offline Map Tiles.
 - **Advanced Reliability Safeguards:** Low-battery auto-save snapshot (<5% battery or unexpected crash protection), startup SHA-256 database integrity verification with self-healing fallback, and offline voice note recorder for trapped disaster victims.
+- **Advanced Disaster Resiliency Modules:** Auto-switching cellular bandwidth optimizer (2G/3G/4G/5G fallback & SMS-only mode), offline battery-saving emergency mode widget (OLED black theme), P2P emergency mesh relay node status indicator & protocol, and offline first-aid/survival quick-guide in Tagalog/English.
 - **Advanced Network & Power Resiliency Protocols:** Post-disaster Family Check-In sync queuing, battery-aware GPS adaptive polling, and emergency helpline auto-fallback.
 - **Disaster Meteorological & Evacuation Feeds:** DOST-PAGASA weather/typhoon signal caching, dynamic evacuation center capacity status (Open/Full/Flooded), and RA 10639 Cell Broadcast emergency alert integration.
 - **Critical Operational Policies:** Emergency Beacon Volume Override, Android 14+ Foreground Service Notification Lock, Duress PIN Vault, and High-Contrast Accessibility Mode for PWDs and senior citizens.
