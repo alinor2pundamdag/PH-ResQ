@@ -78,14 +78,25 @@ The application is structured into a clean, highly optimized multi-page/view arc
 
 ---
 
-## 🔘 8. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
+## 💾 8. Comprehensive Sticky State Memory & Persistence Architecture
+To ensure zero data loss and flawless user experience during disasters, the application enforces strict local persistence across 6 critical operational layers:
+1. **Active Mode Persistence:** Instantly saves and auto-restores the user's last selected mode tab (General, Student, Motorist, Senior/PWD, Worker/OFW, Pet Owner) upon app launch or restart.
+2. **Emergency Contacts & Master PIN Vault Persistence:** Encrypts and securely stores the 10-slot emergency contact vault and medical profile locally via AES-GCM.
+3. **Last Known GPS & Location Cache Persistence:** Maintains a robust fallback coordinate and location cache to instantly display last-known position when satellite locks are temporarily unavailable indoors.
+4. **SOS & Crisis State Persistence:** Tracks and preserves active emergency broadcast states to ensure uninterrupted dispatch flow even if the app or device restarts.
+5. **Search & Bookmark Persistence:** Remembers recent search history and bookmarked emergency facilities for instant retrieval.
+6. **Offline Map Tiles & Spatial Data Persistence:** Permanently caches vector map tiles, roads, and barangay spatial indexes locally (IndexedDB/CacheStorage) so map views remain fully interactive and detailed during total internet blackouts.
+
+---
+
+## 🔘 9. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
 - **Multi-Mode Selector:** General / All Mode, Student Mode, Motorist Mode, Senior Citizen & PWD Mode, Worker & OFW Mode, and Pet Owner / Animal Welfare Mode.
 - **Stealth Background Lazy Caching & Wi-Fi Maximizer:** Background downloading of auxiliary assets during Wi-Fi connectivity without blocking UI performance.
 - **Smart Garbage Collector & Version Rotation Agent:** Purges deprecated data when new updates arrive while preserving stable local cached data indefinitely.
 
 ---
 
-## 🔒 9. Legal Framework, Data Privacy Compliance (RA 10173), Cybersecurity & Permissions Policy
+## 🔒 10. Legal Framework, Data Privacy Compliance (RA 10173), Cybersecurity & Permissions Policy
 - **Data Privacy Act of 2012 (RA 10173) & NPC Compliance:** Strict adherence to transparency and proportionality. Personal contacts and GPS coordinates remain strictly local.
 - **Client-Side Encryption & User-Defined Master PIN Vault:** 
   - Secured via **AES-GCM client-side encryption**.
@@ -97,7 +108,7 @@ The application is structured into a clean, highly optimized multi-page/view arc
 
 ---
 
-## 🚨 10. Home Screen SOS Toggle, Anti-Accidental Hold Guard & Tagalog SMS Broadcast
+## 🚨 11. Home Screen SOS Toggle, Anti-Accidental Hold Guard & Tagalog SMS Broadcast
 - **1-Tap Home Screen SOS Toggle & Floating Widget:**
   - Provides instant access to emergency broadcasting directly from the Android home screen or notification area.
 - **Anti-Accidental Tap Protection ("Press & Hold for 2 Seconds"):**
@@ -108,7 +119,7 @@ The application is structured into a clean, highly optimized multi-page/view arc
 
 ---
 
-## ⚡ 11. Additional Offline Emergency Tools, Utilities & P2P Emergency Mesh Sync
+## ⚡ 12. Additional Offline Emergency Tools, Utilities & P2P Emergency Mesh Sync
 1. **Offline Emergency Flashlight & Strobe (SOS Morse Code):**
    - Instant camera LED flashlight control with a dedicated SOS strobe mode (`3 short, 3 long, 3 short`) for signaling rescuers during power outages or dark environments.
 2. **Offline Emergency Siren / Loud Alarm:**
@@ -122,50 +133,50 @@ The application is structured into a clean, highly optimized multi-page/view arc
 
 ---
 
-## 📞 12. Device Integrations, Phonebook Export & App Intent Dispatch
+## 📞 13. Device Integrations, Phonebook Export & App Intent Dispatch
 - Direct Phone Dialer (`tel:`), Direct SMS Broadcast (`sms:`), Direct Email Dispatch (`mailto:` with app chooser), Web/Calling App Handlers, and Save to Phonebook (vCard Export).
 
 ---
 
-## 🗺️ 13. Universal Granular Map-Based Proximity Radar (All 42,046 Barangays & Coastal Waters)
+## 🗺️ 14. Universal Granular Map-Based Proximity Radar (All 42,046 Barangays & Coastal Waters)
 - Exhaustive geofencing across all 42,046 barangays, municipal halls, hospitals, police/fire stations, coastal/marine Coast Guard detachments, and transport terminals.
 
 ---
 
-## 🏪 14. Nationwide 24/7 Convenience Stores, Roadside Pit Stops & Sari-Sari Store Networks
+## 🏪 15. Nationwide 24/7 Convenience Stores, Roadside Pit Stops & Sari-Sari Store Networks
 - Geo-mapped 7-Eleven, Uncle John's, Alfamart, FamilyMart, and local roadside sari-sari store networks.
 
 ---
 
-## 🐾 15. Nationwide Veterinary Clinics, Animal Hospitals & Pet Care Directory
+## 🐾 16. Nationwide Veterinary Clinics, Animal Hospitals & Pet Care Directory
 - Biyaya Animal Care, PAWS, Vets in Practice, and municipal/provincial veterinary offices.
 
 ---
 
-## ♿ 16. PWD & Senior Citizen Support, Reporting & Advocacy Framework
+## ♿ 17. PWD & Senior Citizen Support, Reporting & Advocacy Framework
 - NCDA, municipal OSCA desks, COSE, PFRD, and accessibility reporting channels.
 
 ---
 
-## ✈️ 17. OFW, First-Time Jobseeker & Migrant Worker Protection Framework
+## ✈️ 18. OFW, First-Time Jobseeker & Migrant Worker Protection Framework
 - Arrival guides for VisMin travelers in Luzon, DMW, OWWA (1348), DFA, TESDA, and recruitment agencies.
 
 ---
 
-## 🍔 18. Nationwide Fast Food, Dining & Coffee Shop Directory
+## 🍔 19. Nationwide Fast Food, Dining & Coffee Shop Directory
 - Jollibee (`#87000`), McDonald's (`#8-6236`), Greenwich, Chowking, Starbucks, and local food hubs.
 
 ---
 
-## 🚗 19. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
+## 🚗 20. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
 - Nationwide directory of auto repair shops, motorcycle mechanics, 24/7 vulcanizing shops, and major expressway SOS hotlines (NLEx, SLEX, Skyway, TPLEX, etc.).
 
 ---
 
-## 📡 20. Smart Hybrid Sync, P2P Mesh & "Free Data / Wi-Fi Maximizer" Architecture
+## 📡 21. Smart Hybrid Sync, P2P Mesh & "Free Data / Wi-Fi Maximizer" Architecture
 - Wi-Fi maximizer bandwidth optimization, RA 10639 Free Mobile Disaster Alerts integration, offline pre-loaded core database, and P2P local Bluetooth/Wi-Fi mesh sharing under strict privacy and battery preservation rules.
 
 ---
 
-## 🏛️ 21. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
+## 🏛️ 22. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
 - Complete directory of National Unified Hotlines (911, PNP, NDRRMC, PRC, BFP, PCG) and major public/private hospitals (PGH, East Avenue, Makati Med, St. Luke's, Cardinal Santos, The Medical City, Asian Hospital, Vicente Sotto, SPMC, etc.).
