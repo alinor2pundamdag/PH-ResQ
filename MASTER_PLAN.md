@@ -96,6 +96,12 @@ To ensure zero data loss and flawless user experience during disasters, the appl
    - Performs a rapid SHA-256 integrity verification of the local JSON/IndexedDB nationwide directory upon app boot. If database corruption is detected from sudden reboots, it executes self-healing local repair or falls back to built-in emergency presets without UI crashes.
 3. **Offline Voice / Audio Quick Note Recorder (Voice SOS Log):**
    - Allows users trapped in dark or debris-filled environments to record a compressed 10-second offline audio voice note describing their situation. The audio is encrypted and attached locally to the emergency packet for transmission via SMS or P2P mesh when rescuers approach.
+4. **Post-Disaster "Family Check-In & Safe Beacon Hub" (Cloud Sync Queuing):**
+   - Buffers "Ligtas Ako" check-in statuses locally during internet outages. Once intermittent cloud connectivity is restored, the app automatically flushes and syncs encrypted safe beacon logs without requiring manual user intervention.
+5. **Battery-Aware GPS Adaptive Polling (Dynamic GPS Interval):**
+   - Dynamically scales GPS polling frequency based on device movement and battery level (e.g., scaling back polling when stationary or below 20% battery) to conserve power while preserving instant manual overrides via `[🔄 Refresh GPS]`.
+6. **Emergency Helpline Auto-Fallback & Regional Number Redirection:**
+   - Automatically detects call congestion or timeouts on primary national hotlines (e.g., 911) within 3 seconds and intelligently redirects or offers fast-dial options for local municipal DRRMOs or regional barangay emergency responders.
 
 ---
 
