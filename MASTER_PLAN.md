@@ -1,6 +1,6 @@
 # PH-ResQ Vanguard 2026: Master Architecture & Implementation Plan
 
-This repository contains the master architectural blueprint, features, legal compliance framework, device permissions policy, and comprehensive nationwide emergency directory for **PH-ResQ Vanguard 2026**, a 100% functional, secure, and nationwide emergency application built for Filipinos.
+This repository contains the master architectural blueprint, features, legal compliance framework, device permissions policy, cybersecurity standards, user-consent emergency data sharing framework, and comprehensive nationwide emergency directory for **PH-ResQ Vanguard 2026**, a 100% functional, secure, and nationwide emergency application built for Filipinos.
 
 ---
 
@@ -82,11 +82,15 @@ The application is structured into a clean, highly optimized multi-page/view arc
 
 ---
 
-## 🔒 7. Legal Framework, Data Privacy Compliance (RA 10173) & Device Permissions Policy
+## 🔒 7. Legal Framework, Data Privacy Compliance (RA 10173), Cybersecurity & Permissions Policy
 - **Data Privacy Act of 2012 (RA 10173) & NPC Compliance:** 
   - Strict adherence to the principle of proportionality and transparency. All personal emergency contacts and device GPS coordinates remain **strictly local and private** (`localStorage` / IndexedDB) with zero unauthorized cloud transmission.
 - **Client-Side Encryption (Zero-Knowledge Local Storage):** 
   - The 10 personal emergency contacts and sensitive medical inputs are secured via **AES-GCM client-side encryption** with a secure device-bound key to protect against data extraction, malware, or physical snooping.
+- **User-Consent & Intent-Driven Emergency Data Sharing Policy:**
+  - **Zero Silent Tracking (Passive Privacy):** The user's location is never silently transmitted or tracked in the background without explicit user awareness.
+  - **Explicit User-Initiated SOS Sharing (Emergency Exception):** During critical disaster or emergency scenarios, when the user actively triggers the *"Send Emergency SOS"* action, the app is explicitly authorized to capture current GPS coordinates (lat/long link) and embed them into an SMS text message (`sms:`) dispatched to the pre-configured 10 personal emergency contacts or emergency hotlines.
+  - **Vital Interest Legal Exception:** Location data sharing is strictly confined to user-initiated emergency requests for personal life preservation, fully aligned with the *Vital Interests* exemption under RA 10173 and Google Play emergency app guidelines.
 - **Google Play Store Policy & Device Permissions Framework (Zero-Violation Standard):**
   - **Core Functionality Exception & Transparency:** In full compliance with Google Play Developer policies regarding emergency and public safety apps, permissions are requested strictly as core features with clear in-app disclosures:
     1. `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION`: Foreground GPS proximity calculation and map centering. *No background location tracking.*
@@ -95,6 +99,7 @@ The application is structured into a clean, highly optimized multi-page/view arc
     4. `RECEIVE_BOOT_COMPLETED`: Local startup initialization routine for offline safety monitoring.
     5. `INTERNET` / `ACCESS_NETWORK_STATE`: Wi-Fi maximizer bandwidth optimization and zero-rated disaster alert reception.
 - **Strict Sanitization & Anti-Injection Guards:** Input handlers utilize rigorous Regex validation filters to block XSS, script injection, and tampering on Name fields (letters/spaces only) and Phone fields (numbers only).
+- **Database Integrity & Checksum Verification:** Nationwide JSON directory files are guarded by SHA-256 integrity checks at startup to prevent tampering.
 - **Secure Sandbox Isolation:** Strict scheme whitelisting for `tel:`, `sms:`, and `mailto:` intents, prompting users to select from installed secure email clients or web browsers.
 
 ---
