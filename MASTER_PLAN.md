@@ -102,6 +102,12 @@ To ensure zero data loss and flawless user experience during disasters, the appl
    - Dynamically scales GPS polling frequency based on device movement and battery level (e.g., scaling back polling when stationary or below 20% battery) to conserve power while preserving instant manual overrides via `[🔄 Refresh GPS]`.
 6. **Emergency Helpline Auto-Fallback & Regional Number Redirection:**
    - Automatically detects call congestion or timeouts on primary national hotlines (e.g., 911) within 3 seconds and intelligently redirects or offers fast-dial options for local municipal DRRMOs or regional barangay emergency responders.
+7. **DOST-PAGASA Weather & Typhoon Signal Caching Feed:**
+   - Pre-caches latest official public weather advisories and typhoon warning signals (Signals #1-5) locally when online. During total communication blackouts, it displays the last verified storm status and regional meteorological warnings to keep citizens informed.
+8. **Dynamic "Safe Zones & Evacuation Centers" Geo-Fencing & Capacity Status:**
+   - Maps official evacuation centers across all 42,046 barangays with real-time local status indicators (*"Open / Maluwag"*, *"Full / Puno na"*, or *"Flooded / Hindi ligtas"*) that update via local user inputs or P2P mesh sync.
+9. **RA 10639 (Free Mobile Disaster Alerts Act) Cell Broadcast Integration:**
+   - Integrates an Android BroadcastReceiver module designed to capture and display official NDRRMC/telecom emergency cell broadcast alerts directly at the top of the app UI, linked to 1-tap navigation toward the nearest open evacuation center.
 
 ---
 
@@ -124,14 +130,15 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## 🔒 12. Legal Framework, Data Privacy Compliance (RA 10173), Cybersecurity & Permissions Policy
+## 🔒 12. Legal Framework, Data Privacy Compliance (RA 10173 & RA 10639), Cybersecurity & Permissions Policy
 - **Data Privacy Act of 2012 (RA 10173) & NPC Compliance:** Strict adherence to transparency and proportionality. Personal contacts, voice recordings, and GPS coordinates remain strictly local.
+- **Free Mobile Disaster Alerts Act (RA 10639) Compliance:** Full adherence to zero-rated public safety alerting mandates, ensuring emergency broadcasts and weather advisories are delivered without data charges or user friction.
 - **Client-Side Encryption & User-Defined Master PIN Vault:** 
   - Secured via **AES-GCM client-side encryption**.
   - **User-Defined PIN/Passcode:** Users set a personal Master PIN to lock their emergency contacts and medical profile against physical snooping.
   - **Emergency SOS Bypass:** During actual disaster scenarios, triggering the SOS action uses an internal secure decryption token to dispatch GPS coordinates instantly via SMS without requiring manual PIN entry.
 - **User-Consent & Intent-Driven Emergency Data Sharing Policy:** Zero silent background tracking; location, audio notes, and SMS are shared externally **exclusively** when the user actively triggers an emergency action (Vital Interest exception under RA 10173 and Google Play policies).
-- **Google Play Store Policy & Device Permissions Framework:** Transparent in-app disclosures for `ACCESS_FINE_LOCATION`, `CALL_PHONE` (`tel:`), `SEND_SMS`, `RECORD_AUDIO`, `RECEIVE_BOOT_COMPLETED`, `MODIFY_AUDIO_SETTINGS`, `FOREGROUND_SERVICE`, and `INTERNET`.
+- **Google Play Store Policy & Device Permissions Framework:** Transparent in-app disclosures for `ACCESS_FINE_LOCATION`, `CALL_PHONE` (`tel:`), `SEND_SMS`, `RECORD_AUDIO`, `RECEIVE_BOOT_COMPLETED`, `MODIFY_AUDIO_SETTINGS`, `FOREGROUND_SERVICE`, `RECEIVE_WAP_PUSH` / Cell Broadcast receivers, and `INTERNET`.
 - **Strict Sanitization & Checksum Verification:** Regex input filters and startup SHA-256 database integrity checks.
 
 ---
