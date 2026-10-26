@@ -89,26 +89,36 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## 🔘 9. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
+## 🛡️ 9. Advanced Reliability Protections & Self-Healing Safeguards
+1. **Low-Battery Auto-Save & Emergency Data Snapshot (Power-Failure Protection):**
+   - Monitors battery health via Android system APIs. When critical thresholds are reached (e.g., <5%) or an unexpected shutdown/crash occurs, the app instantly captures an emergency data snapshot (last GPS, active SOS state, and logs) to local encrypted storage to prevent data loss.
+2. **Self-Diagnosis & Database Integrity Checker (Startup Health Check):**
+   - Performs a rapid SHA-256 integrity verification of the local JSON/IndexedDB nationwide directory upon app boot. If database corruption is detected from sudden reboots, it executes self-healing local repair or falls back to built-in emergency presets without UI crashes.
+3. **Offline Voice / Audio Quick Note Recorder (Voice SOS Log):**
+   - Allows users trapped in dark or debris-filled environments to record a compressed 10-second offline audio voice note describing their situation. The audio is encrypted and attached locally to the emergency packet for transmission via SMS or P2P mesh when rescuers approach.
+
+---
+
+## 🔘 10. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
 - **Multi-Mode Selector:** General / All Mode, Student Mode, Motorist Mode, Senior Citizen & PWD Mode, Worker & OFW Mode, and Pet Owner / Animal Welfare Mode.
 - **Stealth Background Lazy Caching & Wi-Fi Maximizer:** Background downloading of auxiliary assets during Wi-Fi connectivity without blocking UI performance.
 - **Smart Garbage Collector & Version Rotation Agent:** Purges deprecated data when new updates arrive while preserving stable local cached data indefinitely.
 
 ---
 
-## 🔒 10. Legal Framework, Data Privacy Compliance (RA 10173), Cybersecurity & Permissions Policy
-- **Data Privacy Act of 2012 (RA 10173) & NPC Compliance:** Strict adherence to transparency and proportionality. Personal contacts and GPS coordinates remain strictly local.
+## 🔒 11. Legal Framework, Data Privacy Compliance (RA 10173), Cybersecurity & Permissions Policy
+- **Data Privacy Act of 2012 (RA 10173) & NPC Compliance:** Strict adherence to transparency and proportionality. Personal contacts, voice recordings, and GPS coordinates remain strictly local.
 - **Client-Side Encryption & User-Defined Master PIN Vault:** 
   - Secured via **AES-GCM client-side encryption**.
   - **User-Defined PIN/Passcode:** Users set a personal Master PIN to lock their emergency contacts and medical profile against physical snooping.
   - **Emergency SOS Bypass:** During actual disaster scenarios, triggering the SOS action uses an internal secure decryption token to dispatch GPS coordinates instantly via SMS without requiring manual PIN entry.
-- **User-Consent & Intent-Driven Emergency Data Sharing Policy:** Zero silent background tracking; location and SMS are shared externally **exclusively** when the user actively triggers an emergency action (Vital Interest exception under RA 10173 and Google Play policies).
-- **Google Play Store Policy & Device Permissions Framework:** Transparent in-app disclosures for `ACCESS_FINE_LOCATION`, `CALL_PHONE` (`tel:`), `SEND_SMS`, `RECEIVE_BOOT_COMPLETED`, and `INTERNET`.
+- **User-Consent & Intent-Driven Emergency Data Sharing Policy:** Zero silent background tracking; location, audio notes, and SMS are shared externally **exclusively** when the user actively triggers an emergency action (Vital Interest exception under RA 10173 and Google Play policies).
+- **Google Play Store Policy & Device Permissions Framework:** Transparent in-app disclosures for `ACCESS_FINE_LOCATION`, `CALL_PHONE` (`tel:`), `SEND_SMS`, `RECORD_AUDIO`, `RECEIVE_BOOT_COMPLETED`, and `INTERNET`.
 - **Strict Sanitization & Checksum Verification:** Regex input filters and startup SHA-256 database integrity checks.
 
 ---
 
-## 🚨 11. Home Screen SOS Toggle, Anti-Accidental Hold Guard & Tagalog SMS Broadcast
+## 🚨 12. Home Screen SOS Toggle, Anti-Accidental Hold Guard & Tagalog SMS Broadcast
 - **1-Tap Home Screen SOS Toggle & Floating Widget:**
   - Provides instant access to emergency broadcasting directly from the Android home screen or notification area.
 - **Anti-Accidental Tap Protection ("Press & Hold for 2 Seconds"):**
@@ -119,7 +129,7 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## ⚡ 12. Additional Offline Emergency Tools, Utilities & P2P Emergency Mesh Sync
+## ⚡ 13. Additional Offline Emergency Tools, Utilities & P2P Emergency Mesh Sync
 1. **Offline Emergency Flashlight & Strobe (SOS Morse Code):**
    - Instant camera LED flashlight control with a dedicated SOS strobe mode (`3 short, 3 long, 3 short`) for signaling rescuers during power outages or dark environments.
 2. **Offline Emergency Siren / Loud Alarm:**
@@ -133,50 +143,50 @@ To ensure zero data loss and flawless user experience during disasters, the appl
 
 ---
 
-## 📞 13. Device Integrations, Phonebook Export & App Intent Dispatch
+## 📞 14. Device Integrations, Phonebook Export & App Intent Dispatch
 - Direct Phone Dialer (`tel:`), Direct SMS Broadcast (`sms:`), Direct Email Dispatch (`mailto:` with app chooser), Web/Calling App Handlers, and Save to Phonebook (vCard Export).
 
 ---
 
-## 🗺️ 14. Universal Granular Map-Based Proximity Radar (All 42,046 Barangays & Coastal Waters)
+## 🗺️ 15. Universal Granular Map-Based Proximity Radar (All 42,046 Barangays & Coastal Waters)
 - Exhaustive geofencing across all 42,046 barangays, municipal halls, hospitals, police/fire stations, coastal/marine Coast Guard detachments, and transport terminals.
 
 ---
 
-## 🏪 15. Nationwide 24/7 Convenience Stores, Roadside Pit Stops & Sari-Sari Store Networks
+## 🏪 16. Nationwide 24/7 Convenience Stores, Roadside Pit Stops & Sari-Sari Store Networks
 - Geo-mapped 7-Eleven, Uncle John's, Alfamart, FamilyMart, and local roadside sari-sari store networks.
 
 ---
 
-## 🐾 16. Nationwide Veterinary Clinics, Animal Hospitals & Pet Care Directory
+## 🐾 17. Nationwide Veterinary Clinics, Animal Hospitals & Pet Care Directory
 - Biyaya Animal Care, PAWS, Vets in Practice, and municipal/provincial veterinary offices.
 
 ---
 
-## ♿ 17. PWD & Senior Citizen Support, Reporting & Advocacy Framework
+## ♿ 18. PWD & Senior Citizen Support, Reporting & Advocacy Framework
 - NCDA, municipal OSCA desks, COSE, PFRD, and accessibility reporting channels.
 
 ---
 
-## ✈️ 18. OFW, First-Time Jobseeker & Migrant Worker Protection Framework
+## ✈️ 19. OFW, First-Time Jobseeker & Migrant Worker Protection Framework
 - Arrival guides for VisMin travelers in Luzon, DMW, OWWA (1348), DFA, TESDA, and recruitment agencies.
 
 ---
 
-## 🍔 19. Nationwide Fast Food, Dining & Coffee Shop Directory
+## 🍔 20. Nationwide Fast Food, Dining & Coffee Shop Directory
 - Jollibee (`#87000`), McDonald's (`#8-6236`), Greenwich, Chowking, Starbucks, and local food hubs.
 
 ---
 
-## 🚗 20. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
+## 🚗 21. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
 - Nationwide directory of auto repair shops, motorcycle mechanics, 24/7 vulcanizing shops, and major expressway SOS hotlines (NLEx, SLEX, Skyway, TPLEX, etc.).
 
 ---
 
-## 📡 21. Smart Hybrid Sync, P2P Mesh & "Free Data / Wi-Fi Maximizer" Architecture
+## 📡 22. Smart Hybrid Sync, P2P Mesh & "Free Data / Wi-Fi Maximizer" Architecture
 - Wi-Fi maximizer bandwidth optimization, RA 10639 Free Mobile Disaster Alerts integration, offline pre-loaded core database, and P2P local Bluetooth/Wi-Fi mesh sharing under strict privacy and battery preservation rules.
 
 ---
 
-## 🏛️ 22. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
+## 🏛️ 23. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
 - Complete directory of National Unified Hotlines (911, PNP, NDRRMC, PRC, BFP, PCG) and major public/private hospitals (PGH, East Avenue, Makati Med, St. Luke's, Cardinal Santos, The Medical City, Asian Hospital, Vicente Sotto, SPMC, etc.).
