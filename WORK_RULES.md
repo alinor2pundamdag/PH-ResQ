@@ -6,68 +6,24 @@ This document serves as the absolute, non-negotiable operational charter governi
 
 ## 🛑 1. Rule of Zero Unsolicited Modifications (Strict Repository Lock)
 - **Absolute Restriction:** The AI assistant is **strictly prohibited** from creating, updating, modifying, committing, or pushing any files or code changes to the GitHub repository without an explicit, direct, and unambiguous command from the repository owner (Alinor). 
-- **Protocol:** Every single action involving repository changes must be preceded by explicit user authorization. In all other cases, the AI must provide answers and advice in the chat without touching the repository.
 
 ## 🔍 2. The "Double-Audit" & Zero-Crash Policy
-- **Emergency-Grade Stability:** Because human safety depends on this application during critical disaster scenarios, zero-crash and zero-failure standards are mandatory.
-- **Double-Check Rule:** Before any code or logic structure is presented or approved, it must undergo a rigorous double-check audit to eliminate memory leaks, null-pointer exceptions, UI overflows, and unhandled exceptions.
-- **Graceful Degradation:** All system features (GPS reading, local storage access, map rendering) must feature robust fallback states so that temporary sensor or network failures never freeze or crash the application UI.
+- **Emergency-Grade Stability:** Zero-crash, zero-bug, and zero-failure standards are mandatory. All logic must undergo rigorous double-checking to eliminate null pointers, memory leaks, and UI overflows.
+- **Graceful Degradation:** All sensor, GPS, and storage operations must include airtight fallback mechanisms to prevent app freezing during crises.
 
-## 📦 3. 100% Offline-First & Strict Storage Budget (~100MB - ~150MB)
-- **Local Autonomy:** Every feature must operate fully offline without external server dependency.
-- **Strict Footprint Limits:** 
-  - Core APK binary & UI assets: ~20 MB to ~30 MB.
-  - Nationwide JSON directory database: ~10 MB to ~15 MB.
-  - Compressed offline vector maps / MBTiles: ~50 MB to ~100 MB.
-  - Total ceiling: ~150 MB maximum to ensure smooth performance on low-end Android hardware.
+## 📡 3. Advanced P2P Proximity & Mesh Architecture Rules
+- **BLE RSSI & Trilateration:** Must use low-power Bluetooth beaconing and RSSI distance estimation with multi-peer trilateration.
+- **Wi-Fi Direct & Geohash:** High-speed peer handshakes and local IndexedDB Geohash spatial indexes must operate entirely offline without server dependencies.
+- **Rolling Cryptographic Tokens:** Device IDs must rotate periodically using AES-GCM encryption to maintain absolute privacy under **RA 10173**.
+- **Battery Protection Guard:** BLE and Wi-Fi Direct scanning loops must enforce an automatic **15-second timeout and background throttling** to conserve device battery during prolonged zero-peer states.
 
-## 🔒 4. Privacy-First, Apache License 2.0, RA 10173, RA 10639, Cybersecurity & Permissions Framework
-- **Apache License 2.0 Governance:** Mandatory enterprise-grade open-source governance providing patent protection, trademark safety, and clear attribution terms.
-- **Data Privacy Act of 2012 (RA 10173):** Complete adherence to National Privacy Commission (NPC) guidelines. All personal emergency contacts, voice note recordings, and device GPS coordinates remain strictly local (`localStorage` / IndexedDB).
-- **Free Mobile Disaster Alerts Act (RA 10639):** Full compliance with zero-rated public safety alerting mandates, ensuring emergency broadcasts and weather advisories are delivered without data charges or user friction.
-- **Mandatory First-Launch & Non-Bypassable Persistent Consent Loop:** 
-  - *Consent Screen:* Every user must explicitly accept the privacy policy, data handling rules, and Apache License terms on first launch.
-  - *No Auto-Force Stop on Read:* The app never auto-closes or force-stops while the user is actively reading or reviewing the policy on screen.
-  - *Decline Enforcement & Persistent Loop:* If a user taps `[Decline]`, the app displays the warning (*"Paunawa: Hindi mo magagamit ang mga features, database, at emergency system ng PH-ResQ Vanguard 2026 nang hindi sinasang-ayunan ang patakaran sa privacy (RA 10173) at lisensya. Ang aplikasyon ay aalis na."*), executes a persistent force-stop / exit to the device home screen, and records the consent state as `DECLINED`. Re-opening the app will inspect the flag and route the user straight back to the Mandatory Privacy & License Acceptance Screen without ever reaching the Main Dashboard until consciously accepted.
-- **Client-Side Encryption & User-Defined Master PIN Vault:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**. 
-  - *User-Defined PIN/Passcode:* Users must set a personal Master PIN to lock their emergency contacts and medical data against unauthorized physical snooping.
-  - *SOS Bypass:* During emergencies, triggering the SOS broadcast securely uses an internal decryption token without requiring manual PIN entry.
-  - *Duress PIN / Panic Wipe Option (Silent Dummy Vault Protocol):* Supports a secondary panic passcode that opens a clean dummy vault during coercion while silently logging a distress flag. The app **never** displays an error message or reveals that a fake PIN was entered, guaranteeing absolute physical safety.
-  - *Input Sanitization & Integrity:* Input fields are strictly sanitized with Regex filters, and database files are guarded by startup SHA-256 checksum verification.
-- **User-Consent & Intent-Driven Emergency Data Sharing:** 
-  - *Zero Silent Tracking:* No background location harvesting or cloud telemetry.
-  - *Explicit User-Initiated SOS:* Location coordinates and local voice notes are shared and broadcasted via SMS (`sms:`) or P2P mesh exclusively when the user actively triggers the emergency SOS action during a crisis.
-  - *Vital Interest Exception:* Fully compliant with emergency data sharing exemptions under Philippine law and Google Play policies.
-- **Transparent Google Play Permissions Policy:** Device permissions are requested strictly under core functionality exceptions with prominent in-app disclosures:
-  - `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION`: Foreground GPS proximity calculation only. *No background tracking.*
-  - `CALL_PHONE` / Intent Dispatch (`tel:`): Safe 1-tap emergency calling via native device dialer (`ACTION_DIAL`).
-  - `SEND_SMS`: User-triggered emergency SOS broadcast with GPS coordinates.
-  - `RECORD_AUDIO`: Optional user-triggered 10-second offline voice note recording for emergency SOS logs.
-  - `RECEIVE_BOOT_COMPLETED`: Local startup initialization for safety monitoring.
-  - `MODIFY_AUDIO_SETTINGS`: Emergency beacon volume override support.
-  - `FOREGROUND_SERVICE`: Persistent high-priority emergency notification channel support under Android 14+ public safety exemptions.
-  - `RECEIVE_WAP_PUSH` / Cell Broadcast: RA 10639 emergency broadcast receiver support.
-  - `INTERNET` / `ACCESS_NETWORK_STATE`: Wi-Fi maximizer bandwidth optimization and zero-rated disaster alerts.
+## 🔒 4. Security, Consent, Duress & Privacy Protocols
+- **Non-Bypassable Persistent Consent Loop:** First launch presents mandatory policy acceptance. Declining triggers a warning, forces an exit to the device home screen, sets a `DECLINED` flag, and blocks dashboard access indefinitely until accepted, without blocking active reading.
+- **Duress PIN Silent Recovery Protocol:** Entering a secondary panic passcode silently opens a clean dummy vault during coercion. The app **never** displays errors or warnings confirming a fake PIN was entered, guaranteeing absolute physical protection.
+- **Stealth Audio Mute Mode:** Supports instant silencing of audible sirens and alarms for high-risk security threats (hostage/break-in) while transmitting silent GPS coordinates.
+- **Offline Family QR Code Card:** Dynamically generates secure offline QR codes from encrypted local Medical ID vaults for instant scanning by emergency responders.
 
-## 🎛️ 5. Starting Page, Dashboard Controls, SOS Toggle, Persistence & Reliability Standards
-- **Starting Page & Onboarding Flow:** Splash screen with silent integrity check, mandatory non-bypassable policy acceptance gate with persistent consent loop and force-stop on decline, first-time walkthrough, and mode selection landing prompt.
-- **`[🔄 Refresh GPS]` & `[🌐 Online Update]` Controls:** Main dashboard must feature rapid GPS recalibration with 10-second timeout fallbacks and smart online update fetching with data-saving/offline notices.
-- **Home Screen SOS Toggle & Anti-Accidental Hold Guard:** 1-tap / widget SOS toggle requiring a continuous **2-second press-and-hold** with haptic vibration feedback and countdown guard against accidental pocket activation.
-- **Tagalog Emergency SMS Broadcast:** Dispatches clear, natural Tagalog emergency messages to all 10 personal emergency contacts containing exact GPS coordinates.
-- **Persistent Sticky State Memory (6 Layers):** Strict local storage persistence for Active Mode, Emergency Contact Vault, Last Known GPS, Crisis SOS State, Search History, and Offline Map Tiles.
-- **Advanced Reliability Safeguards:** Low-battery auto-save snapshot (<5% battery or unexpected crash protection), startup SHA-256 database integrity verification with self-healing fallback, and offline voice note recorder for trapped disaster victims.
-- **Advanced Disaster Resiliency Modules:** Auto-switching cellular bandwidth optimizer (2G/3G/4G/5G fallback & SMS-only mode), offline battery-saving emergency mode widget (OLED black theme), P2P emergency mesh relay node status indicator & protocol featuring a **15-second battery-saver scan timeout**, and offline first-aid/survival quick-guide in Tagalog/English.
-- **Future Update Modules:** One-tap emergency audio & siren mute / stealth mode for high-risk security threats, and offline family vault & medical ID offline QR code card for instant scanner retrieval during blackouts.
-- **Advanced Network & Power Resiliency Protocols:** Post-disaster Family Check-In sync queuing, battery-aware GPS adaptive polling, and emergency helpline auto-fallback.
-- **Disaster Meteorological & Evacuation Feeds:** DOST-PAGASA weather/typhoon signal caching, dynamic evacuation center capacity status (Open/Full/Flooded), and RA 10639 Cell Broadcast emergency alert integration.
-- **Critical Operational Policies:** Emergency Beacon Volume Override, Android 14+ Foreground Service Notification Lock, Duress PIN Silent Recovery Protocol, and High-Contrast Accessibility Mode for PWDs and senior citizens.
-- **Offline Emergency Utilities:** Must include Offline Flashlight/Strobe (SOS Morse Code), Emergency Siren/Alarm, "Ligtas Ako" (I am Safe) Check-In Broadcast, Battery Saver / Low-Power OLED Emergency Mode, and P2P Local Emergency Mesh Sync (Bluetooth LE / Wi-Fi Direct).
-- **Educational Accessibility:** Built-in "About PH-ResQ" mission section and Interactive Quick Tutorial / Onboarding walkthrough for seniors and first-time smartphone users.
-
-## 🔘 6. Context-Aware UI Filtering & Universal Priority Rule
-- **Universal Top Priority:** Regardless of the active mode tab (Student, Motorist, Senior/PWD, Worker/OFW, Pet Owner), universal emergency hotlines (**911, PNP, NDRRMC, BFP, Philippine Red Cross**) must **permanently remain pinned at the top** of every active list.
-- **Dynamic Proximity Sorting:** Remaining facilities and map pins automatically filter and sort by distance using hardware GPS coordinates according to the active mode tab.
-
-## 🧭 7. Communication & Vision Protocol
-- **Direct & Rigorous:** The AI must respond directly to user inquiries, maintaining deep engineering vision and practical foresight without overstepping repository boundaries.
-- **Memory Retention:** The AI must always keep these rules active in memory before addressing any task or repository request.
+## 📦 5. Storage, Persistence & Legal Framework
+- **Strict Storage Budget:** ~100MB to ~150MB total installed footprint (APK ~30MB, Directory JSON ~15MB, MBTiles vector maps ~100MB).
+- **6-Layer Persistence:** Active Mode, Contact Vault, GPS Fallback, Crisis SOS State, Search History, and Map Tiles.
+- **Legal Compliance:** Apache License 2.0, RA 10173 (Data Privacy Act), and RA 10639 (Free Mobile Disaster Alerts Act).
