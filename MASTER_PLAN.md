@@ -16,9 +16,11 @@ This repository contains the master architectural blueprint, features, legal com
 ## 📱 2. Advanced Responsive UI & Device-Adaptive Layout Architecture
 - **Automatic Notch & Status Bar Compatibility (Safe Area Insets):** 
   - The UI utilizes dynamic CSS/Android safe-area padding (`env(safe-area-inset-top)`, `windowInsets`) ensuring that no critical headers, titles, or status indicators ever get hidden behind phone hardware notches, punch-hole cameras, curved screen edges, or the device notification/battery status bar across any Android model or screen ratio.
-- **Universal Single-Column Scrollable Main Hub with Sticky Tappable Mode Switcher:**
+- **Universal Single-Column Scrollable Main Hub with Sticky Tappable Mode Switcher & Global Search Bar:**
   - A unified, scrollable main interface where **everything is accessible in one place**.
-  - Features an intuitive **Sticky Tappable Switcher bar** at the top or bottom, allowing instant switching between **General / All Mode, Student Mode, Motorist Mode, Senior Citizen & PWD Mode, Worker & OFW Mode, and Pet Owner Mode**.
+  - **Sticky Global Smart Search Bar (`[🔍 Search nationwide directory...]`):** Positioned prominently right below the header/mode switcher. Powered by a lightning-fast local IndexedDB regex/fuzzy search engine, it instantly queries the entire offline database (all 42,046 barangays, agencies, hospitals, hotlines, schools, talyer, and vet clinics).
+  - **Interactive Instant Search Dropdown & Detail Navigation:** As the user types (e.g., `"ched"`), matching results appear dynamically in a clean scrollable list directly underneath the search bar with instant summary details (Name, Category, Distance/Location). Tapping any search result seamlessly navigates the user directly to that specific asset's **Dedicated Detail Page**, displaying comprehensive information (hotlines, emails, official web portals, operating hours, GPS coordinates, and direct action triggers).
+  - Features an intuitive **Sticky Tappable Switcher bar** allowing instant switching between **General / All Mode, Student Mode, Motorist Mode, Senior Citizen & PWD Mode, Worker & OFW Mode, and Pet Owner Mode**.
 - **Tappable Icon-Driven Buttons (`[Icon] + [Label]`):**
   - Every button, card, and action trigger is explicitly designed with a clear icon coupled with bold descriptive text underneath, optimized for senior citizens, PWDs, and users with impaired vision.
   - Zero horizontal overflow (no horizontal scrolling required). All elements perfectly wrap to fit any screen width.
@@ -32,11 +34,12 @@ This repository contains the master architectural blueprint, features, legal com
 
 ## 📄 3. Defined UI Pages & Application Screen Structure (Core Layout)
 The application is structured into a clean, highly optimized multi-page/view architecture designed for rapid navigation on low-end mobile devices:
-1. **Main Hub Page (Dashboard & Mode Switcher):** The central home view featuring the infinite color-looping header, the wind-swaying Philippine flag canvas background, the sticky mode switcher tabs, emergency 1-tap dial buttons, and the real-time GPS distance-sorted asset list.
-2. **Interactive Map View Page (`[🗺️ Map View]`):** Dedicated full-screen or expanded map interface displaying nationwide vector tiles, regional bounds, coastal/marine points, and interactive proximity pins.
-3. **Personal Emergency Contacts & Medical ID Vault Page:** Secure local storage interface managing the 10-slot emergency contact vault, name/number validation rules, and AES-GCM encrypted medical profile.
-4. **Directory & Resource Lookup Page:** Comprehensive searchable directory housing all 17 regions, 82 provinces, 149 cities, 1,493 municipalities, and 42,046 barangays, including institutional hotlines, hospitals, convenience stores, and transport guides.
-5. **Settings & Offline Sync Page:** Configuration hub managing local database versioning, Wi-Fi maximizer toggles, manual P2P mesh sync triggers, and data privacy disclosures (RA 10173).
+1. **Main Hub Page (Dashboard, Global Search & Mode Switcher):** The central home view featuring the infinite color-looping header, the wind-swaying Philippine flag canvas background, the global instant search bar with live dropdown results, the sticky mode switcher tabs, emergency 1-tap dial buttons, and the real-time GPS distance-sorted asset list.
+2. **Dedicated Resource Detail Page:** The specific landing page triggered when tapping a search result or list item, displaying complete institutional information (Hotlines, Emails, Official Websites, Social Media links, Physical Address, Operating Hours, and GPS Navigation triggers).
+3. **Interactive Map View Page (`[🗺️ Map View]`):** Dedicated full-screen or expanded map interface displaying nationwide vector tiles, regional bounds, coastal/marine points, and interactive proximity pins.
+4. **Personal Emergency Contacts & Medical ID Vault Page:** Secure local storage interface managing the 10-slot emergency contact vault, name/number validation rules, and AES-GCM encrypted medical profile.
+5. **Directory & Resource Lookup Page:** Comprehensive searchable directory housing all 17 regions, 82 provinces, 149 cities, 1,493 municipalities, and 42,046 barangays, including institutional hotlines, hospitals, convenience stores, and transport guides.
+6. **Settings & Offline Sync Page:** Configuration hub managing local database versioning, Wi-Fi maximizer toggles, manual P2P mesh sync triggers, and data privacy disclosures (RA 10173).
 
 ---
 
