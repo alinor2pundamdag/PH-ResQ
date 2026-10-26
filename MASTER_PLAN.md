@@ -1,6 +1,6 @@
 # PH-ResQ Vanguard 2026: Master Architecture & Implementation Plan
 
-This repository contains the master architectural blueprint, features, legal compliance framework, and comprehensive nationwide emergency directory for **PH-ResQ Vanguard 2026**, a 100% functional, professional, and nationwide emergency application built for Filipinos.
+This repository contains the master architectural blueprint, features, legal compliance framework, and comprehensive nationwide emergency directory for **PH-ResQ Vanguard 2026**, a 100% functional, secure, and nationwide emergency application built for Filipinos.
 
 ---
 
@@ -11,15 +11,16 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🔒 2. Legal Framework & Data Privacy Compliance (RA 10173)
+## 🔒 2. Legal Framework & Data Privacy Compliance (RA 10173) & Security
 - **Data Privacy Act of 2012 (RA 10173) Compliance:** All personal emergency contacts and device GPS coordinates remain **strictly local and private** (`localStorage`). No personal data or location is ever uploaded, sold, or transmitted to any external third-party cloud servers.
-- **Explicit Offline Storage & Privacy Policy:** Built-in modal/tab detailing user consent, data retention, and permission usage (hardware GPS, phone dialer, SMS gateway).
-- **Terms of Use & Disclaimer:** Clear legal disclaimer stating that the application serves as an advanced offline reference and emergency utility, while actual emergency response is coordinated through official government agencies (NDRRMC, 911, PNP, BFP, AFP, PCG, etc.).
+- **Client-Side Encryption (Zero-Knowledge Local Storage):** The 10 personal emergency contacts and sensitive inputs are secured via **AES-GCM client-side encryption** with a secure device-bound key to protect against data extraction, malware, or physical snooping.
+- **Strict Sanitization & Anti-Injection Guards:** Input handlers utilize rigorous Regex validation filters to block XSS, script injection, and tampering on Name fields (letters/spaces only) and Phone fields (numbers only).
+- **Secure Sandbox Isolation:** Strict scheme whitelisting for `tel:` and `sms:` intents to prevent tap-jacking or malicious hijacking.
 
 ---
 
-## 📱 3. 10-Slot Personal Emergency Contact System (Strict Validation)
-- **Capacity:** Expanded from 5 to **10 dedicated emergency contact slots**.
+## 📱 3. 10-Slot Personal Emergency Contact System & Auto-Boot Agent
+- **Capacity:** Expanded to **10 dedicated emergency contact slots**.
 - **Strict Input Validation & Error Handling:**
   - **Name Field:** Accepts *letters and spaces only*. Rejects numbers or prohibited symbols with an immediate error prompt; non-compliant entries cannot be saved.
   - **Number Field:** Accepts *numbers only* (e.g., `09XXXXXXXXX` or `+639XXXXXXXXX`). Rejects text or invalid formats with an error prompt; incomplete or invalid entries **will not be saved to local storage**.
@@ -28,13 +29,29 @@ This repository contains the master architectural blueprint, features, legal com
 ---
 
 ## 📞 4. Device Integrations & Phonebook Export
-- **Direct Phone Dialer (`tel:`):** Tapping any hotline or saved contact immediately launches the native device phonecharger/dialer with the number pre-filled for instant cellular network calls.
+- **Direct Phone Dialer (`tel:`):** Tapping any hotline or saved contact immediately launches the native device dialer with the number pre-filled for instant cellular network calls.
 - **Direct SMS Broadcast (`sms:`):** Triggers multi-recipient emergency SMS broadcasts pre-populated with user distress status and real-time GPS coordinates.
 - **Save to Phonebook (vCard Export):** Every directory listing, emergency hotline, municipal post, and contact feature includes a dedicated phonebook icon (`ACTION_INSERT` / vCard intent) allowing users to instantly save numbers directly to their device contact list with a single tap.
 
 ---
 
-## 🗺️ 5. Comprehensive Nationwide Emergency Directory Hub (Multi-Agency Grid)
+## 🗺️ 5. Interactive Proximity Map, Coastal Responders & Transport Guides
+- **Map-Based Proximity Radar:** Offline-capable GPS geofencing mapping closest responders (PNP, AFP, Navy, PCG, BFP, hospitals, and evacuation churches).
+- **Coastal & Island Emergency Points:** Specialized positioning for coastal/islands prioritizing PCG detachments, naval outposts, and high-ground evacuation points.
+- **Metro Manila Transit & LRT/MRT Navigation Guides:** Step-by-step platform instructions (Northbound/Southbound, left/right door open indicators for interchanges like EDSA, Recto, Cubao, Doroteo Jose) and transit hotlines.
+
+---
+
+## 📡 6. Smart Hybrid Sync & "Free Data / Social Media Only" Architecture
+To support millions of Filipinos who rely purely on social media or limited promotional data packages ("Free FB/TikTok data"), the system integrates multi-tier fallback mechanisms:
+1. **RA 10639 Free Mobile Disaster Alerts Integration:** Built-in broadcast receiver to ingest zero-rated government/telco emergency warnings and auto-update status feeds offline.
+2. **Messenger / Lightweight Bot Bridge:** Optional companion lightweight chat channels accessible via standard social data promos for querying directory updates or checking region safety statuses without full web browsing.
+3. **100% Offline Pre-Loaded Core Database:** Complete directory, transport guides, and security tools baked directly into the installation binary, requiring zero data for daily use.
+4. **P2P Local Mesh Sharing:** Ability to sync emergency updates and directory patches locally between nearby devices via Bluetooth Low Energy (BLE) or Wi-Fi Direct without cellular data consumption.
+
+---
+
+## 🏛️ 7. Comprehensive Nationwide Emergency Directory Hub (Multi-Agency Grid)
 The application integrates a hyper-accurate, offline-first national database spanning all regions of the Philippines, dynamically sorted using hardware GPS geofencing to present the closest responders first:
 
 ### **A. National Unified & Emergency Hotlines**
@@ -80,10 +97,3 @@ The application integrates a hyper-accurate, offline-first national database spa
 - **SOCCSKSARGEN:** GenSan Police `(083) 552-3030`, Koronadal Police `(083) 228-1234`
 - **Caraga Region:** Butuan Police `(085) 341-1234`, Surigao Police `(086) 826-1234`
 - **BARMM:** Cotabato City Police `(064) 421-1234`, Marawi Police `0998-598-6345`
-
----
-
-## 🛠️ 6. Technical Implementation Architecture
-- **Offline-First Caching:** All directory items, legal frameworks, and emergency profiles are stored locally.
-- **Hyper-Accurate Geofencing:** High-accuracy hardware GPS fixes calculate exact bounding coordinates to prioritize closest regional, provincial, municipal, and barangay responders.
-- **Verified Public Data Feeds:** Direct integration pipelines for PHIVOLCS, PAGASA, NDRRMC, and PNP verified alerts to eradicate misinformation and panic.
