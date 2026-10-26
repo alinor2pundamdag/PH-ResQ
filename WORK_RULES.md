@@ -21,9 +21,13 @@ This document serves as the absolute, non-negotiable operational charter governi
   - Compressed offline vector maps / MBTiles: ~50 MB to ~100 MB.
   - Total ceiling: ~150 MB maximum to ensure smooth performance on low-end Android hardware.
 
-## 🔒 4. Privacy-First, RA 10173 & Google Play Compliance Framework
+## 🔒 4. Privacy-First, RA 10173, Cybersecurity & Google Play Compliance Framework
 - **Data Privacy Act of 2012 (RA 10173):** Complete adherence to National Privacy Commission (NPC) guidelines. All personal emergency contacts and device GPS coordinates remain strictly local (`localStorage` / IndexedDB).
-- **Zero-Knowledge Encryption:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**.
+- **Zero-Knowledge Encryption & Cybersecurity:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**. Input fields are strictly sanitized with Regex filters, and database files are guarded by startup SHA-256 checksum verification.
+- **User-Consent & Intent-Driven Emergency Data Sharing:** 
+  - *Zero Silent Tracking:* No background location harvesting or cloud telemetry.
+  - *Explicit User-Initiated SOS:* Location coordinates are shared and broadcasted via SMS (`sms:`) exclusively when the user actively triggers the emergency SOS action during a crisis.
+  - *Vital Interest Exception:* Fully compliant with emergency data sharing exemptions under Philippine law and Google Play policies.
 - **Transparent Google Play Permissions Policy:** Device permissions are requested strictly under core functionality exceptions with prominent in-app disclosures:
   - `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION`: Foreground GPS proximity calculation only. *No background tracking.*
   - `CALL_PHONE` / Intent Dispatch (`tel:`): Safe 1-tap emergency calling via native device dialer (`ACTION_DIAL`).
