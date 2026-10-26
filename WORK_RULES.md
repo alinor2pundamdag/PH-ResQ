@@ -21,8 +21,9 @@ This document serves as the absolute, non-negotiable operational charter governi
   - Compressed offline vector maps / MBTiles: ~50 MB to ~100 MB.
   - Total ceiling: ~150 MB maximum to ensure smooth performance on low-end Android hardware.
 
-## 🔒 4. Privacy-First, RA 10173, Cybersecurity & Permissions Framework
+## 🔒 4. Privacy-First, RA 10173, RA 10639, Cybersecurity & Permissions Framework
 - **Data Privacy Act of 2012 (RA 10173):** Complete adherence to National Privacy Commission (NPC) guidelines. All personal emergency contacts, voice note recordings, and device GPS coordinates remain strictly local (`localStorage` / IndexedDB).
+- **Free Mobile Disaster Alerts Act (RA 10639):** Full compliance with zero-rated public safety alerting mandates, ensuring emergency broadcasts and weather advisories are delivered without data charges or user friction.
 - **Client-Side Encryption & User-Defined Master PIN Vault:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**. 
   - *User-Defined PIN/Passcode:* Users must set a personal Master PIN to lock their emergency contacts and medical data against unauthorized physical snooping.
   - *SOS Bypass:* During emergencies, triggering the SOS broadcast securely uses an internal decryption token without requiring manual PIN entry.
@@ -40,6 +41,7 @@ This document serves as the absolute, non-negotiable operational charter governi
   - `RECEIVE_BOOT_COMPLETED`: Local startup initialization for safety monitoring.
   - `MODIFY_AUDIO_SETTINGS`: Emergency beacon volume override support.
   - `FOREGROUND_SERVICE`: Persistent high-priority emergency notification channel support under Android 14+ public safety exemptions.
+  - `RECEIVE_WAP_PUSH` / Cell Broadcast: RA 10639 emergency broadcast receiver support.
   - `INTERNET` / `ACCESS_NETWORK_STATE`: Wi-Fi maximizer bandwidth optimization and zero-rated disaster alerts.
 
 ## 🎛️ 5. Dashboard Controls, SOS Toggle, Persistence & Reliability Standards
@@ -48,8 +50,9 @@ This document serves as the absolute, non-negotiable operational charter governi
 - **Tagalog Emergency SMS Broadcast:** Dispatches clear, natural Tagalog emergency messages to all 10 personal emergency contacts containing exact GPS coordinates.
 - **Persistent Sticky State Memory (6 Layers):** Strict local storage persistence for Active Mode, Emergency Contact Vault, Last Known GPS, Crisis SOS State, Search History, and Offline Map Tiles.
 - **Advanced Reliability Safeguards:** Low-battery auto-save snapshot (<5% battery or unexpected crash protection), startup SHA-256 database integrity verification with self-healing fallback, and offline voice note recorder for trapped disaster victims.
-- **Advanced Network & Power Resiliency Protocols:** Post-disaster Family Check-In sync queuing (buffering check-ins offline and auto-flushing upon intermittent internet recovery), battery-aware GPS adaptive polling (scaling polling intervals dynamically based on movement and power levels), and emergency helpline auto-fallback (smart routing to local DRRMOs upon 911 congestion timeouts).
-- **Critical Operational Policies:** Emergency Beacon Volume Override (ensuring maximum alarm volume even on silent mode), Android 14+ Foreground Service Notification Lock, Duress PIN Vault, and High-Contrast Accessibility Mode for PWDs and senior citizens.
+- **Advanced Network & Power Resiliency Protocols:** Post-disaster Family Check-In sync queuing, battery-aware GPS adaptive polling, and emergency helpline auto-fallback.
+- **Disaster Meteorological & Evacuation Feeds:** DOST-PAGASA weather/typhoon signal caching, dynamic evacuation center capacity status (Open/Full/Flooded), and RA 10639 Cell Broadcast emergency alert integration.
+- **Critical Operational Policies:** Emergency Beacon Volume Override, Android 14+ Foreground Service Notification Lock, Duress PIN Vault, and High-Contrast Accessibility Mode for PWDs and senior citizens.
 - **Offline Emergency Utilities:** Must include Offline Flashlight/Strobe (SOS Morse Code), Emergency Siren/Alarm, "Ligtas Ako" (I am Safe) Check-In Broadcast, Battery Saver / Low-Power OLED Emergency Mode, and P2P Local Emergency Mesh Sync (Bluetooth LE / Wi-Fi Direct).
 - **Educational Accessibility:** Built-in "About PH-ResQ" mission section and Interactive Quick Tutorial / Onboarding walkthrough for seniors and first-time smartphone users.
 
