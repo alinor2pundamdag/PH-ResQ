@@ -11,7 +11,19 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🔒 2. Legal Framework & Data Privacy Compliance (RA 10173) & Security
+## 🔘 2. Role-Based Tappable Mode Switcher & UI Filtering Architecture
+- **Interactive Mode Selector:** Dynamic tappable bottom/top navigation bar allowing users to instantly switch views based on their active role:
+  - **Student Mode:** Filters UI to display university hotlines, class suspension tickers, school supply retail hubs, and student safety check-ins.
+  - **Motorist Mode:** Filters UI to display expressway SOS hotlines, LTO/LTFRB/DPWH road rescue, digital glovebox, and traffic radar.
+  - **Senior Citizen / PWD Mode:** High-contrast large-font mode filtering out clutter and prioritizing 1-tap emergency calling and offline medical maintenance vaults.
+  - **Offline Mode:** Dedicated toggle forcing 100% local database rendering without network dependency.
+- **Background Silent Online Sync:** Online synchronization and telemetry run completely hidden in the background as background service workers, ensuring zero UI blocking.
+- **Local Data Storage & Unlimited Caching (For Local):** All offline-capable directories, contacts, and map points are stored locally with zero artificial storage limits (`localStorage` / IndexedDB).
+- **Smart UI Purge & Version Rotation (Latest Update Replacement):** When a new local or background sync package arrives, the UI execution layer automatically replaces outdated entries (`v_old` -> `v_latest`), purging deprecated numbers or old announcements from active display memory so users always see 100% fresh, validated data.
+
+---
+
+## 🔒 3. Legal Framework & Data Privacy Compliance (RA 10173) & Security
 - **Data Privacy Act of 2012 (RA 10173) Compliance:** All personal emergency contacts and device GPS coordinates remain **strictly local and private** (`localStorage`) (For Local). No personal data or location is ever uploaded, sold, or transmitted to any external third-party cloud servers without user authorization (For Online sync).
 - **Client-Side Encryption (Zero-Knowledge Local Storage):** The 10 personal emergency contacts and sensitive inputs are secured via **AES-GCM client-side encryption** with a secure device-bound key (For Local) to protect against data extraction, malware, or physical snooping.
 - **Strict Sanitization & Anti-Injection Guards:** Input handlers utilize rigorous Regex validation filters (For Local) to block XSS, script injection, and tampering on Name fields (letters/spaces only) and Phone fields (numbers only).
@@ -19,7 +31,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📱 3. 10-Slot Personal Emergency Contact System & Auto-Boot Agent
+## 📱 4. 10-Slot Personal Emergency Contact System & Auto-Boot Agent
 - **Capacity:** Expanded to **10 dedicated emergency contact slots** (For Local).
 - **Strict Input Validation & Error Handling (For Local):**
   - **Name Field:** Accepts *letters and spaces only* (For Local). Rejects numbers or prohibited symbols with an immediate error prompt.
@@ -28,7 +40,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📞 4. Device Integrations, Phonebook Export & Email Dispatch
+## 📞 5. Device Integrations, Phonebook Export & Email Dispatch
 - **Direct Phone Dialer (`tel:`):** Tapping any hotline launches native dialer (For Local).
 - **Direct SMS Broadcast (`sms:`):** Triggers multi-recipient emergency SMS broadcasts with GPS coordinates (For Local).
 - **Direct Email Dispatch (`mailto:`):** Full support for dispatching official inquiry or medical profile emails (For Online/Connected).
@@ -36,14 +48,14 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🗺️ 5. Interactive Proximity Map, Geolocation Pinning & Dynamic Radar
+## 🗺️ 6. Interactive Proximity Map, Geolocation Pinning & Dynamic Radar
 - **Universal Map-Based Proximity Radar:** Offline-capable GPS geofencing mapping **all** institutional listings (government offices, public/private hospitals, SSS/PhilHealth/Pag-IBIG branches, utilities, transport hubs, student retail/bookstores, motorist assistance hubs, and evacuation centers) across Luzon, Visayas, and Mindanao, dynamically sorted from closest to farthest based on user's live hardware GPS coordinates (For Local / Pre-loaded).
 - **Coastal & Island Emergency Points:** Specialized positioning for coastal/islands prioritizing PCG detachments, naval outposts, and high-ground evacuation points (For Local).
 - **Metro Manila Transit & LRT/MRT Navigation Guides:** Step-by-step platform instructions (Northbound/Southbound, left/right door open indicators for interchanges like EDSA, Recto, Cubao, Doroteo Jose) and transit hotlines (For Local).
 
 ---
 
-## 🚗 6. Motorist & Road Safety Protection Framework (Deep Research & Architecture)
+## 🚗 7. Motorist & Road Safety Protection Framework (Deep Research & Architecture)
 - **Real-Time Expressway & Highway SOS Dispatch:** Dedicated offline-first dialing and SMS channels for all major Philippine expressways (NLEx, SLEX, Skyway, TPLEX, CAVITEX, SCTEX) with automated GPS mile-marker tagging (For Local).
 - **LTO, LTFRB & DPWH Road Rescue Integration:** Immediate access to vehicular accident reporting, towing services, roadside assistance, and traffic violation assistance hotlines (For Local / Online).
 - **Motorist Digital Glovebox (Offline Document Vault):** Encrypted local storage for driver's license details, vehicle registration (OR/CR), and insurance emergency policy numbers (For Local).
@@ -57,7 +69,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📡 7. Smart Hybrid Sync & "Free Data / Social Media Only" Architecture
+## 📡 8. Smart Hybrid Sync & "Free Data / Social Media Only" Architecture
 To support millions of Filipinos who rely purely on social media or limited promotional data packages ("Free FB/TikTok data"):
 1. **RA 10639 Free Mobile Disaster Alerts Integration:** Built-in broadcast receiver to ingest zero-rated government/telco emergency warnings (For Local / Broadcast).
 2. **Messenger / Lightweight Bot Bridge:** Optional companion lightweight chat channels for querying directory updates (For Online).
@@ -66,7 +78,7 @@ To support millions of Filipinos who rely purely on social media or limited prom
 
 ---
 
-## 🎒 8. Student, Senior Citizens & Workers Protection Framework
+## 🎒 9. Student, Senior Citizens & Workers Protection Framework
 - **Safe Arrival / Safe Home Auto-Check-In:** Automated parent/guardian alert trigger notifying departure or arrival status with GPS beacons (For Local/Online).
 - **Universal Medical & Maintenance ID Pocket (Senior/Student Vault):** Encrypted offline emergency medical profile (maintenance medicines, blood type, allergies) accessible by first responders (For Local).
 - **Real-Time Class Suspension & Weather Ticker:** Official DepEd, CHED, and LGU advisory parser caching suspension announcements offline (For Local / Online sync).
@@ -79,7 +91,7 @@ To support millions of Filipinos who rely purely on social media or limited prom
 
 ---
 
-## 🏛️ 9. Comprehensive Nationwide Emergency Directory Hub (Multi-Agency, Retail & Private/Public Grid)
+## 🏛️ 10. Comprehensive Nationwide Emergency Directory Hub (Multi-Agency, Retail & Private/Public Grid)
 The application integrates a hyper-accurate, offline-first national database spanning Luzon, Visayas, and Mindanao, dynamically sorted using hardware GPS geofencing. Every listing with a physical location is automatically detected by the map (For Local):
 
 ### **A. National Unified & Emergency Hotlines**
