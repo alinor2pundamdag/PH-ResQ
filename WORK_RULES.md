@@ -26,6 +26,7 @@ This document serves as the absolute, non-negotiable operational charter governi
 - **Client-Side Encryption & User-Defined Master PIN Vault:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**. 
   - *User-Defined PIN/Passcode:* Users must set a personal Master PIN to lock their emergency contacts and medical data against unauthorized physical snooping.
   - *SOS Bypass:* During emergencies, triggering the SOS broadcast securely uses an internal decryption token without requiring manual PIN entry.
+  - *Duress PIN / Panic Wipe Option:* Supports a secondary panic passcode that opens a clean dummy vault during coercion while silently logging a silent distress flag.
   - *Input Sanitization & Integrity:* Input fields are strictly sanitized with Regex filters, and database files are guarded by startup SHA-256 checksum verification.
 - **User-Consent & Intent-Driven Emergency Data Sharing:** 
   - *Zero Silent Tracking:* No background location harvesting or cloud telemetry.
@@ -37,6 +38,8 @@ This document serves as the absolute, non-negotiable operational charter governi
   - `SEND_SMS`: User-triggered emergency SOS broadcast with GPS coordinates.
   - `RECORD_AUDIO`: Optional user-triggered 10-second offline voice note recording for emergency SOS logs.
   - `RECEIVE_BOOT_COMPLETED`: Local startup initialization for safety monitoring.
+  - `MODIFY_AUDIO_SETTINGS`: Emergency beacon volume override support.
+  - `FOREGROUND_SERVICE`: Persistent high-priority emergency notification channel support under Android 14+ public safety exemptions.
   - `INTERNET` / `ACCESS_NETWORK_STATE`: Wi-Fi maximizer bandwidth optimization and zero-rated disaster alerts.
 
 ## 🎛️ 5. Dashboard Controls, SOS Toggle, Persistence & Reliability Standards
@@ -45,6 +48,7 @@ This document serves as the absolute, non-negotiable operational charter governi
 - **Tagalog Emergency SMS Broadcast:** Dispatches clear, natural Tagalog emergency messages to all 10 personal emergency contacts containing exact GPS coordinates.
 - **Persistent Sticky State Memory (6 Layers):** Strict local storage persistence for Active Mode, Emergency Contact Vault, Last Known GPS, Crisis SOS State, Search History, and Offline Map Tiles.
 - **Advanced Reliability Safeguards:** Low-battery auto-save snapshot (<5% battery or unexpected crash protection), startup SHA-256 database integrity verification with self-healing fallback, and offline voice note recorder for trapped disaster victims.
+- **Critical Operational Policies:** Emergency Beacon Volume Override (ensuring maximum alarm volume even on silent mode), Android 14+ Foreground Service Notification Lock, Duress PIN Vault, and High-Contrast Accessibility Mode for PWDs and senior citizens.
 - **Offline Emergency Utilities:** Must include Offline Flashlight/Strobe (SOS Morse Code), Emergency Siren/Alarm, "Ligtas Ako" (I am Safe) Check-In Broadcast, Battery Saver / Low-Power OLED Emergency Mode, and P2P Local Emergency Mesh Sync (Bluetooth LE / Wi-Fi Direct).
 - **Educational Accessibility:** Built-in "About PH-ResQ" mission section and Interactive Quick Tutorial / Onboarding walkthrough for seniors and first-time smartphone users.
 
