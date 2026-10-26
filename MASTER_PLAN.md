@@ -37,22 +37,36 @@ This repository contains the master architectural blueprint, features, legal com
 ---
 
 ## 🗺️ 5. Interactive Proximity Map, Geolocation Pinning & Dynamic Radar
-- **Universal Map-Based Proximity Radar:** Offline-capable GPS geofencing mapping **all** institutional listings (government offices, public/private hospitals, SSS/PhilHealth/Pag-IBIG branches, utilities, transport hubs, student retail/bookstores, and evacuation centers) across Luzon, Visayas, and Mindanao, dynamically sorted from closest to farthest based on user's live hardware GPS coordinates (For Local / Pre-loaded).
+- **Universal Map-Based Proximity Radar:** Offline-capable GPS geofencing mapping **all** institutional listings (government offices, public/private hospitals, SSS/PhilHealth/Pag-IBIG branches, utilities, transport hubs, student retail/bookstores, motorist assistance hubs, and evacuation centers) across Luzon, Visayas, and Mindanao, dynamically sorted from closest to farthest based on user's live hardware GPS coordinates (For Local / Pre-loaded).
 - **Coastal & Island Emergency Points:** Specialized positioning for coastal/islands prioritizing PCG detachments, naval outposts, and high-ground evacuation points (For Local).
 - **Metro Manila Transit & LRT/MRT Navigation Guides:** Step-by-step platform instructions (Northbound/Southbound, left/right door open indicators for interchanges like EDSA, Recto, Cubao, Doroteo Jose) and transit hotlines (For Local).
 
 ---
 
-## 📡 6. Smart Hybrid Sync & "Free Data / Social Media Only" Architecture
+## 🚗 6. Motorist & Road Safety Protection Framework (Deep Research & Architecture)
+- **Real-Time Expressway & Highway SOS Dispatch:** Dedicated offline-first dialing and SMS channels for all major Philippine expressways (NLEx, SLEX, Skyway, TPLEX, CAVITEX, SCTEX) with automated GPS mile-marker tagging (For Local).
+- **LTO, LTFRB & DPWH Road Rescue Integration:** Immediate access to vehicular accident reporting, towing services, roadside assistance, and traffic violation assistance hotlines (For Local / Online).
+- **Motorist Digital Glovebox (Offline Document Vault):** Encrypted local storage for driver's license details, vehicle registration (OR/CR), and insurance emergency policy numbers (For Local).
+- **Nationwide Expressway & Road Assistance Hub (Geo-Mapped):**
+  - **NLEx Traffic & Accident Hotline:** `(02) 8350-0000` / `(02) 8580-8900` | Email: `customercare@nlex.com.ph` | Website: `nlex.com.ph` (For Local / Online)
+  - **SLEX / Skyway Traffic Command:** `(02) 8824-2282` / Mobile: `0917-539-8762` | Email: `customercare@slex.ph` | Website: `slex.ph` (For Local / Online)
+  - **TPLEX (Tarlac-Pangasinan-La Union Expressway):** Hotline: `0917-888-0715` | Email: `customercare@tplex.com.ph` | Website: `tplex.com.ph` (For Local / Online)
+  - **SCTEX (Subic-Clark-Tarlac Expressway):** Hotline: `(02) 8350-0000` | Email: `customercare@nlex.com.ph` | Website: `nlex.com.ph` (For Local / Online)
+  - **CAVITEX / C5 Link:** `(02) 8825-4004` / Mobile: `0942-822-8489` | Email: `customercare@cavitex.ph` | Website: `cavitex.ph` (For Local / Online)
+  - **MMDA Metrobase & Road Rescue:** `136` / `(02) 8882-4151` | Email: `metrobase@mmda.gov.ph` | Website: `mmda.gov.ph` (For Local / Online)
+
+---
+
+## 📡 7. Smart Hybrid Sync & "Free Data / Social Media Only" Architecture
 To support millions of Filipinos who rely purely on social media or limited promotional data packages ("Free FB/TikTok data"):
 1. **RA 10639 Free Mobile Disaster Alerts Integration:** Built-in broadcast receiver to ingest zero-rated government/telco emergency warnings (For Local / Broadcast).
 2. **Messenger / Lightweight Bot Bridge:** Optional companion lightweight chat channels for querying directory updates (For Online).
-3. **100% Offline Pre-Loaded Core Database:** Complete nationwide directory, student retail stores, and transport guides baked directly into the installation binary (For Local).
+3. **100% Offline Pre-Loaded Core Database:** Complete nationwide directory, motorist expressways, student retail stores, and transport guides baked directly into the installation binary (For Local).
 4. **P2P Local Mesh Sharing:** Ability to sync emergency updates and directory patches locally between nearby devices via Bluetooth Low Energy (BLE) or Wi-Fi Direct (For Local).
 
 ---
 
-## 🎒 7. Student, Senior Citizens & Workers Protection Framework
+## 🎒 8. Student, Senior Citizens & Workers Protection Framework
 - **Safe Arrival / Safe Home Auto-Check-In:** Automated parent/guardian alert trigger notifying departure or arrival status with GPS beacons (For Local/Online).
 - **Universal Medical & Maintenance ID Pocket (Senior/Student Vault):** Encrypted offline emergency medical profile (maintenance medicines, blood type, allergies) accessible by first responders (For Local).
 - **Real-Time Class Suspension & Weather Ticker:** Official DepEd, CHED, and LGU advisory parser caching suspension announcements offline (For Local / Online sync).
@@ -65,7 +79,7 @@ To support millions of Filipinos who rely purely on social media or limited prom
 
 ---
 
-## 🏛️ 8. Comprehensive Nationwide Emergency Directory Hub (Multi-Agency, Retail & Private/Public Grid)
+## 🏛️ 9. Comprehensive Nationwide Emergency Directory Hub (Multi-Agency, Retail & Private/Public Grid)
 The application integrates a hyper-accurate, offline-first national database spanning Luzon, Visayas, and Mindanao, dynamically sorted using hardware GPS geofencing. Every listing with a physical location is automatically detected by the map (For Local):
 
 ### **A. National Unified & Emergency Hotlines**
