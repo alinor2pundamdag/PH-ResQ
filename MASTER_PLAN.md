@@ -51,7 +51,20 @@ To support millions of Filipinos who rely purely on social media or limited prom
 
 ---
 
-## 🏛️ 7. Comprehensive Nationwide Emergency Directory Hub (Multi-Agency Grid)
+## 🎒 7. Student & Campus Safety Protection Framework
+- **Safe Arrival / Safe Home Auto-Check-In:** Automated parent/guardian alert trigger notifying departure or arrival status with GPS beacons.
+- **Campus Emergency Digital Profile (Baon / ID Pocket):** Encrypted offline emergency medical/identity profile accessible by first responders even when device is locked.
+- **Real-Time Class Suspension & Weather Ticker:** Official DepEd, CHED, and LGU advisory parser caching suspension announcements offline.
+- **Official University & Educational Institution Hotline Hub (Public Directories & Websites):**
+  - **University of the Philippines Diliman:** Police `(02) 8928-3615` / `(02) 8981-8500 loc 113`, Health Services `(02) 8981-8500 loc 111`, Security Helpline `0917-597-1984` | Website: `upd.edu.ph`
+  - **Ateneo de Manila University:** Loyola Heights Police/Brgy `(02) 8442-7782` / `(02) 8425-1434`, CORD SOSS `(02) 8426-6001 loc 5263` | Website: `ateneo.edu`
+  - **De La Salle University (Manila):** Taft Trunkline `(02) 8524-4611`, Clinic (Emergency) `loc 111`, Security & Safety `loc 444/555` | Website: `dlsu.edu.ph`
+  - **University of Santo Tomas (UST / UST Hospital):** UST Hospital Emergency & Info `(02) 8731-3001` | Website: `ust.edu.ph` / `usthospital.com.ph`
+  - **De La Salle University - Dasmariñas (Cavite):** Trunkline `(046) 481-1900`, Security Office `loc 3044`, Health Clinic `loc 3039` | Website: `dlsud.edu.ph`
+
+---
+
+## 🏛️ 8. Comprehensive Nationwide Emergency Directory Hub (Multi-Agency Grid)
 The application integrates a hyper-accurate, offline-first national database spanning all regions of the Philippines, dynamically sorted using hardware GPS geofencing to present the closest responders first:
 
 ### **A. National Unified & Emergency Hotlines**
