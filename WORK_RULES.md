@@ -23,7 +23,10 @@ This document serves as the absolute, non-negotiable operational charter governi
 
 ## 🔒 4. Privacy-First, RA 10173, Cybersecurity & Google Play Compliance Framework
 - **Data Privacy Act of 2012 (RA 10173):** Complete adherence to National Privacy Commission (NPC) guidelines. All personal emergency contacts and device GPS coordinates remain strictly local (`localStorage` / IndexedDB).
-- **Zero-Knowledge Encryption & Cybersecurity:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**. Input fields are strictly sanitized with Regex filters, and database files are guarded by startup SHA-256 checksum verification.
+- **Zero-Knowledge Encryption & User-Defined Master PIN Vault:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**. 
+  - *User-Defined PIN/Passcode:* Users must set a personal Master PIN to lock their emergency contacts and medical data against unauthorized physical snooping.
+  - *SOS Bypass:* During emergencies, triggering the SOS broadcast securely uses an internal decryption token without requiring manual PIN entry.
+  - *Input Sanitization & Integrity:* Input fields are strictly sanitized with Regex filters, and database files are guarded by startup SHA-256 checksum verification.
 - **User-Consent & Intent-Driven Emergency Data Sharing:** 
   - *Zero Silent Tracking:* No background location harvesting or cloud telemetry.
   - *Explicit User-Initiated SOS:* Location coordinates are shared and broadcasted via SMS (`sms:`) exclusively when the user actively triggers the emergency SOS action during a crisis.
