@@ -21,9 +21,13 @@ This document serves as the absolute, non-negotiable operational charter governi
   - Compressed offline vector maps / MBTiles: ~50 MB to ~100 MB.
   - Total ceiling: ~150 MB maximum to ensure smooth performance on low-end Android hardware.
 
-## 🔒 4. Privacy-First, RA 10173, RA 10639, Cybersecurity & Permissions Framework
+## 🔒 4. Privacy-First, Apache License 2.0, RA 10173, RA 10639, Cybersecurity & Permissions Framework
+- **Apache License 2.0 Governance:** Mandatory enterprise-grade open-source governance providing patent protection, trademark safety, and clear attribution terms.
 - **Data Privacy Act of 2012 (RA 10173):** Complete adherence to National Privacy Commission (NPC) guidelines. All personal emergency contacts, voice note recordings, and device GPS coordinates remain strictly local (`localStorage` / IndexedDB).
 - **Free Mobile Disaster Alerts Act (RA 10639):** Full compliance with zero-rated public safety alerting mandates, ensuring emergency broadcasts and weather advisories are delivered without data charges or user friction.
+- **Mandatory First-Launch Policy & Privacy Acceptance Gate:** 
+  - *Consent Screen:* Every user must explicitly accept the privacy policy, data handling rules, and Apache License terms on first launch.
+  - *Decline Enforcement Rule:* If a user taps `[Decline]`, the app must display the warning (*"Hindi mo magagamit ang mga features at sistema ng aplikasyon nang hindi sinasang-ayunan ang patakaran sa privacy at kaligtasan"*), halt initialization, and execute an **automatic persistent force-stop / exit to device home screen** to ensure total regulatory compliance.
 - **Client-Side Encryption & User-Defined Master PIN Vault:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**. 
   - *User-Defined PIN/Passcode:* Users must set a personal Master PIN to lock their emergency contacts and medical data against unauthorized physical snooping.
   - *SOS Bypass:* During emergencies, triggering the SOS broadcast securely uses an internal decryption token without requiring manual PIN entry.
@@ -44,7 +48,8 @@ This document serves as the absolute, non-negotiable operational charter governi
   - `RECEIVE_WAP_PUSH` / Cell Broadcast: RA 10639 emergency broadcast receiver support.
   - `INTERNET` / `ACCESS_NETWORK_STATE`: Wi-Fi maximizer bandwidth optimization and zero-rated disaster alerts.
 
-## 🎛️ 5. Dashboard Controls, SOS Toggle, Persistence & Reliability Standards
+## 🎛️ 5. Starting Page, Dashboard Controls, SOS Toggle, Persistence & Reliability Standards
+- **Starting Page & Onboarding Flow:** Splash screen with silent integrity check, mandatory policy acceptance gate with persistent force-stop on decline, first-time walkthrough, and mode selection landing prompt.
 - **`[🔄 Refresh GPS]` & `[🌐 Online Update]` Controls:** Main dashboard must feature rapid GPS recalibration with 10-second timeout fallbacks and smart online update fetching with data-saving/offline notices.
 - **Home Screen SOS Toggle & Anti-Accidental Hold Guard:** 1-tap / widget SOS toggle requiring a continuous **2-second press-and-hold** with haptic vibration feedback and countdown guard against accidental pocket activation.
 - **Tagalog Emergency SMS Broadcast:** Dispatches clear, natural Tagalog emergency messages to all 10 personal emergency contacts containing exact GPS coordinates.
