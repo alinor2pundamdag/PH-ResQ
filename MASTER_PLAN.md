@@ -108,7 +108,7 @@ The application is structured into a clean, highly optimized multi-page/view arc
 
 ---
 
-## ⚡ 11. Additional Offline Emergency Tools & Utilities
+## ⚡ 11. Additional Offline Emergency Tools, Utilities & P2P Emergency Mesh Sync
 1. **Offline Emergency Flashlight & Strobe (SOS Morse Code):**
    - Instant camera LED flashlight control with a dedicated SOS strobe mode (`3 short, 3 long, 3 short`) for signaling rescuers during power outages or dark environments.
 2. **Offline Emergency Siren / Loud Alarm:**
@@ -117,6 +117,8 @@ The application is structured into a clean, highly optimized multi-page/view arc
    - A 1-tap safety check-in feature that sends a pre-formatted reassurance SMS to family contacts: *"Ligtas po ako kasalukuyan. Narito ang aking lokasyon: [GPS Link]. Hinihintay ko ang patnubay."*
 4. **Battery Saver / Low-Power OLED Emergency Mode:**
    - Automatically switches the UI to a pure black OLED theme and halts non-essential background processes when battery levels drop below critical thresholds, preserving power for emergency broadcasts.
+5. **P2P Local Emergency Mesh Sync (Bluetooth LE / Wi-Fi Direct):**
+   - **Disaster Resilience Protocol:** Designed for extreme total-blackout scenarios where cell towers and internet services are completely down. The application utilizes Bluetooth Low Energy (BLE) and Wi-Fi Direct device-to-device local mesh relaying to hop encrypted SOS coordinates and emergency packets across nearby phones until the signal reaches a device with active cellular connectivity or rescue personnel.
 
 ---
 
@@ -160,8 +162,8 @@ The application is structured into a clean, highly optimized multi-page/view arc
 
 ---
 
-## 📡 20. Smart Hybrid Sync & "Free Data / Wi-Fi Maximizer" Architecture
-- Wi-Fi maximizer bandwidth optimization, RA 10639 Free Mobile Disaster Alerts integration, offline pre-loaded core database, and P2P local mesh sharing.
+## 📡 20. Smart Hybrid Sync, P2P Mesh & "Free Data / Wi-Fi Maximizer" Architecture
+- Wi-Fi maximizer bandwidth optimization, RA 10639 Free Mobile Disaster Alerts integration, offline pre-loaded core database, and P2P local Bluetooth/Wi-Fi mesh sharing under strict privacy and battery preservation rules.
 
 ---
 
