@@ -14,15 +14,15 @@ This repository contains the master architectural blueprint, features, legal com
 ## 🔘 2. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
 - **Multi-Mode Selector (Instant UI Adaptation):** The main interface dynamically morphs and filters displayed content based on the user's selected mode, hiding irrelevant clutter and showing only what is vital to that specific role:
   - **Student Mode:** Filters UI to display university/school hotlines, class suspension weather tickers, school supplies retail hubs, budget-friendly fast food / student meals, and student safety check-ins.
-  - **Motorist Mode:** Filters UI to display expressway SOS hotlines, LTO/LTFRB/DPWH road rescue, digital glovebox, traffic radar, and nationwide geo-mapped auto repair / motorcycle mechanic shops (both budget-friendly local vulcanizing shops and premium service centers with operating schedules).
+  - **Motorist Mode:** Filters UI to display expressway SOS hotlines, LTO/LTFRB/DPWH road rescue, digital glovebox, traffic radar, and an exhaustive nationwide directory of auto repair shops, motor repair shops, vulcanizing shops (24/7 emergency roadside repair), and towing services across every region, city, and barangay.
   - **Senior Citizen / PWD Mode:** High-contrast, large-font UI displaying simplified 1-tap emergency calling and the offline medical maintenance vault.
   - **Worker Mode:** Filters UI to display DOLE, SSS, PhilHealth, Pag-IBIG, industrial zone emergency contacts, utility provider desks, and quick dining options.
   - **Offline Mode:** Dedicated toggle forcing 100% local database rendering without network dependency.
 - **Stealth Background Lazy Caching & Wi-Fi Maximizer:** 
   - **Initial Ultra-Light APK:** The app is shipped with a minimal binary size containing core emergency directories.
-  - **Stealth Background Downloading:** Upon installation and app launch, the background worker *silently and invisibly* downloads and caches remaining regional data, maps, and updates piece by piece without showing annoying loading screens, ensuring users never feel disappointed by unexpected internet requirements.
+  - **Stealth Background Downloading:** Upon installation and app launch, the background worker *silently and invisibly* downloads and caches remaining regional data, maps, auto/motor repair networks, and updates piece by piece without showing annoying loading screens.
   - **Wi-Fi Maximizer:** When connected to Wi-Fi, background bandwidth is fully leveraged to fetch the latest nationwide updates without consuming mobile data credits.
-- **Unlimited Local Caching (For Local):** All offline-capable directories, contacts, barangay/street map coordinates, operating schedules, fast food delivery hotlines, and auto-repair shops are stored locally with zero artificial storage limits (`localStorage` / IndexedDB).
+- **Unlimited Local Caching (For Local):** All offline-capable directories, contacts, barangay/street map coordinates, operating schedules, fast food delivery hotlines, and auto/motor repair shops are stored locally with zero artificial storage limits (`localStorage` / IndexedDB).
 - **Smart Garbage Collector & Version Rotation Agent:** 
   - If a new update arrives, the agent **instantly replaces** outdated entries (`v_old` -> `v_latest`), purging deprecated data from active UI display memory.
   - If no new updates arrive, stable cached local data remains securely in place indefinitely without deletion, ensuring continuous offline availability.
@@ -56,13 +56,13 @@ This repository contains the master architectural blueprint, features, legal com
 ---
 
 ## 🗺️ 6. Universal Granular Map-Based Proximity Radar (Regions, Cities, Barangays, Streets & Coastal Waters)
-- **Granular Nationwide Geofencing:** Offline-capable GPS geofencing mapping **all** institutional listings, government offices, public/private hospitals (with operating hours), SSS/PhilHealth/Pag-IBIG branches, utilities, transport hubs, student retail/bookstores, fast food chains & coffee shops (Jollibee, McDonald's, Greenwich, Chowking, Starbucks, etc. with operating hours & delivery hotlines), nationwide auto repair and vulcanizing shops, coastal/marine rescue points, and evacuation centers down to the exact **Region, Province, City, Barangay, and Street level** across Luzon, Visayas, and Mindanao (For Local / Pre-loaded).
+- **Granular Nationwide Geofencing:** Offline-capable GPS geofencing mapping **all** institutional listings, government offices, public/private hospitals (with operating hours), SSS/PhilHealth/Pag-IBIG branches, utilities, transport hubs, student retail/bookstores, fast food chains & coffee shops, nationwide auto repair shops, motor repair shops, vulcanizing shops (with 24/7 schedules), coastal/marine rescue points, and evacuation centers down to the exact **Region, Province, City, Barangay, and Street level** across Luzon, Visayas, and Mindanao (For Local / Pre-loaded).
 - **Coastal & Marine Proximity Detection:** Specialized positioning for coastal areas and open waters detecting the nearest maritime rescue detachments (PCG stations, Naval outposts) and high-ground refuges.
 - **Metro Manila Transit & LRT/MRT Navigation Guides:** Step-by-step platform instructions (Northbound/Southbound, left/right door open indicators for interchanges like EDSA, Recto, Cubao, Doroteo Jose) and transit hotlines (For Local).
 
 ---
 
-## 🍔 7. Nationwide Fast Food, Dining & Coffee Shop Directory (Ininclusive - Budget to Premium)
+## 🍔 7. Nationwide Fast Food, Dining & Coffee Shop Directory (Inclusive - Budget to Premium)
 - **Comprehensive Geo-Mapped Food Hubs:** Geo-mapped across all regions, cities, and barangays to serve both students, workers, and families (affordability-inclusive). Includes operating hours, delivery hotline numbers, email addresses, and website links:
   - **Jollibee Delivery:** `#87000` | Email: `feedback@jollibee.com.ph` | Website: `jollibee.com.ph` (Operating: 24/7 in select branches or 6:00 AM - 10:00 PM) (For Local / Online)
   - **McDonald's Delivery:** `(02) 8888-6236` / `#8-6236` | Email: `customercare@ph.mcd.com` | Website: `mcdonalds.com.ph` (Operating: 24/7 in select branches) (For Local / Online)
@@ -72,13 +72,15 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🚗 8. Motorist & Road Safety Protection Framework (Deep Research & Architecture)
+## 🚗 8. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
+- **Exhaustive Nationwide Auto & Motor Repair / Vulcanizing Directory:**
+  - Every barangay and city across Luzon, Visayas, and Mindanao is pre-loaded with local and commercial repair networks:
+    - **Auto Repair Shops & Service Centers:** Mechanical diagnostics, engine tune-ups, battery jumpstart, and towing hotlines.
+    - **Motorcycle Repair & Maintenance Shops:** Specialized "talyer ng motor", spare parts hubs, and emergency roadside tune-ups for riders.
+    - **Vulcanizing Shops (24/7 Emergency Flat Tire Assistance):** Geotagged local vulcanizing shops noting whether they operate 24/7 or specific hours (e.g., 7:00 AM - 9:00 PM), complete with direct dialing, contact numbers, and GPS routing.
 - **Real-Time Expressway & Highway SOS Dispatch:** Dedicated offline-first dialing and SMS channels for all major Philippine expressways (NLEx, SLEX, Skyway, TPLEX, CAVITEX, SCTEX) with automated GPS mile-marker tagging (For Local).
 - **LTO, LTFRB & DPWH Road Rescue Integration:** Immediate access to vehicular accident reporting, towing services, roadside assistance, and traffic violation assistance hotlines (For Local / Online).
 - **Motorist Digital Glovebox (Offline Document Vault):** Encrypted local storage for driver's license details, vehicle registration (OR/CR), and insurance emergency policy numbers (For Local).
-- **Nationwide Auto Repair, Vulcanizing & Motorcycle Mechanic Directory (Geo-Mapped - 24/7 & Operating Hours):**
-  - Comprehensive listing of public/private auto repair shops, vulcanizing shops, and motorcycle service centers across all regions, cities, and barangays of Luzon, Visayas, and Mindanao. 
-  - Includes exact GPS coordinates, contact numbers, emails, websites, and **operating schedules (e.g., 24/7 Emergency Vulcanizing, 8:00 AM - 6:00 PM)** so stranded motorists can locate open shops even late at night (For Local).
 - **Nationwide Expressway & Road Assistance Hub (Geo-Mapped):**
   - **NLEx Traffic & Accident Hotline:** `(02) 8350-0000` | Email: `customercare@nlex.com.ph` | Website: `nlex.com.ph` (For Local / Online)
   - **SLEX / Skyway Traffic Command:** `(02) 8824-2282` | Email: `customercare@slex.ph` | Website: `slex.ph` (For Local / Online)
@@ -94,7 +96,7 @@ To support millions of Filipinos who rely purely on social media or limited prom
 1. **Wi-Fi Maximizer Agent:** When connected to Wi-Fi, the background sync agent automatically maximizes search and download threads to pull down the latest nationwide news, directory patches, and emergency updates without using mobile data.
 2. **RA 10639 Free Mobile Disaster Alerts Integration:** Built-in broadcast receiver to ingest zero-rated government/telco emergency warnings (For Local / Broadcast).
 3. **Messenger / Lightweight Bot Bridge:** Optional companion lightweight chat channels for querying directory updates (For Online).
-4. **100% Offline Pre-Loaded Core Database:** Complete nationwide directory down to barangays, motorist expressways, auto repair shops, student retail stores, fast food delivery hotlines, and transport guides baked directly into the installation binary (For Local).
+4. **100% Offline Pre-Loaded Core Database:** Complete nationwide directory down to barangays, motorist expressways, auto/motor repair shops, vulcanizing stations, student retail stores, fast food delivery hotlines, and transport guides baked directly into the installation binary (For Local).
 5. **P2P Local Mesh Sharing:** Ability to sync emergency updates and directory patches locally between nearby devices via Bluetooth Low Energy (BLE) or Wi-Fi Direct (For Local).
 
 ---
