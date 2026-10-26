@@ -30,7 +30,15 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🗺️ 3. Optimized Local Data, Storage & Offline Mapping Architecture (~100MB - ~150MB Total Footprint)
+## 📡 3. Automatic GPS Proximity Radar & Background Location Agent
+- **Real-Time Distance Calculation Engine (Haversine & R-Tree Agent):**
+  - **Automatic GPS Tracking on Main Page / Active Mode:** Once the device GPS is enabled and the user is on the main dashboard (or any active filtered tab such as Student, Motorist, or Senior/PWD mode), a lightweight background worker agent instantly detects the user's precise latitude and longitude.
+  - **Live Meter / Kilometer Distance Readout:** The application automatically computes and displays exact distances (e.g., `150m away`, `1.2km away`) next to every listed emergency asset, hospital, police station, 24/7 convenience store, talyer, or vet clinic in real time.
+  - **Dynamic Sorting by Proximity:** Assets are automatically re-sorted from closest to farthest dynamically as the user moves, ensuring immediate access to the nearest help without manual refreshing.
+
+---
+
+## 🗺️ 4. Optimized Local Data, Storage & Offline Mapping Architecture (~100MB - ~150MB Total Footprint)
 - **App Storage Breakdown & Lightweight Optimization:**
   - **Core Application Binary (APK / Frontend Code & UI Assets):** ~20 MB to ~30 MB base download size for rapid installation even on promotional data or low cellular signal.
   - **Exhaustive Nationwide Directory Database (IndexedDB / JSON):** ~10 MB to ~15 MB storing all 42,046 barangays, government desks, hotlines, emails, websites, and public social media handles.
@@ -41,7 +49,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🔘 4. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
+## 🔘 5. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
 - **Multi-Mode Selector (Instant UI Adaptation):**
   - **General / All Mode:** Default comprehensive view displaying all essential public services, emergency hotlines, hospitals, convenience stores, and community assets.
   - **Student Mode:** University hotlines, National Youth Commission (NYC), DepEd / CHED action centers, student mental health lines (NCMH 1553, In Touch), class suspension weather tickers, school supplies retail hubs, budget-friendly fast food / student meals, and student safety check-ins.
@@ -61,7 +69,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🔒 5. Legal Framework & Data Privacy Compliance (RA 10173) & Security
+## 🔒 6. Legal Framework & Data Privacy Compliance (RA 10173) & Security
 - **Data Privacy Act of 2012 (RA 10173) Compliance:** All personal emergency contacts and device GPS coordinates remain **strictly local and private** (`localStorage`) (For Local). No personal data or location is ever uploaded, sold, or transmitted to any external third-party cloud servers without user authorization (For Online sync).
 - **Client-Side Encryption (Zero-Knowledge Local Storage):** The 10 personal emergency contacts and sensitive inputs are secured via **AES-GCM client-side encryption** with a secure device-bound key (For Local) to protect against data extraction, malware, or physical snooping.
 - **Strict Sanitization & Anti-Injection Guards:** Input handlers utilize rigorous Regex validation filters (For Local) to block XSS, script injection, and tampering on Name fields (letters/spaces only) and Phone fields (numbers only).
@@ -69,7 +77,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📱 6. 10-Slot Personal Emergency Contact System & Auto-Boot Agent
+## 📱 7. 10-Slot Personal Emergency Contact System & Auto-Boot Agent
 - **Capacity:** Expanded to **10 dedicated emergency contact slots** (For Local).
 - **Strict Input Validation & Error Handling (For Local):**
   - **Name Field:** Accepts *letters and spaces only* (For Local). Rejects numbers or prohibited symbols with an immediate error prompt.
@@ -78,7 +86,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📞 7. Device Integrations, Phonebook Export & App Intent Dispatch
+## 📞 8. Device Integrations, Phonebook Export & App Intent Dispatch
 - **Direct Phone Dialer (`tel:`):** Tapping any hotline launches native dialer with pre-filled numbers (For Local).
 - **Direct SMS Broadcast (`sms:`):** Triggers multi-recipient emergency SMS broadcasts with GPS coordinates (For Local).
 - **Direct Email Dispatch (`mailto:` with App Choices):** Full support for dispatching official inquiry or medical profile emails, prompting the user to select from installed email apps (Gmail, Outlook, native mail clients) (For Online/Connected).
@@ -87,14 +95,14 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🗺️ 8. Universal Granular Map-Based Proximity Radar (All 42,046 Barangays & Coastal Waters)
+## 🗺️ 9. Universal Granular Map-Based Proximity Radar (All 42,046 Barangays & Coastal Waters)
 - **Exhaustive Nationwide Barangay-Level Geofencing:** Offline-capable GPS geofencing mapping **all 42,046 barangays** across Luzon, Visayas, and Mindanao. Every single barangay hall, local tanod outpost, municipal disaster risk reduction management office (MDRRMO / CDRRMO), public/private hospital, clinic, police station, fire substation, SSS/PhilHealth/Pag-IBIG branch, DMW/OWWA office, PWD municipal desk, veterinary clinic, convenience store, fast food chain, and auto/motor repair shop is indexed and geo-mapped down to the exact street address (For Local / Pre-loaded).
 - **Coastal & Marine Proximity Detection:** Specialized positioning for coastal areas, municipal waters, and open seas across all island groups detecting the nearest Philippine Coast Guard (PCG) detachments, Naval outposts, and high-ground tsunami/storm surge evacuation zones.
 - **Metro Manila & Regional Transit Navigation Guides:** Step-by-step platform instructions (Northbound/Southbound, left/right door open indicators for interchanges like EDSA, Recto, Cubao, Doroteo Jose) and provincial transport terminal hotlines (For Local).
 
 ---
 
-## 🏪 9. Nationwide 24/7 Convenience Stores, Roadside Pit Stops & Sari-Sari Store Networks
+## 🏪 10. Nationwide 24/7 Convenience Stores, Roadside Pit Stops & Sari-Sari Store Networks
 - **Geo-Mapped 24/7 Convenience Stores & Rest Stops (Luzon, Visayas, Mindanao):**
   - **7-Eleven Philippines:** Nationwide branch network (24/7). Customer Hotline: `(02) 8714-9581` | Email: `customercare@7-eleven.com.ph` | Website: `7-eleven.com.ph` (For Local / Online)
   - **Uncle John’s (formerly Ministop):** Nationwide branch network (24/7 in select areas). Hotline: `(02) 8397-8500` | Email: `feedback@ministop.com.ph` | Website: `ministop.com.ph` (For Local / Online)
@@ -105,7 +113,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🐾 10. Nationwide Veterinary Clinics, Animal Hospitals & Pet Care Directory
+## 🐾 11. Nationwide Veterinary Clinics, Animal Hospitals & Pet Care Directory
 - **Comprehensive Geo-Mapped Animal Care Network (Private & Public - Luzon, Visayas, Mindanao):**
   - **Biyaya Animal Care (Metro Manila / Rizal):** Emergency vet services, rescue, and rehabilitation. Hotline: `0968-738-4888` | Email: `biyayaanimalcare@gmail.com` | Website: `biyayaanimalcare.org` (For Local / Online)
   - **Philippine Animal Welfare Society (PAWS - QC):** Animal shelter, rescue, and veterinary clinic. Hotline: `(02) 8475-1688` | Email: `paws@paws.org.ph` | Website: `paws.org.ph` (For Local / Online)
@@ -114,14 +122,14 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## ♿ 11. PWD & Senior Citizen Support, Reporting & Advocacy Framework
+## ♿ 12. PWD & Senior Citizen Support, Reporting & Advocacy Framework
 - **National Council on Disability Affairs (NCDA):** Government agency protecting PWD rights and handling accessibility complaints and reports. Hotline: `(02) 8932-6422` | Email: `council@ncda.gov.ph` | Website: `ncda.gov.ph` (For Local / Online)
 - **Office for Senior Citizens Affairs (OSCA - Municipal / City Level):** Local municipal desks across all 1,493 municipalities and 149 cities for senior ID, benefits, and emergency assistance reporting.
 - **Accessible Reporting & Feedback Channel:** Direct offline-to-online reporting form for PWD and senior citizen welfare concerns, violation of accessibility laws (BP 344), and emergency rescue priorities.
 
 ---
 
-## ✈️ 12. OFW, First-Time Jobseeker & Migrant Worker Protection Framework (Luzon Arrival Hubs)
+## ✈️ 13. OFW, First-Time Jobseeker & Migrant Worker Protection Framework (Luzon Arrival Hubs)
 - **Dedicated Arrival & Transition Guide for VisMin Travelers:** Specialized offline mapping and support for first-time jobseekers and OFWs arriving in Luzon (ports, NAIA terminals, PITX, provincial bus terminals in Pasay/Cubao/Manila) seeking licensed recruitment agencies, training centers, and government documentation hubs.
 - **Government Agencies for Overseas Employment (Hotlines, Emails, Official Web & Public Social Media Pages):**
   - **Department of Migrant Workers (DMW):** Hotline `(02) 8722-1144` | Email: `aksyon@dmw.gov.ph` | Website: `dmw.gov.ph` (For Local / Online)
@@ -131,7 +139,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🍔 13. Nationwide Fast Food, Dining & Coffee Shop Directory (Inclusive - Budget to Premium)
+## 🍔 14. Nationwide Fast Food, Dining & Coffee Shop Directory (Inclusive - Budget to Premium)
 - **Comprehensive Geo-Mapped Food Hubs:** Geo-mapped across all regions, cities, and barangays to serve students, workers, OFWs, and families. Includes operating hours, delivery hotline numbers, email addresses, website links, and public social media handles:
   - **Jollibee Delivery:** `#87000` | Email: `feedback@jollibee.com.ph` | Website: `jollibee.com.ph` (For Local / Online)
   - **McDonald's Delivery:** `(02) 8888-6236` / `#8-6236` | Email: `customercare@ph.mcd.com` | Website: `mcdonalds.com.ph` (For Local / Online)
@@ -141,7 +149,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🚗 14. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
+## 🚗 15. Motorist, Auto Repair, Motor Mechanic & Vulcanizing Road Safety Framework
 - **Exhaustive Nationwide Auto & Motor Repair / Vulcanizing Directory (Every Municipality & Barangay):**
   - Pre-loaded database covering every town and barangay across Luzon, Visayas, and Mindanao for stranded motorists:
     - **Auto Repair Shops & Service Centers:** Mechanical diagnostics, battery jumpstart, and towing hotlines.
@@ -151,7 +159,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📡 15. Smart Hybrid Sync & "Free Data / Wi-Fi Maximizer" Architecture
+## 📡 16. Smart Hybrid Sync & "Free Data / Wi-Fi Maximizer" Architecture
 1. **Wi-Fi Maximizer Agent:** When connected to Wi-Fi, the background sync agent automatically maximizes search and download threads to pull down the latest nationwide news, directory patches, and emergency updates without using mobile data.
 2. **RA 10639 Free Mobile Disaster Alerts Integration:** Built-in broadcast receiver to ingest zero-rated government/telco emergency warnings (For Local / Broadcast).
 3. **100% Offline Pre-Loaded Core Database:** Complete nationwide directory down to all 42,046 barangays, convenience stores, vet clinics, PWD offices, motorist expressways, auto/motor repair shops, fast food delivery hotlines, and transport guides baked directly into the installation binary (For Local).
@@ -159,7 +167,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 🏛️ 16. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
+## 🏛️ 17. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
 The application integrates a massive, exhaustive offline-first national database spanning **all 17 Regions, 82 Provinces, 149 Cities, 1,493 Municipalities, and 42,046 Barangays** across Luzon, Visayas, and Mindanao, dynamically sorted using hardware GPS geofencing. Every listing with a physical location, contact number, email, and public social media page (Facebook, TikTok, official portal) is automatically detected by the map (For Local):
 
 ### **A. National Unified & Emergency Hotlines**
@@ -175,7 +183,7 @@ The application integrates a massive, exhaustive offline-first national database
   - **PGH Manila:** `(02) 8554-8400` (ER: 24/7) | Email: `pgh.gov.ph@gmail.com` | Website: `pgh.gov.ph` (For Local / Online)
   - **East Avenue Medical Center (QC):** `(02) 8928-0611` (ER: 24/7) | Email: `eamc@doh.gov.ph` | Website: `eamc.doh.gov.ph` (For Local / Online)
   - **Vicente Sotto Memorial Medical Center (Cebu):** `(032) 253-9891` (ER: 24/7) | Email: `vsmmc@doh.gov.ph` | Website: `vsmmc@doh.gov.ph` (For Local / Online)
-  - **Southern Philippines Medical Center (Davao):** `(082) 227-2731` (ER: 24/7) | Email: `spmc@doh.gov.ph` | Website: `spmc.doh.gov.ph` (For Local / Online)
+  - **Southern Philippines Medical Center (Davao):** `(082) 227-2731` (ER: 24/7) | Email: `spmc@doh.gov.ph` | Website: `spmc@doh.gov.ph` (For Local / Online)
 - **Private (Operating Hours & ER 24/7):**
   - **Makati Medical Center:** `(02) 8888-8999` (ER: 24/7) | Email: `mmc@makatimed.net.ph` | Website: `makatimed.net.ph` (For Local / Online)
   - **St. Luke’s Medical Center (Global City / QC):** `(02) 8789-7700` (ER: 24/7) | Email: `customercare@stlukes.com.ph` | Website: `stlukes.com.ph` (For Local / Online)
