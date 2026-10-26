@@ -1,6 +1,6 @@
 # PH-ResQ Vanguard 2026: Master Architecture & Implementation Plan
 
-This repository contains the master architectural blueprint, features, legal compliance framework, and comprehensive nationwide emergency directory for **PH-ResQ Vanguard 2026**, a 100% functional, secure, and nationwide emergency application built for Filipinos.
+This repository contains the master architectural blueprint, features, legal compliance framework, device permissions policy, and comprehensive nationwide emergency directory for **PH-ResQ Vanguard 2026**, a 100% functional, secure, and nationwide emergency application built for Filipinos.
 
 ---
 
@@ -82,11 +82,20 @@ The application is structured into a clean, highly optimized multi-page/view arc
 
 ---
 
-## 🔒 7. Legal Framework & Data Privacy Compliance (RA 10173) & Security
-- **Data Privacy Act of 2012 (RA 10173) Compliance:** All personal emergency contacts and device GPS coordinates remain **strictly local and private** (`localStorage`) (For Local). No personal data or location is ever uploaded, sold, or transmitted to any external third-party cloud servers without user authorization (For Online sync).
-- **Client-Side Encryption (Zero-Knowledge Local Storage):** The 10 personal emergency contacts and sensitive inputs are secured via **AES-GCM client-side encryption** with a secure device-bound key (For Local) to protect against data extraction, malware, or physical snooping.
-- **Strict Sanitization & Anti-Injection Guards:** Input handlers utilize rigorous Regex validation filters (For Local) to block XSS, script injection, and tampering on Name fields (letters/spaces only) and Phone fields (numbers only).
-- **Secure Sandbox Isolation:** Strict scheme whitelisting for `tel:`, `sms:`, and `mailto:` intents (For Local/Device). When tapping emails or websites, the app presents seamless intent choices to launch the user's preferred installed email client (Gmail, Mail apps) or native web browser.
+## 🔒 7. Legal Framework, Data Privacy Compliance (RA 10173) & Device Permissions Policy
+- **Data Privacy Act of 2012 (RA 10173) & NPC Compliance:** 
+  - Strict adherence to the principle of proportionality and transparency. All personal emergency contacts and device GPS coordinates remain **strictly local and private** (`localStorage` / IndexedDB) with zero unauthorized cloud transmission.
+- **Client-Side Encryption (Zero-Knowledge Local Storage):** 
+  - The 10 personal emergency contacts and sensitive medical inputs are secured via **AES-GCM client-side encryption** with a secure device-bound key to protect against data extraction, malware, or physical snooping.
+- **Google Play Store Policy & Device Permissions Framework (Zero-Violation Standard):**
+  - **Core Functionality Exception & Transparency:** In full compliance with Google Play Developer policies regarding emergency and public safety apps, permissions are requested strictly as core features with clear in-app disclosures:
+    1. `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION`: Foreground GPS proximity calculation and map centering. *No background location tracking.*
+    2. `CALL_PHONE` / Intent Dispatch (`tel:`): Safe 1-tap emergency calling via native device dialer (`ACTION_DIAL`).
+    3. `SEND_SMS`: User-triggered emergency SOS broadcast with GPS coordinates to the 10-slot emergency contact vault.
+    4. `RECEIVE_BOOT_COMPLETED`: Local startup initialization routine for offline safety monitoring.
+    5. `INTERNET` / `ACCESS_NETWORK_STATE`: Wi-Fi maximizer bandwidth optimization and zero-rated disaster alert reception.
+- **Strict Sanitization & Anti-Injection Guards:** Input handlers utilize rigorous Regex validation filters to block XSS, script injection, and tampering on Name fields (letters/spaces only) and Phone fields (numbers only).
+- **Secure Sandbox Isolation:** Strict scheme whitelisting for `tel:`, `sms:`, and `mailto:` intents, prompting users to select from installed secure email clients or web browsers.
 
 ---
 
