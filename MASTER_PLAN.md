@@ -30,11 +30,11 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📡 3. Automatic GPS Proximity Radar & Background Location Agent
-- **Real-Time Distance Calculation Engine (Haversine & R-Tree Agent):**
-  - **Automatic GPS Tracking on Main Page / Active Mode:** Once the device GPS is enabled and the user is on the main dashboard (or any active filtered tab such as Student, Motorist, or Senior/PWD mode), a lightweight background worker agent instantly detects the user's precise latitude and longitude.
-  - **Live Meter / Kilometer Distance Readout:** The application automatically computes and displays exact distances (e.g., `150m away`, `1.2km away`) next to every listed emergency asset, hospital, police station, 24/7 convenience store, talyer, or vet clinic in real time.
-  - **Dynamic Sorting by Proximity:** Assets are automatically re-sorted from closest to farthest dynamically as the user moves, ensuring immediate access to the nearest help without manual refreshing.
+## 📡 3. Automatic GPS Proximity Calculation & Local Distance Reader
+- **Real-Time Distance Computation (Haversine & Local R-Tree Engine):**
+  - **Automatic GPS Reading on Main Dashboard & Active Tabs:** Once the device GPS is enabled and the user opens the main page or selects an active mode tab (such as Student, Motorist, or Senior/PWD mode), the application's built-in local script automatically reads the device's precise latitude and longitude.
+  - **Live Meter / Kilometer Distance Display:** The app instantly calculates and displays exact distances (e.g., `150m away`, `1.2km away`) right next to every listed emergency asset, hospital, police station, convenience store, talyer, or vet clinic in real time.
+  - **Dynamic Proximity Sorting:** Assets are automatically re-sorted from closest to farthest dynamically as the user moves, ensuring immediate visibility of the nearest help without requiring manual refreshes or external server queries.
 
 ---
 
@@ -60,11 +60,11 @@ This repository contains the master architectural blueprint, features, legal com
   - **Offline Mode:** Dedicated toggle forcing 100% local database rendering without network dependency.
 - **Stealth Background Lazy Caching & Wi-Fi Maximizer:** 
   - **Initial Ultra-Light APK:** Shipped with a minimal binary size containing core emergency directories.
-  - **Stealth Background Downloading:** Upon installation and app launch, the background worker *silently and invisibly* downloads and caches remaining regional data, maps, convenience stores, vet clinics, PWD offices, recruitment agency contacts, and public social media pages piece by piece without showing annoying loading screens.
+  - **Stealth Background Downloading:** Upon installation and app launch, the local background script *silently and invisibly* downloads and caches remaining regional data, maps, convenience stores, vet clinics, PWD offices, recruitment agency contacts, and public social media pages piece by piece without showing annoying loading screens.
   - **Wi-Fi Maximizer:** When connected to Wi-Fi, background bandwidth is fully leveraged to fetch the latest nationwide updates without consuming mobile data credits.
 - **Unlimited Local Caching (For Local):** All offline-capable directories, contacts, barangay/street map coordinates, operating schedules, convenience stores, vet clinics, PWD assistance desks, fast food delivery hotlines, and auto/motor repair shops are stored locally with zero artificial storage limits (`localStorage` / IndexedDB).
 - **Smart Garbage Collector & Version Rotation Agent:** 
-  - If a new update arrives, the agent **instantly replaces** outdated entries (`v_old` -> `v_latest`), purging deprecated data from active UI display memory.
+  - If a new update arrives, the local routine **instantly replaces** outdated entries (`v_old` -> `v_latest`), purging deprecated data from active UI display memory.
   - If no new updates arrive, stable cached local data remains securely in place indefinitely without deletion, ensuring continuous offline availability.
 
 ---
@@ -77,12 +77,12 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📱 7. 10-Slot Personal Emergency Contact System & Auto-Boot Agent
+## 📱 7. 10-Slot Personal Emergency Contact System & Auto-Boot Monitoring
 - **Capacity:** Expanded to **10 dedicated emergency contact slots** (For Local).
 - **Strict Input Validation & Error Handling (For Local):**
   - **Name Field:** Accepts *letters and spaces only* (For Local). Rejects numbers or prohibited symbols with an immediate error prompt.
   - **Number Field:** Accepts *numbers only* e.g., `09XXXXXXXXX` (For Local). Incomplete or invalid entries will not be saved.
-- **Auto-Boot Background Agent:** Configured via Service Workers and Web Broadcast Channels to initialize monitoring on device boot (For Local).
+- **Auto-Boot Local Routine:** Configured via internal service scripts and storage listeners to initialize monitoring on device boot (For Local).
 
 ---
 
@@ -160,7 +160,7 @@ This repository contains the master architectural blueprint, features, legal com
 ---
 
 ## 📡 16. Smart Hybrid Sync & "Free Data / Wi-Fi Maximizer" Architecture
-1. **Wi-Fi Maximizer Agent:** When connected to Wi-Fi, the background sync agent automatically maximizes search and download threads to pull down the latest nationwide news, directory patches, and emergency updates without using mobile data.
+1. **Wi-Fi Maximizer Integration:** When connected to Wi-Fi, the built-in sync routine automatically maximizes search and download threads to pull down the latest nationwide news, directory patches, and emergency updates without using mobile data.
 2. **RA 10639 Free Mobile Disaster Alerts Integration:** Built-in broadcast receiver to ingest zero-rated government/telco emergency warnings (For Local / Broadcast).
 3. **100% Offline Pre-Loaded Core Database:** Complete nationwide directory down to all 42,046 barangays, convenience stores, vet clinics, PWD offices, motorist expressways, auto/motor repair shops, fast food delivery hotlines, and transport guides baked directly into the installation binary (For Local).
 4. **P2P Local Mesh Sharing:** Ability to sync emergency updates and directory patches locally between nearby devices via Bluetooth Low Energy (BLE) or Wi-Fi Direct (For Local).
@@ -168,7 +168,7 @@ This repository contains the master architectural blueprint, features, legal com
 ---
 
 ## 🏛️ 17. Comprehensive Nationwide Emergency Directory Hub (All 17 Regions, Provinces, Cities & 42,046 Barangays)
-The application integrates a massive, exhaustive offline-first national database spanning **all 17 Regions, 82 Provinces, 149 Cities, 1,493 Municipalities, and 42,046 Barangays** across Luzon, Visayas, and Mindanao, dynamically sorted using hardware GPS geofencing. Every listing with a physical location, contact number, email, and public social media page (Facebook, TikTok, official portal) is automatically detected by the map (For Local):
+The application integrates a massive, exhaustive offline-first national database spanning **all 17 Regions, 82 Provinces, 149 Cities, 1,493 Municipalities, and 42,046 Barangays** across Luzon, Visayas, and Mindanao, dynamically sorted using hardware GPS proximity calculations. Every listing with a physical location, contact number, email, and public social media page (Facebook, TikTok, official portal) is automatically detected by the map (For Local):
 
 ### **A. National Unified & Emergency Hotlines**
 - **National Emergency 911:** `911` (For Local)
