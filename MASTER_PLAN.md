@@ -6,20 +6,23 @@ This repository contains the master architectural blueprint, features, legal com
 
 ## 🏛️ 1. Executive Summary & Core Design Principles
 - **Name:** PH-ResQ Vanguard 2026
-- **Target Users:** All Filipino citizens, commuters, families, students, motorists, senior citizens, workers, and residents in high-risk disaster zones across all 17 regions, provinces, cities, barangays, streets, and coastal/marine boundaries of Luzon, Visayas, and Mindanao.
-- **Design Philosophy:** Clean, professional UI where unnecessary elements are hidden, and vital emergency tools are immediately tappable. Low-end device optimized with a neon sci-fi glassmorphic aesthetic and a 100% looping wind-swaying Philippine flag canvas physics simulation.
+- **Target Users:** All Filipino citizens, commuters, families, students, motorists, senior citizens, workers, and residents (both underprivileged and affluent to ensure absolute inclusivity) across all 17 regions, provinces, cities, barangays, streets, and coastal/marine boundaries of Luzon, Visayas, and Mindanao.
+- **Design Philosophy:** Clean, professional UI where unnecessary elements are hidden, and vital emergency tools are immediately tappable. Low-end device optimized with a lightweight APK footprint, neon sci-fi glassmorphic aesthetic, and a 100% looping wind-swaying Philippine flag canvas physics simulation.
 
 ---
 
 ## 🔘 2. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
 - **Multi-Mode Selector (Instant UI Adaptation):** The main interface dynamically morphs and filters displayed content based on the user's selected mode, hiding irrelevant clutter and showing only what is vital to that specific role:
-  - **Student Mode:** Filters UI to display university/school hotlines, campus emergency contacts, class suspension weather tickers, school supplies retail hubs, and student safety check-ins.
+  - **Student Mode:** Filters UI to display university/school hotlines, class suspension weather tickers, school supplies retail hubs, budget-friendly fast food / student meals, and student safety check-ins.
   - **Motorist Mode:** Filters UI to display expressway SOS hotlines, LTO/LTFRB/DPWH road rescue, digital glovebox, traffic radar, and nationwide geo-mapped auto repair / motorcycle mechanic shops (both budget-friendly local vulcanizing shops and premium service centers with operating schedules).
   - **Senior Citizen / PWD Mode:** High-contrast, large-font UI displaying simplified 1-tap emergency calling and the offline medical maintenance vault.
-  - **Worker Mode:** Filters UI to display DOLE, SSS, PhilHealth, Pag-IBIG, industrial zone emergency contacts, and utility provider desks.
+  - **Worker Mode:** Filters UI to display DOLE, SSS, PhilHealth, Pag-IBIG, industrial zone emergency contacts, utility provider desks, and quick dining options.
   - **Offline Mode:** Dedicated toggle forcing 100% local database rendering without network dependency.
-- **Background Silent Online Sync & Wi-Fi Maximizer:** Online synchronization runs hidden in the background. When the device connects to **Wi-Fi** (non-mobile data), the background agent aggressively maximizes its search bandwidth to fetch the latest nationwide news, directory patches, weather alerts, and data updates without eating into user cellular credits.
-- **Unlimited Local Caching (For Local):** All offline-capable directories, contacts, barangay/street map coordinates, operating schedules, and auto-repair shops are stored locally with zero artificial storage limits (`localStorage` / IndexedDB).
+- **Stealth Background Lazy Caching & Wi-Fi Maximizer:** 
+  - **Initial Ultra-Light APK:** The app is shipped with a minimal binary size containing core emergency directories.
+  - **Stealth Background Downloading:** Upon installation and app launch, the background worker *silently and invisibly* downloads and caches remaining regional data, maps, and updates piece by piece without showing annoying loading screens, ensuring users never feel disappointed by unexpected internet requirements.
+  - **Wi-Fi Maximizer:** When connected to Wi-Fi, background bandwidth is fully leveraged to fetch the latest nationwide updates without consuming mobile data credits.
+- **Unlimited Local Caching (For Local):** All offline-capable directories, contacts, barangay/street map coordinates, operating schedules, fast food delivery hotlines, and auto-repair shops are stored locally with zero artificial storage limits (`localStorage` / IndexedDB).
 - **Smart Garbage Collector & Version Rotation Agent:** 
   - If a new update arrives, the agent **instantly replaces** outdated entries (`v_old` -> `v_latest`), purging deprecated data from active UI display memory.
   - If no new updates arrive, stable cached local data remains securely in place indefinitely without deletion, ensuring continuous offline availability.
@@ -43,7 +46,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📞 5. Device Integrations, Phonebook Export & App Launch Intent Dispatch
+## 📞 5. Device Integrations, Phonebook Export & App Intent Dispatch
 - **Direct Phone Dialer (`tel:`):** Tapping any hotline launches native dialer with pre-filled numbers (For Local).
 - **Direct SMS Broadcast (`sms:`):** Triggers multi-recipient emergency SMS broadcasts with GPS coordinates (For Local).
 - **Direct Email Dispatch (`mailto:` with App Choices):** Full support for dispatching official inquiry or medical profile emails, prompting the user to select from installed email apps (Gmail, Outlook, native mail clients) (For Online/Connected).
@@ -53,13 +56,23 @@ This repository contains the master architectural blueprint, features, legal com
 ---
 
 ## 🗺️ 6. Universal Granular Map-Based Proximity Radar (Regions, Cities, Barangays, Streets & Coastal Waters)
-- **Granular Nationwide Geofencing:** Offline-capable GPS geofencing mapping **all** institutional listings, government offices, public/private hospitals (with operating hours), SSS/PhilHealth/Pag-IBIG branches, utilities, transport hubs, student retail/bookstores, nationwide auto repair and vulcanizing shops (with 24/7 or operating schedule indicators), coastal/marine rescue points, and evacuation centers down to the exact **Region, Province, City, Barangay, and Street level** across Luzon, Visayas, and Mindanao (For Local / Pre-loaded).
+- **Granular Nationwide Geofencing:** Offline-capable GPS geofencing mapping **all** institutional listings, government offices, public/private hospitals (with operating hours), SSS/PhilHealth/Pag-IBIG branches, utilities, transport hubs, student retail/bookstores, fast food chains & coffee shops (Jollibee, McDonald's, Greenwich, Chowking, Starbucks, etc. with operating hours & delivery hotlines), nationwide auto repair and vulcanizing shops, coastal/marine rescue points, and evacuation centers down to the exact **Region, Province, City, Barangay, and Street level** across Luzon, Visayas, and Mindanao (For Local / Pre-loaded).
 - **Coastal & Marine Proximity Detection:** Specialized positioning for coastal areas and open waters detecting the nearest maritime rescue detachments (PCG stations, Naval outposts) and high-ground refuges.
 - **Metro Manila Transit & LRT/MRT Navigation Guides:** Step-by-step platform instructions (Northbound/Southbound, left/right door open indicators for interchanges like EDSA, Recto, Cubao, Doroteo Jose) and transit hotlines (For Local).
 
 ---
 
-## 🚗 7. Motorist & Road Safety Protection Framework (Deep Research & Architecture)
+## 🍔 7. Nationwide Fast Food, Dining & Coffee Shop Directory (Ininclusive - Budget to Premium)
+- **Comprehensive Geo-Mapped Food Hubs:** Geo-mapped across all regions, cities, and barangays to serve both students, workers, and families (affordability-inclusive). Includes operating hours, delivery hotline numbers, email addresses, and website links:
+  - **Jollibee Delivery:** `#87000` | Email: `feedback@jollibee.com.ph` | Website: `jollibee.com.ph` (Operating: 24/7 in select branches or 6:00 AM - 10:00 PM) (For Local / Online)
+  - **McDonald's Delivery:** `(02) 8888-6236` / `#8-6236` | Email: `customercare@ph.mcd.com` | Website: `mcdonalds.com.ph` (Operating: 24/7 in select branches) (For Local / Online)
+  - **Greenwich Delivery:** `#5-55-55` | Email: `feedback@greenwich.com.ph` | Website: `greenwich.com.ph` (Operating: 9:00 AM - 9:00 PM) (For Local / Online)
+  - **Chowking Delivery:** `#9-88-88` | Email: `feedback@chowking.com` | Website: `chowking.com` (Operating: 9:00 AM - 9:00 PM) (For Local / Online)
+  - **Starbucks Philippines:** Customer Care: `(02) 8462-6262` | Email: `info@starbucks.ph` | Website: `starbucks.ph` (Operating: Varies per branch, e.g., 7:00 AM - 11:00 PM) (For Local / Online)
+
+---
+
+## 🚗 8. Motorist & Road Safety Protection Framework (Deep Research & Architecture)
 - **Real-Time Expressway & Highway SOS Dispatch:** Dedicated offline-first dialing and SMS channels for all major Philippine expressways (NLEx, SLEX, Skyway, TPLEX, CAVITEX, SCTEX) with automated GPS mile-marker tagging (For Local).
 - **LTO, LTFRB & DPWH Road Rescue Integration:** Immediate access to vehicular accident reporting, towing services, roadside assistance, and traffic violation assistance hotlines (For Local / Online).
 - **Motorist Digital Glovebox (Offline Document Vault):** Encrypted local storage for driver's license details, vehicle registration (OR/CR), and insurance emergency policy numbers (For Local).
@@ -76,17 +89,17 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📡 8. Smart Hybrid Sync & "Free Data / Wi-Fi Maximizer" Architecture
+## 📡 9. Smart Hybrid Sync & "Free Data / Wi-Fi Maximizer" Architecture
 To support millions of Filipinos who rely purely on social media or limited promotional data packages ("Free FB/TikTok data") or **Wi-Fi networks**:
 1. **Wi-Fi Maximizer Agent:** When connected to Wi-Fi, the background sync agent automatically maximizes search and download threads to pull down the latest nationwide news, directory patches, and emergency updates without using mobile data.
 2. **RA 10639 Free Mobile Disaster Alerts Integration:** Built-in broadcast receiver to ingest zero-rated government/telco emergency warnings (For Local / Broadcast).
 3. **Messenger / Lightweight Bot Bridge:** Optional companion lightweight chat channels for querying directory updates (For Online).
-4. **100% Offline Pre-Loaded Core Database:** Complete nationwide directory down to barangays, motorist expressways, auto repair shops, student retail stores, and transport guides baked directly into the installation binary (For Local).
+4. **100% Offline Pre-Loaded Core Database:** Complete nationwide directory down to barangays, motorist expressways, auto repair shops, student retail stores, fast food delivery hotlines, and transport guides baked directly into the installation binary (For Local).
 5. **P2P Local Mesh Sharing:** Ability to sync emergency updates and directory patches locally between nearby devices via Bluetooth Low Energy (BLE) or Wi-Fi Direct (For Local).
 
 ---
 
-## 🎒 9. Student, Senior Citizens & Workers Protection Framework
+## 🎒 10. Student, Senior Citizens & Workers Protection Framework
 - **Safe Arrival / Safe Home Auto-Check-In:** Automated parent/guardian alert trigger notifying departure or arrival status with GPS beacons (For Local/Online).
 - **Universal Medical & Maintenance ID Pocket (Senior/Student Vault):** Encrypted offline emergency medical profile (maintenance medicines, blood type, allergies) accessible by first responders (For Local).
 - **Real-Time Class Suspension & Weather Ticker:** Official DepEd, CHED, and LGU advisory parser caching suspension announcements offline (For Local / Online sync).
@@ -99,7 +112,7 @@ To support millions of Filipinos who rely purely on social media or limited prom
 
 ---
 
-## 🏛️ 10. Comprehensive Nationwide Emergency Directory Hub (Multi-Agency, Retail & Private/Public Grid)
+## 🏛️ 11. Comprehensive Nationwide Emergency Directory Hub (Multi-Agency, Retail, Food & Private/Public Grid)
 The application integrates a hyper-accurate, offline-first national database spanning all 17 regions, provinces, cities, barangays, and streets across Luzon, Visayas, and Mindanao, dynamically sorted using hardware GPS geofencing. Every listing with a physical location is automatically detected by the map (For Local):
 
 ### **A. National Unified & Emergency Hotlines**
@@ -120,7 +133,7 @@ The application integrates a hyper-accurate, offline-first national database spa
 - **Public (Operating Hours & ER 24/7):**
   - **PGH Manila:** `(02) 8554-8400` (ER: 24/7) | Email: `pgh.gov.ph@gmail.com` | Website: `pgh.gov.ph` (For Local / Online)
   - **East Avenue Medical Center (QC):** `(02) 8928-0611` (ER: 24/7) | Email: `eamc@doh.gov.ph` | Website: `eamc.doh.gov.ph` (For Local / Online)
-  - **Vicente Sotto Memorial Medical Center (Cebu):** `(032) 253-9891` (ER: 24/7) | Email: `vsmmc@doh.gov.ph` | Website: `vsmmc.doh.gov.ph` (For Local / Online)
+  - **Vicente Sotto Memorial Medical Center (Cebu):** `(032) 253-9891` (ER: 24/7) | Email: `vsmmc@doh.gov.ph` | Website: `vsmmc@doh.gov.ph` (For Local / Online)
 - **Private (Operating Hours & ER 24/7):**
   - **Makati Medical Center:** `(02) 8888-8999` (ER: 24/7) | Email: `mmc@makatimed.net.ph` | Website: `makatimed.net.ph` (For Local / Online)
   - **St. Luke’s Medical Center (Global City / QC):** `(02) 8789-7700` (ER: 24/7) | Email: `customercare@stlukes.com.ph` | Website: `stlukes.com.ph` (For Local / Online)
