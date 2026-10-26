@@ -21,28 +21,31 @@ This document serves as the absolute, non-negotiable operational charter governi
   - Compressed offline vector maps / MBTiles: ~50 MB to ~100 MB.
   - Total ceiling: ~150 MB maximum to ensure smooth performance on low-end Android hardware.
 
-## 🔒 4. Privacy-First, RA 10173, Cybersecurity & Google Play Compliance Framework
-- **Data Privacy Act of 2012 (RA 10173):** Complete adherence to National Privacy Commission (NPC) guidelines. All personal emergency contacts and device GPS coordinates remain strictly local (`localStorage` / IndexedDB).
-- **Zero-Knowledge Encryption & User-Defined Master PIN Vault:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**. 
+## 🔒 4. Privacy-First, RA 10173, Cybersecurity & Permissions Framework
+- **Data Privacy Act of 2012 (RA 10173):** Complete adherence to National Privacy Commission (NPC) guidelines. All personal emergency contacts, voice note recordings, and device GPS coordinates remain strictly local (`localStorage` / IndexedDB).
+- **Client-Side Encryption & User-Defined Master PIN Vault:** Sensitive user data and the 10-slot emergency contact vault must be secured via **AES-GCM client-side encryption**. 
   - *User-Defined PIN/Passcode:* Users must set a personal Master PIN to lock their emergency contacts and medical data against unauthorized physical snooping.
   - *SOS Bypass:* During emergencies, triggering the SOS broadcast securely uses an internal decryption token without requiring manual PIN entry.
   - *Input Sanitization & Integrity:* Input fields are strictly sanitized with Regex filters, and database files are guarded by startup SHA-256 checksum verification.
 - **User-Consent & Intent-Driven Emergency Data Sharing:** 
   - *Zero Silent Tracking:* No background location harvesting or cloud telemetry.
-  - *Explicit User-Initiated SOS:* Location coordinates are shared and broadcasted via SMS (`sms:`) exclusively when the user actively triggers the emergency SOS action during a crisis.
+  - *Explicit User-Initiated SOS:* Location coordinates and local voice notes are shared and broadcasted via SMS (`sms:`) or P2P mesh exclusively when the user actively triggers the emergency SOS action during a crisis.
   - *Vital Interest Exception:* Fully compliant with emergency data sharing exemptions under Philippine law and Google Play policies.
 - **Transparent Google Play Permissions Policy:** Device permissions are requested strictly under core functionality exceptions with prominent in-app disclosures:
   - `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION`: Foreground GPS proximity calculation only. *No background tracking.*
   - `CALL_PHONE` / Intent Dispatch (`tel:`): Safe 1-tap emergency calling via native device dialer (`ACTION_DIAL`).
   - `SEND_SMS`: User-triggered emergency SOS broadcast with GPS coordinates.
+  - `RECORD_AUDIO`: Optional user-triggered 10-second offline voice note recording for emergency SOS logs.
   - `RECEIVE_BOOT_COMPLETED`: Local startup initialization for safety monitoring.
   - `INTERNET` / `ACCESS_NETWORK_STATE`: Wi-Fi maximizer bandwidth optimization and zero-rated disaster alerts.
 
-## 🎛️ 5. Dashboard Controls, SOS Toggle & Emergency Utilities Standards
+## 🎛️ 5. Dashboard Controls, SOS Toggle, Persistence & Reliability Standards
 - **`[🔄 Refresh GPS]` & `[🌐 Online Update]` Controls:** Main dashboard must feature rapid GPS recalibration with 10-second timeout fallbacks and smart online update fetching with data-saving/offline notices.
 - **Home Screen SOS Toggle & Anti-Accidental Hold Guard:** 1-tap / widget SOS toggle requiring a continuous **2-second press-and-hold** with haptic vibration feedback and countdown guard against accidental pocket activation.
 - **Tagalog Emergency SMS Broadcast:** Dispatches clear, natural Tagalog emergency messages to all 10 personal emergency contacts containing exact GPS coordinates.
-- **Offline Emergency Utilities:** Must include Offline Flashlight/Strobe (SOS Morse Code), Emergency Siren/Alarm, "Ligtas Ako" (I am Safe) Check-In Broadcast, and Battery Saver / Low-Power OLED Emergency Mode.
+- **Persistent Sticky State Memory (6 Layers):** Strict local storage persistence for Active Mode, Emergency Contact Vault, Last Known GPS, Crisis SOS State, Search History, and Offline Map Tiles.
+- **Advanced Reliability Safeguards:** Low-battery auto-save snapshot (<5% battery or unexpected crash protection), startup SHA-256 database integrity verification with self-healing fallback, and offline voice note recorder for trapped disaster victims.
+- **Offline Emergency Utilities:** Must include Offline Flashlight/Strobe (SOS Morse Code), Emergency Siren/Alarm, "Ligtas Ako" (I am Safe) Check-In Broadcast, Battery Saver / Low-Power OLED Emergency Mode, and P2P Local Emergency Mesh Sync (Bluetooth LE / Wi-Fi Direct).
 - **Educational Accessibility:** Built-in "About PH-ResQ" mission section and Interactive Quick Tutorial / Onboarding walkthrough for seniors and first-time smartphone users.
 
 ## 🔘 6. Context-Aware UI Filtering & Universal Priority Rule
