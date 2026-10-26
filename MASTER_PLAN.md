@@ -6,7 +6,7 @@ This repository contains the master architectural blueprint, features, legal com
 
 ## 🏛️ 1. Executive Summary & Core Design Principles
 - **Name:** PH-ResQ Vanguard 2026
-- **Target Users:** All Filipino citizens, commuters, families, students, motorists, senior citizens, workers, and residents in high-risk disaster zones across Luzon, Visayas, and Mindanao.
+- **Target Users:** All Filipino citizens, commuters, families, students, motorists, senior citizens, workers, and residents in high-risk disaster zones across all 17 regions, provinces, cities, barangays, streets, and coastal/marine boundaries of Luzon, Visayas, and Mindanao.
 - **Design Philosophy:** Clean, professional UI where unnecessary elements are hidden, and vital emergency tools are immediately tappable. Low-end device optimized with a neon sci-fi glassmorphic aesthetic and a 100% looping wind-swaying Philippine flag canvas physics simulation.
 
 ---
@@ -14,12 +14,12 @@ This repository contains the master architectural blueprint, features, legal com
 ## 🔘 2. Dynamic Role-Based Mode Switcher & Strict UI Filtering Architecture
 - **Multi-Mode Selector (Instant UI Adaptation):** The main interface dynamically morphs and filters displayed content based on the user's selected mode, hiding irrelevant clutter and showing only what is vital to that specific role:
   - **Student Mode:** Filters UI to display university/school hotlines, campus emergency contacts, class suspension weather tickers, school supplies retail hubs, and student safety check-ins.
-  - **Motorist Mode:** Filters UI to display expressway SOS hotlines, LTO/LTFRB/DPWH road rescue, digital glovebox, traffic radar, and nationwide geo-mapped auto repair / motorcycle mechanic shops (both budget-friendly local shops and premium service centers).
+  - **Motorist Mode:** Filters UI to display expressway SOS hotlines, LTO/LTFRB/DPWH road rescue, digital glovebox, traffic radar, and nationwide geo-mapped auto repair / motorcycle mechanic shops (both budget-friendly local vulcanizing shops and premium service centers with operating schedules).
   - **Senior Citizen / PWD Mode:** High-contrast, large-font UI displaying simplified 1-tap emergency calling and the offline medical maintenance vault.
   - **Worker Mode:** Filters UI to display DOLE, SSS, PhilHealth, Pag-IBIG, industrial zone emergency contacts, and utility provider desks.
   - **Offline Mode:** Dedicated toggle forcing 100% local database rendering without network dependency.
 - **Background Silent Online Sync & Wi-Fi Maximizer:** Online synchronization runs hidden in the background. When the device connects to **Wi-Fi** (non-mobile data), the background agent aggressively maximizes its search bandwidth to fetch the latest nationwide news, directory patches, weather alerts, and data updates without eating into user cellular credits.
-- **Unlimited Local Caching (For Local):** All offline-capable directories, contacts, map coordinates, and auto-repair shops are stored locally with zero artificial storage limits (`localStorage` / IndexedDB).
+- **Unlimited Local Caching (For Local):** All offline-capable directories, contacts, barangay/street map coordinates, operating schedules, and auto-repair shops are stored locally with zero artificial storage limits (`localStorage` / IndexedDB).
 - **Smart Garbage Collector & Version Rotation Agent:** 
   - If a new update arrives, the agent **instantly replaces** outdated entries (`v_old` -> `v_latest`), purging deprecated data from active UI display memory.
   - If no new updates arrive, stable cached local data remains securely in place indefinitely without deletion, ensuring continuous offline availability.
@@ -30,7 +30,7 @@ This repository contains the master architectural blueprint, features, legal com
 - **Data Privacy Act of 2012 (RA 10173) Compliance:** All personal emergency contacts and device GPS coordinates remain **strictly local and private** (`localStorage`) (For Local). No personal data or location is ever uploaded, sold, or transmitted to any external third-party cloud servers without user authorization (For Online sync).
 - **Client-Side Encryption (Zero-Knowledge Local Storage):** The 10 personal emergency contacts and sensitive inputs are secured via **AES-GCM client-side encryption** with a secure device-bound key (For Local) to protect against data extraction, malware, or physical snooping.
 - **Strict Sanitization & Anti-Injection Guards:** Input handlers utilize rigorous Regex validation filters (For Local) to block XSS, script injection, and tampering on Name fields (letters/spaces only) and Phone fields (numbers only).
-- **Secure Sandbox Isolation:** Strict scheme whitelisting for `tel:`, `sms:`, and `mailto:` intents (For Local/Device).
+- **Secure Sandbox Isolation:** Strict scheme whitelisting for `tel:`, `sms:`, and `mailto:` intents (For Local/Device). When tapping emails or websites, the app presents seamless intent choices to launch the user's preferred installed email client (Gmail, Mail apps) or native web browser.
 
 ---
 
@@ -43,17 +43,18 @@ This repository contains the master architectural blueprint, features, legal com
 
 ---
 
-## 📞 5. Device Integrations, Phonebook Export & Email Dispatch
-- **Direct Phone Dialer (`tel:`):** Tapping any hotline launches native dialer (For Local).
-- **Direct SMS Broadcast (`sync` / `sms:`):** Triggers multi-recipient emergency SMS broadcasts with GPS coordinates (For Local).
-- **Direct Email Dispatch (`mailto:`):** Full support for dispatching official inquiry or medical profile emails (For Online/Connected).
+## 📞 5. Device Integrations, Phonebook Export & App Launch Intent Dispatch
+- **Direct Phone Dialer (`tel:`):** Tapping any hotline launches native dialer with pre-filled numbers (For Local).
+- **Direct SMS Broadcast (`sms:`):** Triggers multi-recipient emergency SMS broadcasts with GPS coordinates (For Local).
+- **Direct Email Dispatch (`mailto:` with App Choices):** Full support for dispatching official inquiry or medical profile emails, prompting the user to select from installed email apps (Gmail, Outlook, native mail clients) (For Online/Connected).
+- **Web & Calling App Handlers:** Seamless intent dispatchers allowing users to open official public websites in their preferred mobile browser, or place calls using default device telecommunication apps.
 - **Save to Phonebook (vCard Export):** Dedicated phonebook icon to instantly save numbers to device contact list (For Local).
 
 ---
 
-## 🗺️ 6. Interactive Proximity Map, Geolocation Pinning & Dynamic Radar
-- **Universal Map-Based Proximity Radar:** Offline-capable GPS geofencing mapping **all** institutional listings (government offices, public/private hospitals, SSS/PhilHealth/Pag-IBIG branches, utilities, transport hubs, student retail/bookstores, nationwide auto repair / motorcycle shops, and evacuation centers) across Luzon, Visayas, and Mindanao, dynamically sorted from closest to farthest based on user's live hardware GPS coordinates (For Local / Pre-loaded).
-- **Coastal & Island Emergency Points:** Specialized positioning for coastal/islands prioritizing PCG detachments, naval outposts, and high-ground evacuation points (For Local).
+## 🗺️ 6. Universal Granular Map-Based Proximity Radar (Regions, Cities, Barangays, Streets & Coastal Waters)
+- **Granular Nationwide Geofencing:** Offline-capable GPS geofencing mapping **all** institutional listings, government offices, public/private hospitals (with operating hours), SSS/PhilHealth/Pag-IBIG branches, utilities, transport hubs, student retail/bookstores, nationwide auto repair and vulcanizing shops (with 24/7 or operating schedule indicators), coastal/marine rescue points, and evacuation centers down to the exact **Region, Province, City, Barangay, and Street level** across Luzon, Visayas, and Mindanao (For Local / Pre-loaded).
+- **Coastal & Marine Proximity Detection:** Specialized positioning for coastal areas and open waters detecting the nearest maritime rescue detachments (PCG stations, Naval outposts) and high-ground refuges.
 - **Metro Manila Transit & LRT/MRT Navigation Guides:** Step-by-step platform instructions (Northbound/Southbound, left/right door open indicators for interchanges like EDSA, Recto, Cubao, Doroteo Jose) and transit hotlines (For Local).
 
 ---
@@ -62,15 +63,16 @@ This repository contains the master architectural blueprint, features, legal com
 - **Real-Time Expressway & Highway SOS Dispatch:** Dedicated offline-first dialing and SMS channels for all major Philippine expressways (NLEx, SLEX, Skyway, TPLEX, CAVITEX, SCTEX) with automated GPS mile-marker tagging (For Local).
 - **LTO, LTFRB & DPWH Road Rescue Integration:** Immediate access to vehicular accident reporting, towing services, roadside assistance, and traffic violation assistance hotlines (For Local / Online).
 - **Motorist Digital Glovebox (Offline Document Vault):** Encrypted local storage for driver's license details, vehicle registration (OR/CR), and insurance emergency policy numbers (For Local).
-- **Nationwide Auto Repair & Motorcycle Mechanic Directory (Geo-Mapped - Budget to Premium):**
-  - Comprehensive listing of public/private auto repair shops, vulcanizing shops, and motorcycle service centers across Luzon, Visayas, and Mindanao, mapped with contact numbers, emails, and exact GPS coordinates (For Local).
+- **Nationwide Auto Repair, Vulcanizing & Motorcycle Mechanic Directory (Geo-Mapped - 24/7 & Operating Hours):**
+  - Comprehensive listing of public/private auto repair shops, vulcanizing shops, and motorcycle service centers across all regions, cities, and barangays of Luzon, Visayas, and Mindanao. 
+  - Includes exact GPS coordinates, contact numbers, emails, websites, and **operating schedules (e.g., 24/7 Emergency Vulcanizing, 8:00 AM - 6:00 PM)** so stranded motorists can locate open shops even late at night (For Local).
 - **Nationwide Expressway & Road Assistance Hub (Geo-Mapped):**
   - **NLEx Traffic & Accident Hotline:** `(02) 8350-0000` | Email: `customercare@nlex.com.ph` | Website: `nlex.com.ph` (For Local / Online)
   - **SLEX / Skyway Traffic Command:** `(02) 8824-2282` | Email: `customercare@slex.ph` | Website: `slex.ph` (For Local / Online)
   - **TPLEX:** Hotline: `0917-888-0715` | Email: `customercare@tplex.com.ph` | Website: `tplex.com.ph` (For Local / Online)
   - **SCTEX:** Hotline: `(02) 8350-0000` | Email: `customercare@nlex.com.ph` | Website: `nlex.com.ph` (For Local / Online)
   - **CAVITEX / C5 Link:** `(02) 8825-4004` | Email: `customercare@cavitex.ph` | Website: `cavitex.ph` (For Local / Online)
-  - **MMDA Metrobase & Road Rescue:** `136` / `(02) 8882-4151` | Email: `metrobase@mmda.gov.ph` | Website: `mmda.gov.ph` (For Local / Online)
+  - **MMDA Metrobase & Road Rescue:** `136` | Email: `metrobase@mmda.gov.ph` | Website: `mmda.gov.ph` (For Local / Online)
 
 ---
 
@@ -79,7 +81,7 @@ To support millions of Filipinos who rely purely on social media or limited prom
 1. **Wi-Fi Maximizer Agent:** When connected to Wi-Fi, the background sync agent automatically maximizes search and download threads to pull down the latest nationwide news, directory patches, and emergency updates without using mobile data.
 2. **RA 10639 Free Mobile Disaster Alerts Integration:** Built-in broadcast receiver to ingest zero-rated government/telco emergency warnings (For Local / Broadcast).
 3. **Messenger / Lightweight Bot Bridge:** Optional companion lightweight chat channels for querying directory updates (For Online).
-4. **100% Offline Pre-Loaded Core Database:** Complete nationwide directory, motorist expressways, auto repair shops, student retail stores, and transport guides baked directly into the installation binary (For Local).
+4. **100% Offline Pre-Loaded Core Database:** Complete nationwide directory down to barangays, motorist expressways, auto repair shops, student retail stores, and transport guides baked directly into the installation binary (For Local).
 5. **P2P Local Mesh Sharing:** Ability to sync emergency updates and directory patches locally between nearby devices via Bluetooth Low Energy (BLE) or Wi-Fi Direct (For Local).
 
 ---
@@ -98,7 +100,7 @@ To support millions of Filipinos who rely purely on social media or limited prom
 ---
 
 ## 🏛️ 10. Comprehensive Nationwide Emergency Directory Hub (Multi-Agency, Retail & Private/Public Grid)
-The application integrates a hyper-accurate, offline-first national database spanning Luzon, Visayas, and Mindanao, dynamically sorted using hardware GPS geofencing. Every listing with a physical location is automatically detected by the map (For Local):
+The application integrates a hyper-accurate, offline-first national database spanning all 17 regions, provinces, cities, barangays, and streets across Luzon, Visayas, and Mindanao, dynamically sorted using hardware GPS geofencing. Every listing with a physical location is automatically detected by the map (For Local):
 
 ### **A. National Unified & Emergency Hotlines**
 - **National Emergency 911:** `911` (For Local)
@@ -114,21 +116,21 @@ The application integrates a hyper-accurate, offline-first national database spa
 - **Pag-IBIG Fund (HDMF):** Hotline `(02) 8724-4244` | Email: `contactus@pagibigfund.gov.ph` | Website: `pagibigfund.gov.ph` (For Local / Online)
 - **DOLE & DOTr:** DOLE Hotline `1349` | Email: `hotline1349@dole.gov.ph` | Website: `dole.gov.ph` (For Local / Online)
 
-### **C. Public & Private Hospitals / Medical Centers (Geo-Mapped Nationwide - Luzon, Visayas, Mindanao)**
-- **Public:**
-  - **PGH Manila:** `(02) 8554-8400` | Email: `pgh.gov.ph@gmail.com` | Website: `pgh.gov.ph` (For Local / Online)
-  - **East Avenue Medical Center (QC):** `(02) 8928-0611` | Email: `eamc@doh.gov.ph` | Website: `eamc.doh.gov.ph` (For Local / Online)
-  - **Vicente Sotto Memorial Medical Center (Cebu):** `(032) 253-9891` | Email: `vsmmc@doh.gov.ph` | Website: `vsmmc@doh.gov.ph` (For Local / Online)
-- **Private:**
-  - **Makati Medical Center:** `(02) 8888-8999` | Email: `mmc@makatimed.net.ph` | Website: `makatimed.net.ph` (For Local / Online)
-  - **St. Luke’s Medical Center (Global City / QC):** `(02) 8789-7700` | Email: `customercare@stlukes.com.ph` | Website: `stlukes.com.ph` (For Local / Online)
-  - **Cardinal Santos Medical Center (San Juan):** `(02) 8727-0001` | Email: `csmc@cardinalsantos.com.ph` | Website: `cardinalsantos.com.ph` (For Local / Online)
-  - **The Medical City (Ortigas):** `(02) 8988-1000` | Email: `mail@themedicalcity.com` | Website: `themedicalcity.com` (For Local / Online)
-  - **Asian Hospital (Muntinlupa):** `(02) 8771-9000` | Email: `info@asianhospital.com` | Website: `asianhospital.com` (For Local / Online)
+### **C. Public & Private Hospitals / Medical Centers (Geo-Mapped Nationwide - Schedules, Emails & Hotlines)**
+- **Public (Operating Hours & ER 24/7):**
+  - **PGH Manila:** `(02) 8554-8400` (ER: 24/7) | Email: `pgh.gov.ph@gmail.com` | Website: `pgh.gov.ph` (For Local / Online)
+  - **East Avenue Medical Center (QC):** `(02) 8928-0611` (ER: 24/7) | Email: `eamc@doh.gov.ph` | Website: `eamc.doh.gov.ph` (For Local / Online)
+  - **Vicente Sotto Memorial Medical Center (Cebu):** `(032) 253-9891` (ER: 24/7) | Email: `vsmmc@doh.gov.ph` | Website: `vsmmc.doh.gov.ph` (For Local / Online)
+- **Private (Operating Hours & ER 24/7):**
+  - **Makati Medical Center:** `(02) 8888-8999` (ER: 24/7) | Email: `mmc@makatimed.net.ph` | Website: `makatimed.net.ph` (For Local / Online)
+  - **St. Luke’s Medical Center (Global City / QC):** `(02) 8789-7700` (ER: 24/7) | Email: `customercare@stlukes.com.ph` | Website: `stlukes.com.ph` (For Local / Online)
+  - **Cardinal Santos Medical Center (San Juan):** `(02) 8727-0001` (ER: 24/7) | Email: `csmc@cardinalsantos.com.ph` | Website: `cardinalsantos.com.ph` (For Local / Online)
+  - **The Medical City (Ortigas):** `(02) 8988-1000` (ER: 24/7) | Email: `mail@themedicalcity.com` | Website: `themedicalcity.com` (For Local / Online)
+  - **Asian Hospital (Muntinlupa):** `(02) 8771-9000` (ER: 24/7) | Email: `info@asianhospital.com` | Website: `asianhospital.com` (For Local / Online)
 
 ### **D. Student Retail Hubs & School Supplies Stores (Geo-Mapped Nationwide)**
 - **National Book Store (NBS):** Hotline `(02) 8888-6274` | Email: `support@nationalbookstore.com.ph` | Website: `nationalbookstore.com` (For Local / Online)
-- **The SM Store & SM Supermalls:** Hotline `(02) 876-1111` | Email: `customercare@smsupermalls.com` | Website: `smsupermalls.com` (For Local / Online)
+- **The SM Store & SM Supermalls:** Hotline `(02) 8876-1111` | Email: `customercare@smsupermalls.com` | Website: `smsupermalls.com` (For Local / Online)
 - **Robinsons Department Store:** Hotline `(02) 8397-1888` | Email: `ask@robinsonsmalls.com` | Website: `robinsonsdepartmentstore.com.ph` (For Local / Online)
 - **Pandayan Bookshop:** Hotline `(044) 806-9340` | Email: `info@pandayan.com.ph` | Website: `pandayan.com.ph` (For Local / Online)
 
@@ -137,7 +139,7 @@ The application integrates a hyper-accurate, offline-first national database spa
 - **Maynilad Water Services:** `1626` | Email: `customer.help@mayniladwater.com.ph` | Website: `mayniladwater.com.ph` (For Local / Online)
 - **Manila Water:** `1627` | Email: `customercare@manilawater.com` | Website: `manilawater.com` (For Local / Online)
 
-### **F. Regional, Provincial & Municipal Hubs (Luzon, Visayas, Mindanao - Geo-Mapped)**
+### **F. Regional, Provincial, City & Barangay Municipal Hubs (Luzon, Visayas, Mindanao - Granular Geo-Mapped)**
 - **CAR & Baguio:** BCPO `(074) 442-1215`, Benguet Gen Hospital `(074) 422-2936` (For Local)
 - **Ilocos Region:** Laoag Police `(077) 772-0402`, ITRMC La Union `(072) 607-6421` (For Local)
 - **Cagayan Valley:** Tuguegarao Police `(078) 844-1234`, CVMC `(078) 396-1550` (For Local)
