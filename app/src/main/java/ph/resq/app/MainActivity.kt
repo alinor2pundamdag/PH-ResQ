@@ -249,7 +249,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     }
     var voiceRecording by remember { mutableStateOf(false) }
     var voiceStatus by remember { mutableStateOf("Wala pang voice note") }
-    var voicePlaybackVolume by remember { mutableStateOf(prefs.getFloat("voice_playback_volume", SafeVolumePolicy.DEFAULT)) }
+    var voicePlaybackVolume by remember { mutableStateOf(runCatching { SafeVolumePolicy.clamp(prefs.getFloat("voice_playback_volume", SafeVolumePolicy.DEFAULT)) }.getOrDefault(SafeVolumePolicy.DEFAULT)) }
     var savedVoiceNotes by remember { mutableStateOf(voiceRecorder.listSaved(context)) }
     var voicePlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var voicePlaybackTemp by remember { mutableStateOf<File?>(null) }
