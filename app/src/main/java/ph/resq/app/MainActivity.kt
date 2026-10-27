@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -58,6 +59,7 @@ import ph.resq.app.core.NearbyBlePeer
 import ph.resq.app.core.SosMessage
 import ph.resq.app.core.SosState
 import kotlinx.coroutines.withTimeoutOrNull
+import java.io.File
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,6 +144,60 @@ private fun HomeScreen() {
     }
     var voiceRecording by remember { mutableStateOf(false) }
     var voiceStatus by remember { mutableStateOf("Wala pang voice note") }
+    var savedVoiceNotes by remember { mutableStateOf(voiceRecorder.listSaved(context)) }
+    var voicePlayer by remember { mutableStateOf<MediaPlayer?>(null) }
+    var voicePlaybackTemp by remember { mutableStateOf<File?>(null) }
+    DisposableEffect(Unit) {
+        onDispose {
+            runCatching { voicePlayer?.stop() }
+            runCatching { voicePlayer?.release() }
+            voicePlayer = null
+            voicePlaybackTemp?.delete()
+            voicePlaybackTemp = null
+        }
+    }
+    fun stopVoicePlayback() {
+        runCatching { voicePlayer?.stop() }
+        runCatching { voicePlayer?.release() }
+        voicePlayer = null
+        voicePlaybackTemp?.delete()
+        voicePlaybackTemp = null
+        voiceStatus = "Playback stopped"
+    }
+    fun playVoiceNote(encryptedFile: File) {
+        stopVoicePlayback()
+        var temp: File? = null
+        var player: MediaPlayer? = null
+        try {
+            temp = voiceRecorder.decryptToTemporaryFile(context, encryptedFile)
+            player = MediaPlayer()
+            player.setDataSource(temp.absolutePath)
+            player.setOnCompletionListener { completed ->
+                runCatching { completed.release() }
+                temp?.delete()
+                if (voicePlayer === completed) voicePlayer = null
+                if (voicePlaybackTemp == temp) voicePlaybackTemp = null
+                voiceStatus = "Playback complete"
+            }
+            player.setOnErrorListener { failed, _, _ ->
+                runCatching { failed.release() }
+                temp?.delete()
+                if (voicePlayer === failed) voicePlayer = null
+                if (voicePlaybackTemp == temp) voicePlaybackTemp = null
+                voiceStatus = "Playback failed; temporary decrypted file removed"
+                true
+            }
+            player.prepare()
+            player.start()
+            voicePlayer = player
+            voicePlaybackTemp = temp
+            voiceStatus = "Playing encrypted voice note"
+        } catch (_: Exception) {
+            runCatching { player?.release() }
+            temp?.delete()
+            voiceStatus = "Cannot play this note; it may be corrupt or its Keystore key is unavailable"
+        }
+    }
     var showAccessibleSosConfirm by remember { mutableStateOf(false) }
     fun beginBleScan() {
         try {
@@ -169,6 +225,7 @@ private fun HomeScreen() {
                 voiceRecorder.start(context) { file ->
                     voiceRecording = false
                     voiceStatus = if (file != null) "Encrypted local note saved: " + file.name + " (hindi pa nakakabit sa SMS)" else "Hindi na-save ang recording."
+                    savedVoiceNotes = voiceRecorder.listSaved(context)
                 }
                 voiceRecording = true
                 voiceStatus = "Recording… maximum 10 seconds"
@@ -370,13 +427,33 @@ private fun HomeScreen() {
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Voice note", style = MaterialTheme.typography.titleLarge)
-                Text("Hanggang 10 segundo; naka-encrypt sa local app storage. Sa kasalukuyan, hindi pa ito awtomatikong nakakabit sa SMS.")
+                Text("Hanggang 10 segundo; naka-encrypt sa local app storage. Hindi ito awtomatikong nakakabit sa SMS.")
                 Text(voiceStatus)
                 Button(onClick = {
                     if (voiceRecording) voiceRecorder.stop()
                     else microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                 }, modifier = Modifier.fillMaxWidth()) {
                     Text(if (voiceRecording) "STOP AND ENCRYPT NOTE" else "RECORD VOICE NOTE")
+                }
+                if (voicePlayer != null) {
+                    Button(onClick = { stopVoicePlayback() }, modifier = Modifier.fillMaxWidth()) {
+                        Text("STOP PLAYBACK")
+                    }
+                }
+                Text("Saved encrypted notes: " + savedVoiceNotes.size, style = MaterialTheme.typography.titleMedium)
+                savedVoiceNotes.forEach { note ->
+                    Text(note.name)
+                    Button(onClick = { playVoiceNote(note) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(if (voicePlayer != null && voicePlaybackTemp != null) "PLAY / RESTART NOTE" else "PLAY NOTE")
+                    }
+                    Button(onClick = {
+                        if (voicePlaybackTemp != null && voicePlayer != null) stopVoicePlayback()
+                        val removed = runCatching { voiceRecorder.deleteSaved(context, note) }.getOrDefault(false)
+                        savedVoiceNotes = voiceRecorder.listSaved(context)
+                        voiceStatus = if (removed) "Encrypted note deleted" else "Could not delete encrypted note"
+                    }, modifier = Modifier.fillMaxWidth()) {
+                        Text("DELETE NOTE")
+                    }
                 }
             }
         }
