@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper
  * Local transactional foundation for durable emergency state.
  * Directory/map tables are empty until sourced datasets and importers are added.
  */
-class ResQDatabase(context: Context) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 2) {
+class ResQDatabase(context: Context) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 3) {
     private val fieldCipher = EncryptedFieldCipher()
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -21,22 +21,22 @@ class ResQDatabase(context: Context) : SQLiteOpenHelper(context, "ph_resq_local.
         db.execSQL("CREATE TABLE directory_entries (entry_id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, category TEXT NOT NULL, phone TEXT, latitude REAL, longitude REAL, source_url TEXT, verified_at INTEGER)")
         db.execSQL("CREATE TABLE map_tiles (tile_key TEXT PRIMARY KEY NOT NULL, local_path TEXT NOT NULL, sha256 TEXT, dataset_version TEXT, updated_at INTEGER)")
         db.execSQL("CREATE TABLE family_checkins (id INTEGER PRIMARY KEY AUTOINCREMENT, status TEXT NOT NULL, created_at INTEGER NOT NULL, sync_state TEXT NOT NULL)")
+        db.execSQL("CREATE TABLE pending_actions (id INTEGER PRIMARY KEY AUTOINCREMENT, action_type TEXT NOT NULL, payload_ciphertext TEXT NOT NULL, created_at INTEGER NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL, last_error TEXT)")
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        if (oldVersion == 1 && newVersion == 2) {
+        var version = oldVersion
+        if (version < 2) {
             db.execSQL("ALTER TABLE sos_events ADD COLUMN draft_ciphertext TEXT")
             db.execSQL("ALTER TABLE sos_events ADD COLUMN recipients_ciphertext TEXT")
             db.execSQL("ALTER TABLE sos_events ADD COLUMN location_ciphertext TEXT")
             val legacyRows = mutableListOf<Array<Any?>>()
             db.rawQuery("SELECT id, draft, recipients, location FROM sos_events", null).use { cursor ->
                 while (cursor.moveToNext()) {
-                    legacyRows.add(arrayOf(
-                        cursor.getLong(0),
+                    legacyRows.add(arrayOf(cursor.getLong(0),
                         if (cursor.isNull(1)) null else cursor.getString(1),
                         if (cursor.isNull(2)) null else cursor.getString(2),
-                        if (cursor.isNull(3)) null else cursor.getString(3)
-                    ))
+                        if (cursor.isNull(3)) null else cursor.getString(3)))
                 }
             }
             legacyRows.forEach { row ->
@@ -47,14 +47,14 @@ class ResQDatabase(context: Context) : SQLiteOpenHelper(context, "ph_resq_local.
                     if (draft != null) put("draft_ciphertext", fieldCipher.encrypt(draft))
                     if (recipients != null) put("recipients_ciphertext", fieldCipher.encrypt(recipients))
                     if (location != null) put("location_ciphertext", fieldCipher.encrypt(location))
-                    putNull("draft")
-                    putNull("recipients")
-                    putNull("location")
+                    putNull("draft"); putNull("recipients"); putNull("location")
                 }
                 db.update("sos_events", values, "id = ?", arrayOf(row[0].toString()))
             }
-        } else {
-            throw IllegalStateException("Database migration required: " + oldVersion + " -> " + newVersion)
+            version = 2
+        }
+        if (version < 3 && newVersion >= 3) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS pending_actions (id INTEGER PRIMARY KEY AUTOINCREMENT, action_type TEXT NOT NULL, payload_ciphertext TEXT NOT NULL, created_at INTEGER NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL, last_error TEXT)")
         }
     }
 
