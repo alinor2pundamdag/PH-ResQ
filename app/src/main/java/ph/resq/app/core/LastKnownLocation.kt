@@ -26,8 +26,13 @@ object LastKnownLocation {
 
     fun format(location: Location): String {
         val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'", Locale.US).apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date(location.time))
-        return "GPS: %.6f, %.6f; accuracy about %.0f m; fix time %s".format(
-            Locale.US, location.latitude, location.longitude, location.accuracy, date
+        val accuracy = if (location.hasAccuracy()) {
+            "%.0f m".format(Locale.US, location.accuracy)
+        } else {
+            "unknown"
+        }
+        return "GPS: %.6f, %.6f; accuracy %s; fix time %s".format(
+            Locale.US, location.latitude, location.longitude, accuracy, date
         )
     }
 }
