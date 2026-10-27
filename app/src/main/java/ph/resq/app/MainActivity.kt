@@ -158,7 +158,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     var reduceMotion by remember { mutableStateOf(prefs.getBoolean("reduce_motion", false)) }
     val vault = remember { LocalVault(context) }
     val pinVault = remember { PinProtectedVault(context) }
-    var pinVaultEnabled by remember { mutableStateOf(prefs.getBoolean("pin_vault_enabled", false) && pinVault.isConfigured()) }
+    var pinVaultEnabled by remember { mutableStateOf(prefs.getBoolean("pin_vault_enabled", false) || pinVault.isConfigured()) }
     var pinVaultUnlocked by remember { mutableStateOf(!pinVaultEnabled) }
     var pinVaultPin by remember { mutableStateOf("") }
     var pinVaultStatus by remember { mutableStateOf(if (pinVaultEnabled) "Vault locked. I-unlock bago gumamit ng saved contacts." else "Optional PIN vault is disabled.") }
