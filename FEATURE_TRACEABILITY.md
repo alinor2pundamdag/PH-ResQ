@@ -32,11 +32,11 @@
 | F-025 | PAGASA alert cache | Advisory cache | Planned — implementation not evidenced | Source, publication/retrieval time, expiry and stale-cache labeling |
 | F-026 | Evacuation centre status | Local directory/update flow | Planned — implementation not evidenced | Source/time metadata, stale/missing status and update-failure tests |
 | F-027 | Cell-broadcast awareness | Help/information flow | Planned — implementation not evidenced | No claim that a third-party app intercepts all system/carrier broadcasts |
-| F-028 | Privacy/permission compliance | Consent/privacy/settings | Partial — basic consent gate; complete privacy/legal/permission audit pending | Permission rationale, denial path, data minimization and policy review |
+| F-028 | Privacy/permission compliance | Consent/privacy/settings | Partial — versioned consent with timestamp and current-build notice added; complete privacy/legal/permission audit pending | Permission rationale, denial path, data minimization and policy review |
 | F-029 | Chaos/resilience testing | Test suite | Planned — implementation not evidenced | Process death, reboot, corrupt storage, low space, no network/GPS/SIM, duplicate/out-of-order packets |
 | F-030 | Philippine flag color-looping title and waving visual | UI/theme/animation | Planned — implementation not evidenced | Readability, reduced-motion, background/battery and emergency-control usability tests |
 | F-031 | 15-second mesh battery-saver scan window | Mesh scheduler | Planned — implementation not evidenced | Measured scan duty cycle/battery behavior; document OS scheduling limits |
-| F-032 | Search and bookmark history | Local data layer | Planned — implementation not evidenced | Persistence, clear-history/privacy controls and migration tests |
+| F-032 | Search and bookmark history | Local data layer | Partial — local search history and hotline bookmarks added; UI/database resilience tests pending | Persistence, clear-history/privacy controls and migration tests |
 | F-033 | SMS/mesh delivery state | SOS/mesh state machine | Partial — state/draft persistence; SMS delivery confirmation absent | Queued/sending/sent-to-handoff/delivered/acknowledged/failure states tested |
 | F-034 | Nationwide map and directory updates | Data pipeline | Planned — implementation not evidenced | Source license, version, freshness, size, update rollback and incomplete-update tests |
 

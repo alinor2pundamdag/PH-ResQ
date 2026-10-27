@@ -128,11 +128,11 @@ private fun HomeScreen() {
         )
     }
     var messageNote by remember { mutableStateOf("") }
-    var state by remember { mutableStateOf(database.latestSosState() ?: runCatching { SosState.valueOf(prefs.getString("sos_state", "IDLE") ?: "IDLE") }.getOrDefault(SosState.IDLE)) }
-    var checkIn by remember { mutableStateOf(database.latestFamilyCheckin() ?: prefs.getString("checkin", "Hindi pa naitala") ?: "Hindi pa naitala") }
+    var state by remember { mutableStateOf(runCatching { database.latestSosState() }.getOrNull() ?: runCatching { SosState.valueOf(prefs.getString("sos_state", "IDLE") ?: "IDLE") }.getOrDefault(SosState.IDLE)) }
+    var checkIn by remember { mutableStateOf(runCatching { database.latestFamilyCheckin() }.getOrNull() ?: prefs.getString("checkin", "Hindi pa naitala") ?: "Hindi pa naitala") }
     var hotlineQuery by remember { mutableStateOf("") }
-    var recentSearches by remember { mutableStateOf(database.recentSearches()) }
-    var savedBookmarks by remember { mutableStateOf(database.bookmarks()) }
+    var recentSearches by remember { mutableStateOf(runCatching { database.recentSearches() }.getOrDefault(emptyList())) }
+    var savedBookmarks by remember { mutableStateOf(runCatching { database.bookmarks() }.getOrDefault(emptyList())) }
     val voiceRecorder = remember { EncryptedVoiceNoteRecorder.cleanupStaleRawFiles(context); EncryptedVoiceNoteRecorder() }
     val bleDiscovery = remember { BleDiscoveryManager(context) }
     var blePeers by remember { mutableStateOf(emptyList<NearbyBlePeer>()) }
@@ -233,8 +233,12 @@ private fun HomeScreen() {
                 Text("Source: Philippine Government Emergency Hotlines portal; reviewed 2026-10-27. Ang 911 ang national emergency hotline.")
                 OutlinedTextField(value = hotlineQuery, onValueChange = { hotlineQuery = it.take(80) }, label = { Text("Search agency or number") }, modifier = Modifier.fillMaxWidth())
                 Button(onClick = {
-                    database.recordSearch(hotlineQuery)
-                    recentSearches = database.recentSearches()
+                    runCatching {
+                        database.recordSearch(hotlineQuery)
+                        recentSearches = database.recentSearches()
+                    }.onFailure {
+                        Toast.makeText(context, "Hindi ma-save ang search history.", Toast.LENGTH_LONG).show()
+                    }
                 }, modifier = Modifier.fillMaxWidth(), enabled = hotlineQuery.isNotBlank()) { Text("SAVE SEARCH LOCALLY") }
                 if (recentSearches.isNotEmpty()) {
                     Text("Recent saved searches", style = MaterialTheme.typography.titleMedium)
@@ -242,8 +246,12 @@ private fun HomeScreen() {
                         Button(onClick = { hotlineQuery = query }, modifier = Modifier.fillMaxWidth()) { Text(query) }
                     }
                     Button(onClick = {
-                        database.clearSearchHistory()
-                        recentSearches = emptyList()
+                        runCatching {
+                            database.clearSearchHistory()
+                            recentSearches = emptyList()
+                        }.onFailure {
+                            Toast.makeText(context, "Hindi ma-clear ang search history.", Toast.LENGTH_LONG).show()
+                        }
                     }, modifier = Modifier.fillMaxWidth()) { Text("CLEAR SEARCH HISTORY") }
                 }
                 NationalHotlineDirectory.search(hotlineQuery).forEach { hotline ->
@@ -260,8 +268,12 @@ private fun HomeScreen() {
                         Text(if (hotline.method == HotlineMethod.SMS) "OPEN SMS APP" else "OPEN DIALER")
                     }
                     Button(onClick = {
-                        database.saveBookmark("hotline:" + hotline.agency, hotline.agency + " • " + hotline.displayNumber)
-                        savedBookmarks = database.bookmarks()
+                        runCatching {
+                            database.saveBookmark("hotline:" + hotline.agency, hotline.agency + " • " + hotline.displayNumber)
+                            savedBookmarks = database.bookmarks()
+                        }.onFailure {
+                            Toast.makeText(context, "Hindi ma-save ang bookmark.", Toast.LENGTH_LONG).show()
+                        }
                     }, modifier = Modifier.fillMaxWidth()) { Text("BOOKMARK HOTLINE") }
                 }
                 if (savedBookmarks.isNotEmpty()) {
@@ -269,8 +281,12 @@ private fun HomeScreen() {
                     savedBookmarks.forEach { bookmark ->
                         Text(bookmark.second)
                         Button(onClick = {
-                            database.removeBookmark(bookmark.first)
-                            savedBookmarks = database.bookmarks()
+                            runCatching {
+                                database.removeBookmark(bookmark.first)
+                                savedBookmarks = database.bookmarks()
+                            }.onFailure {
+                                Toast.makeText(context, "Hindi maalis ang bookmark.", Toast.LENGTH_LONG).show()
+                            }
                         }, modifier = Modifier.fillMaxWidth()) { Text("REMOVE BOOKMARK") }
                     }
                 }
