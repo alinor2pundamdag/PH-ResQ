@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper
  * Local transactional foundation for durable emergency state.
  * Directory/map tables are empty until sourced datasets and importers are added.
  */
-class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCipher = EncryptedFieldCipher()) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 5) {
+class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCipher = EncryptedFieldCipher()) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 6) {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE app_state (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)")
@@ -22,6 +22,8 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
         db.execSQL("CREATE TABLE dataset_meta (dataset_name TEXT PRIMARY KEY NOT NULL, source_url TEXT NOT NULL, license TEXT NOT NULL, version TEXT NOT NULL, verified_at INTEGER NOT NULL, imported_at INTEGER NOT NULL, record_count INTEGER NOT NULL)")
         db.execSQL("CREATE TABLE cached_advisories (advisory_id TEXT PRIMARY KEY NOT NULL, title TEXT NOT NULL, severity TEXT NOT NULL, body TEXT NOT NULL, source_url TEXT NOT NULL, published_at INTEGER NOT NULL, fetched_at INTEGER NOT NULL, expires_at INTEGER NOT NULL)")
         db.execSQL("CREATE TABLE evacuation_centers (center_id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, address TEXT NOT NULL, latitude REAL, longitude REAL, status TEXT NOT NULL, source_url TEXT NOT NULL, verified_at INTEGER NOT NULL)")
+        db.execSQL("CREATE TABLE mesh_queue (id INTEGER PRIMARY KEY AUTOINCREMENT, message_id TEXT NOT NULL UNIQUE, packet_ciphertext TEXT NOT NULL, created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, max_attempts INTEGER NOT NULL DEFAULT 5, status TEXT NOT NULL, last_error TEXT, acked_by TEXT, acked_at INTEGER)")
+        db.execSQL("CREATE TABLE mesh_seen (message_id TEXT PRIMARY KEY NOT NULL, seen_at INTEGER NOT NULL)")
         db.execSQL("CREATE TABLE family_checkins (id INTEGER PRIMARY KEY AUTOINCREMENT, status TEXT NOT NULL, created_at INTEGER NOT NULL, sync_state TEXT NOT NULL)")
         db.execSQL("CREATE TABLE pending_actions (id INTEGER PRIMARY KEY AUTOINCREMENT, action_type TEXT NOT NULL, payload_ciphertext TEXT NOT NULL, created_at INTEGER NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL, last_error TEXT)")
     }
@@ -66,6 +68,11 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
         if (version < 5 && newVersion >= 5) {
             db.execSQL("CREATE TABLE IF NOT EXISTS cached_advisories (advisory_id TEXT PRIMARY KEY NOT NULL, title TEXT NOT NULL, severity TEXT NOT NULL, body TEXT NOT NULL, source_url TEXT NOT NULL, published_at INTEGER NOT NULL, fetched_at INTEGER NOT NULL, expires_at INTEGER NOT NULL)")
             db.execSQL("CREATE TABLE IF NOT EXISTS evacuation_centers (center_id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, address TEXT NOT NULL, latitude REAL, longitude REAL, status TEXT NOT NULL, source_url TEXT NOT NULL, verified_at INTEGER NOT NULL)")
+            version = 5
+        }
+        if (version < 6 && newVersion >= 6) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS mesh_queue (id INTEGER PRIMARY KEY AUTOINCREMENT, message_id TEXT NOT NULL UNIQUE, packet_ciphertext TEXT NOT NULL, created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, max_attempts INTEGER NOT NULL DEFAULT 5, status TEXT NOT NULL, last_error TEXT, acked_by TEXT, acked_at INTEGER)")
+            db.execSQL("CREATE TABLE IF NOT EXISTS mesh_seen (message_id TEXT PRIMARY KEY NOT NULL, seen_at INTEGER NOT NULL)")
         }
     }
 
