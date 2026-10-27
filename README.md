@@ -1,39 +1,75 @@
 # PH-ResQ Vanguard 2026 🇵🇭
 
-> **Ang Opisyal at 100% Offline-First na Digital Emergency Shield para sa Bawat Pilipino.**
+> **Android-first, offline-first emergency assistance project for the Philippines.**
 
----
+**Current repository status:** An initial Kotlin/Jetpack Compose Android scaffold and Android CI workflow have been added on the implementation branch alongside the planning documents. Build/test results are pending. This is not a complete or release-ready emergency application; feature descriptions below remain requirements unless implementation and evidence are explicitly recorded in IMPLEMENTATION_STATUS.md.
 
-## 🏛️ Tungkol sa Proyekto (About PH-ResQ)
-Ang **PH-ResQ Vanguard 2026** ay isang komprehensibo, mabilis, at secure na mobile emergency application na idinisenyo upang magbigay ng agarang gabay, direktang hotlines, at mga kasangkapan sa kaligtasan sa gitna ng sakuna, bagyo, lindol, o emergency sa lahat ng **17 Rehiyon, 82 Lalawigan, 149 Lungsod, 1,493 Munisipalidad, at 42,046 Barangay** sa buong Pilipinas.
+## Layunin
 
----
+Nilalayon ng PH-ResQ Vanguard 2026 na magbigay ng offline-capable emergency directory, SOS workflow, location sharing, family check-in, offline maps, and disaster-resilience tools. Ang lahat ng capability ay kailangang mapatunayan sa source code, automated tests, physical-device tests, at verified data sources bago sabihing gumagana o release-ready.
 
-## 🌟 Mga Pangunahing Katangian & Sistema (Key Features)
+## Retained feature scope
 
-1. **100% Offline-First & Lightweight Footprint (~100MB - ~150MB):**
-   - Kayang gumana nang walang internet sa panahon ng total blackout. Naglalaman ng kumpletong nationwide directory at offline vector map tiles.
-2. **1-Tap SOS Emergency Broadcast na may Anti-Accidental Hold Guard:**
-   - Nangangailangan ng tuluy-tuloy na 2-second press-and-hold kasama ang haptic vibration upang maiwasan ang maling pindot (pocket dial). Awtomatikong nagpapadala ng Tagalog emergency SMS kasama ang eksaktong GPS link sa 10 Personal Emergency Contacts.
-3. **6-Layer Persistence & Advanced Reliability Safeguards:**
-   - Naka-save ang Active Mode, Master PIN Vault, Last Known GPS, Crisis SOS State, Search History, at Offline Map Tiles. May kasamang Low-Battery Auto-Save (<5%), Startup SHA-256 Database Integrity Checker, at Offline Voice Note Recorder.
-4. **Kritikal na Patakaran at UI Safeguards:**
-   - **Volume Override Policy:** Awtomatikong nag-aadjust sa Maximum Safe Volume ang alarm kapag na-trigger ang sirena.
-   - **Foreground Service Lock (Android 14+ Compliant):** Permanenteng notification channel na may quick-action buttons ("Ligtas Ako" at "Cancel SOS").
-   - **Duress PIN Vault / Panic Wipe:** Opsyonal na reverse passcode para sa mga sitwasyong ginigipit ang user.
-   - **High-Contrast Accessibility Mode:** Malalaking titik at mataas na kontrast para sa mga senior citizen at PWD.
-5. **Network at Disaster Resilience:**
-   - **Family Check-In Sync Queuing:** Naka-buffer offline at kusang nag-i-sync kapag nanumbalik ang internet.
-   - **Battery-Aware GPS Adaptive Polling:** Matalinong pag-aadjust ng GPS interval upang makatipid sa baterya.
-   - **Emergency Helpline Auto-Fallback:** Smart routing sakaling mag-timeout ang pambansang 911.
-   - **DOST-PAGASA Weather Caching & RA 10639 Cell Broadcast Integration:** Pre-cached storm signals at awtomatikong pag-abiso ng NDRRMC emergency broadcasts.
+- Offline-first operation, local emergency directory, barangay-level search, and licensed offline maps.
+- Two-second SOS press-and-hold with haptic feedback and safe accidental-activation handling.
+- Tagalog SMS workflow for up to 10 configured emergency contacts, location timestamp/accuracy, status tracking, and voice-note support.
+- Six persistence areas: active mode, encrypted emergency-contact vault, last known GPS, crisis SOS state, search/bookmarks, and offline map tiles.
+- Best-effort low-battery snapshot below 5%; critical state is saved at each transition and does not rely solely on this callback.
+- SHA-256 integrity checking against a trusted expected digest/manifest and verified recovery source.
+- Family “Ligtas Ako” check-in and durable sync queue.
+- Adaptive GPS polling, BLE peer discovery, Wi-Fi Direct transfer, multi-hop mesh protocol, TTL/acknowledgements/retries/deduplication, and rolling privacy tokens.
+- Geohash/spatial search with a documented index/query strategy and measured performance.
+- Encrypted PIN vault, Android Keystore where feasible, optional duress PIN/dummy vault with documented threat-model limits, and stealth audio mute.
+- Offline Medical ID QR with user-selected minimal fields and explicit disclosure warning.
+- High-contrast accessibility, scalable text, TalkBack support, reduced motion, safe volume policy, foreground-service notification/actions, and lifecycle recovery.
+- Verified emergency helpline fallback, timestamped PAGASA advisory cache, evacuation-centre status, and cell-broadcast awareness that respects Android/carrier limitations.
+- Privacy/permission compliance, data-source licensing and freshness, and chaos testing for failures and interrupted operations.
+- Philippine-flag color-looping title and waving visual identity, without obscuring emergency controls or compromising accessibility.
 
----
+## Architecture baseline
 
-## 📄 Dokumentasyon sa Repository
-* **[MASTER_PLAN.md](MASTER_PLAN.md)** - Ang buong arkitektura, mga panuntunan, at detalye ng sistema ng PH-ResQ.
-* **[WORK_RULES.md](WORK_RULES.md)** - Ang opisyal na work protocol at patakaran sa pagpapatakbo ng proyekto.
-* **[LICENSE](LICENSE)** - Lisensyado sa ilalim ng **Apache License 2.0**.
+- Android-native APIs are required for location, SMS, notifications, foreground services, BLE, Wi-Fi Direct, Keystore, and lifecycle-sensitive work.
+- Browser-only APIs such as `window`, `localStorage`, IndexedDB, and DOM canvas are not substitutes for Android capabilities.
+- Initial UI/build baseline: Kotlin + Jetpack Compose, minSdk 26, compileSdk/targetSdk 35, Java 17. CI must validate this baseline. Database, verified data sources, and mesh protocol remain open implementation decisions.
+- RSSI is approximate; SMS/mesh delivery is not guaranteed; ordinary apps cannot force-stop themselves or intercept every cell broadcast.
+- Nationwide counts, map coverage, licenses, package size, and freshness must be verified from authoritative sources.
 
----
-*Binuo para sa kaligtasan, kapayapaan ng loob, at katatagan ng bawat Pilipino.*
+## Implementation and release status
+
+- [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) — evidence-backed implementation status and limitations
+- [RELEASE_CANDIDATE_CHECKLIST.md](RELEASE_CANDIDATE_CHECKLIST.md) — release gate; currently NO-GO
+- GitHub Actions workflow: `.github/workflows/android-ci.yml` — unit tests, debug APK build, and APK artifact upload
+
+The initial app currently includes a consent gate, Android Keystore AES-GCM at-rest encryption for the contact field, a two-second hold interaction (validation pending), last-known location lookup (permission/device validation pending), a national 911 dialer fallback sourced from the official Philippine Government Emergency Hotlines portal, a user-confirmed SMS handoff, and locally persisted SOS state/draft. It does not yet include fresh GPS acquisition, voice notes, offline datasets/maps, a PIN-protected vault, BLE/Wi-Fi Direct mesh, or remote family sync. Do not rely on this scaffold as a validated emergency service.
+
+## Documentation map
+
+- [MASTER_PLAN.md](MASTER_PLAN.md) — master scope, architecture, and release gate
+- [WORK_RULES.md](WORK_RULES.md) — repository and implementation safeguards
+- [features_update.md](features_update.md) — retained feature inventory and status rules
+- [ARCHITECTURE_DECISIONS.md](ARCHITECTURE_DECISIONS.md) — architecture decisions and open questions
+- [FEATURE_TRACEABILITY.md](FEATURE_TRACEABILITY.md) — feature-to-test traceability
+- [TEST_ACCEPTANCE_MATRIX.md](TEST_ACCEPTANCE_MATRIX.md) — measurable acceptance tests
+- [DATA_SOURCES_AND_RISKS.md](DATA_SOURCES_AND_RISKS.md) — data provenance, licensing, and risk register
+- [PHASE_1_INIT_CONSENT.md](PHASE_1_INIT_CONSENT.md) through [PHASE_6_CONCURRENCY_CHAOS.md](PHASE_6_CONCURRENCY_CHAOS.md) — phased specifications
+
+## Working phases
+
+1. Confirm Android architecture, data sources, threat model, and acceptance criteria.
+2. Foundation, initialization, privacy policy, consent, and permissions.
+3. Local database, six persistence areas, directory, integrity, and offline maps.
+4. SOS, location, SMS/handoff, voice note, family check-in, and status machine.
+5. Encrypted vault, PIN handling, rolling tokens, QR disclosure, and threat-modelled duress mode.
+6. BLE/Wi-Fi Direct protocol, lifecycle/battery safeguards, integration, concurrency, and chaos tests.
+7. Accessibility, visual identity, safe volume, foreground service, and device safeguards.
+8. Full integration, data validation, physical-device matrix, and release evidence.
+
+## Status vocabulary
+
+- **Planned:** requirement retained; implementation not evidenced.
+- **Implemented:** code reference exists and has been reviewed.
+- **Tested:** named revision and device/environment have passing evidence.
+- **Blocked:** dependency or platform limitation prevents acceptance.
+- **Release-ready:** every required release gate has evidence and residual risks are disclosed.
+
+A plan, sample snippet, or older successful build does not prove that the current revision works.

@@ -1,102 +1,49 @@
-# PH-ResQ Vanguard 2026: Phase 1 - Environment Setup & Non-Bypassable Consent Architecture
+# Phase 1 — Android Foundation, Initialization & Consent
+
+**Status:** Specification only; implementation and device validation pending. See `ARCHITECTURE_DECISIONS.md`.
 
 ## Objective
-Establish the absolute foundational environment, project structure, dependencies, and the mathematically locked non-bypassable persistent consent state machine for **PH-ResQ Vanguard 2026**. This guide provides step-by-step instructions from zero to a fully compiled, secure base architecture.
+Establish the Android project baseline, selected framework/SDK, privacy policy, persistent consent state, permission strategy, and a reproducible initialization flow.
 
----
+## 1. Architecture and project setup
+Initial baseline is recorded: Kotlin + Jetpack Compose, application ID ph.resq.app, minSdk 26, compileSdk/targetSdk 35, Java 17, AGP 8.7.3, Kotlin 2.0.21. The CI build must validate this baseline. Local database, supported-device/API matrix, and remaining native service modules still need implementation/verification. Use Android APIs for lifecycle, permissions, location, messaging handoff, notifications, BLE, Wi-Fi Direct, and Keystore. Browser-only APIs in earlier drafts are not native implementations.
 
-## Step 1: Project Initialization & Directory Structure
-Create a clean, production-grade directory layout optimized for local-first execution on mobile environments (Termux / AndroidIDE / React Native / Native Android):
+Suggested module boundaries (names are illustrative and may be adapted to the selected framework):
+- `app`: Android entry point, navigation, manifest, and application lifecycle.
+- `core`: state models, error handling, configuration, and dependency wiring.
+- `consent`: policy display, versioned consent record, and navigation guard.
+- `storage`: durable local state and schema migrations.
+- `security`: Keystore integration and integrity checks.
+- `location`, `sos`, `mesh`, `directory`: isolated feature modules with explicit interfaces.
 
-```text
-PH-ResQ/
-├── android/
-│   ├── app/
-│   │   ├── src/main/java/org/sayangqoemeet/phresq/
-│   │   │   ├── core/
-│   │   │   ├── security/
-│   │   │   ├── mesh/
-│   │   │   └── database/
-│   │   └── AndroidManifest.xml
-├── src/
-│   ├── components/
-│   │   ├── header/
-│   │   └── consent/
-│   ├── state/
-│   │   └── ConsentStateMachine.ts
-│   ├── database/
-│   │   └── BarangaysRTree.ts
-│   ├── mesh/
-│   │   └── BLEMeshEngine.ts
-│   └── security/
-│       └── AESVault.ts
-├── MASTER_PLAN.md
-└── WORK_RULES.md
-```
+## 2. Startup and integrity check
+1. Show a short, accessible startup screen; avoid blocking launch indefinitely on optional network work.
+2. Load the local database and versioned state safely.
+3. Verify packaged data against a trusted expected digest or authenticated manifest.
+4. If integrity verification fails, mark the dataset unavailable, preserve recoverable user data, and use only a verified backup/re-download source. SHA-256 alone does not self-heal data.
+5. Record startup failures without writing secrets or precise personal data to logs.
 
----
+## 3. Persistent consent state
+Required states: `NOT_DECIDED`, `ACCEPTED(policyVersion, timestamp)`, and `DECLINED(policyVersion, timestamp)`.
 
-## Step 2: Implementing the Non-Bypassable Consent State Machine (FSM)
-To comply with Data Privacy regulations and open-source licensing frameworks, every user must explicitly accept terms on first launch. If declined, the app must persistently block dashboard access and force-exit.
+- On first launch, display the privacy notice, data-use explanation, and applicable license information before protected features.
+- Accept: persist the policy version and timestamp, then unlock protected navigation.
+- Decline: persist the declined state, explain that protected features remain unavailable, and block protected routes.
+- On every launch and protected navigation, check consent before showing protected features.
+- When policy/data-use changes materially, determine whether re-consent is required and document the policy-version rule.
+- Let the user read the policy without forced exit or abrupt app closure.
 
-Create `src/state/ConsentStateMachine.ts`:
+**Android limitation:** An ordinary application cannot reliably force-stop itself or guarantee a transition to the home screen. Do not implement or claim a “persistent force-stop” feature. Consent is enforced within the app.
 
-```typescript
-export enum ConsentState {
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
-  DECLINED = 'DECLINED'
-}
+## 4. Permissions and privacy
+Request a permission only when the associated feature is used and explain why it is needed. Define a safe denial path for location, SMS, microphone, notifications, Bluetooth/nearby devices, and Wi-Fi-related capabilities. Never bypass Android permission controls.
 
-export class ConsentStateMachine {
-  private currentState: ConsentState;
-  private storageKey = 'ph_resq_consent_status';
+## Acceptance criteria
+- Consent cannot be bypassed through app navigation or relaunch.
+- Decline does not falsely claim OS force-stop; protected features remain locked.
+- Consent persists across process death and app restart.
+- Integrity mismatch is detected against trusted metadata and does not trigger unverified repair.
+- Permission denial does not crash or trap the user.
+- Build and tests are run on the current revision and named Android environment.
 
-  constructor() {
-    this.currentState = this.loadPersistentState();
-  }
-
-  private loadPersistentState(): ConsentState {
-    try {
-      const saved = localStorage.getItem(this.storageKey);
-      if (saved === ConsentState.ACCEPTED || saved === ConsentState.DECLINED) {
-        return saved;
-      }
-    } catch (e) {
-      // Fallback for secure local storage failure
-    }
-    return ConsentState.PENDING;
-  }
-
-  public getState(): ConsentState {
-    return this.currentState;
-  }
-
-  public acceptConsent(): void {
-    this.currentState = ConsentState.ACCEPTED;
-    localStorage.setItem(this.storageKey, ConsentState.ACCEPTED);
-  }
-
-  public declineConsent(): void {
-    this.currentState = ConsentState.DECLINED;
-    localStorage.setItem(this.storageKey, ConsentState.DECLINED);
-    this.forceExitApp();
-  }
-
-  private forceExitApp(): void {
-    // Trigger non-bypassable termination / return to home screen
-    if (typeof window !== 'undefined' && window.close) {
-      window.close();
-    }
-  }
-
-  public canAccessDashboard(): boolean {
-    return this.currentState === ConsentState.ACCEPTED;
-  }
-}
-```
-
----
-
-## Step 3: Required Permissions & Core Service Setup
-Ensure all required permissions for offline emergency broadcasting, BLE scanning, location fallbacks, and foreground services are configured in your build system.
+Related: `TEST_ACCEPTANCE_MATRIX.md` T-001 through T-003, T-011, T-025.

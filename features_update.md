@@ -1,38 +1,84 @@
-# PH-ResQ Vanguard 2026: Consolidated Features & System Updates Log
+# PH-ResQ Vanguard 2026 — Consolidated Feature Inventory
 
-This document serves as the consolidated historical record and active feature checklist for **PH-ResQ Vanguard 2026**. All features listed here have been fully integrated and harmonized into **MASTER_PLAN.md** and **WORK_RULES.md**.
+**Status:** This is a requirements inventory, not proof that features have been implemented. All items remain in scope unless a documented decision is reviewed and approved. Detailed test links live in `FEATURE_TRACEABILITY.md`.
 
----
+## A. Offline-first and nationwide information
 
-## 📋 Summary of Consolidated & Active Features
+- Offline-first emergency workflows and local caching.
+- Nationwide emergency directory intended to include regions, provinces, cities, municipalities, and barangays.
+- Offline maps/map tiles with source/license, coverage, version, freshness, and package-size metadata.
+- Search and bookmark history.
+- Verified emergency helpline fallback.
+- Evacuation-centre information/status.
+- PAGASA advisory cache with source, publication/retrieval time, and stale/expiry handling.
+- Cell-broadcast awareness that does not falsely claim third-party interception of all alerts.
+- Dataset update, rollback, validation, missing-data behavior, and licensing/attribution controls.
 
-1. **Core & Offline Resilience Architecture:**
-   - 100% Offline-First operation with an optimized storage footprint (~100MB - ~150MB total).
-   - Nationwide directory covering all 17 regions, 82 provinces, 149 cities, 1,493 municipalities, and 42,046 barangays.
-   - 6-Layer Persistence (Active Mode, Emergency Contact Vault, Last Known GPS, SOS State, Search/Bookmarks, Offline Map Tiles).
-   - Low-Battery Auto-Save snapshot (<5% power-failure protection).
-   - Startup SHA-256 Database Integrity Checker with self-healing fallback.
+## B. SOS and communications
 
-2. **Emergency Communication & SOS Dispatch:**
-   - 1-Tap Home Screen SOS Toggle protected by an anti-accidental 2-second press-and-hold haptic countdown guard.
-   - Pinagandang Tagalog Emergency SMS Broadcast dispatching exact GPS links to all 10 personal emergency contacts.
-   - Offline Voice / Audio Quick Note Recorder (10-second encrypted voice SOS log).
-   - P2P Local Emergency Mesh Sync (Bluetooth LE / Wi-Fi Direct multi-hop for total blackout scenarios).
-   - "Ligtas Ako" Check-In Broadcast with Post-Disaster Cloud Sync Queuing.
+- Two-second press-and-hold SOS activation with haptic feedback and anti-accidental guard.
+- Tagalog emergency SMS workflow to up to 10 configured emergency contacts, including location, timestamp, and accuracy when available.
+- Voice/audio quick note, intended as a short encrypted SOS attachment (planned target: 10 seconds), with permission, size, and storage limits.
+- Explicit states for queued, sending, transport handoff, delivered only when confirmed, acknowledged, cancelled, retry pending, and failed.
+- Family “Ligtas Ako” check-in and durable offline sync queue.
+- Location fallback with stale timestamp/accuracy labels and manual location option.
+- Stealth audio mute/silent dispatch option, while preserving visual status and cancellation.
 
-3. **Meteorological & Disaster Feed Integration (NEW):**
-   - **DOST-PAGASA Weather & Typhoon Signal Caching Feed:** Pre-caches official storm signals (Signals #1 to #5) and regional weather advisories offline.
-   - **Dynamic Evacuation Centers Geo-Fencing & Capacity Status:** Real-time tracking of barangay evacuation hubs (*"Open / Maluwag"*, *"Full / Puno na"*, *"Flooded"*).
-   - **RA 10639 (Free Mobile Disaster Alerts Act) Integration:** Android BroadcastReceiver module capturing NDRRMC emergency cell broadcast alerts.
+## C. Persistence and recovery
 
-4. **Security, Privacy & Device Policy (RA 10173 & RA 10639):**
-   - AES-GCM Client-Side Encryption with user-defined Master PIN vault.
-   - Emergency SOS Bypass token and Duress PIN "Panic Wipe" mode.
-   - Strict User-Consent & Intent-Driven emergency data sharing (zero silent tracking).
-   - Transparent Google Play permissions compliance (`ACCESS_FINE_LOCATION`, `CALL_PHONE`, `SEND_SMS`, `RECORD_AUDIO`, `RECEIVE_BOOT_COMPLETED`, `MODIFY_AUDIO_SETTINGS`, `FOREGROUND_SERVICE`, `RECEIVE_WAP_PUSH`).
+Preserve all six persistence areas:
+1. Active mode.
+2. Encrypted emergency-contact vault.
+3. Last known GPS fallback.
+4. Crisis SOS state and queue.
+5. Search/bookmark history.
+6. Offline map tiles/cache.
 
-5. **Accessibility & Advanced Device Safeguards:**
-   - Emergency Beacon Volume Override Policy (automatically maximizing alarm volume during SOS).
-   - Android 14+ Foreground Service Notification Lock (`"PH-ResQ Vanguard Active Shield"`).
-   - High-Contrast Big Text Accessibility Mode for PWDs and senior citizens.
-   - Battery-Aware GPS Adaptive Polling and Emergency Helpline Auto-Fallback (smart routing to local DRRMOs upon 911 timeout).
+Also preserve:
+- Best-effort low-battery snapshot below 5%.
+- Continuous persistence at critical state transitions.
+- SHA-256 integrity check against a trusted expected digest/manifest.
+- Verified backup/re-download recovery rather than claiming checksum-only self-healing.
+- Atomic transactions, migration handling, and recovery from process death, reboot, interrupted writes, and low storage.
+
+## D. Mesh, proximity, and spatial lookup
+
+- BLE peer discovery and proximity hints.
+- Wi-Fi Direct peer connection and payload transfer.
+- Offline mesh forwarding/multi-hop behavior.
+- Fifteen-second battery-saver scan window as a configurable policy subject to Android scheduling limits.
+- Geohash/local spatial grouping and a measured query/index strategy.
+- Rolling privacy tokens and peer authentication.
+- Versioned packets with IDs, TTL/hop limit, acknowledgement, bounded retries/backoff, duplicate suppression, replay resistance, payload/rate limits, and malformed-packet rejection.
+- RSSI distance is approximate; no exact-distance guarantee. Trilateration is conditional on suitable known references and geometry.
+
+## E. Security and medical information
+
+- PIN-protected encrypted vault using authenticated encryption and Android Keystore where feasible.
+- PIN derivation/rate limiting, key lifecycle, nonce uniqueness, rotation, backup/reinstall/recovery behavior.
+- Optional duress PIN and dummy vault with explicit threat-model limits; no “zero indication” or absolute physical-safety promise.
+- Offline Medical ID QR with user-selected minimal fields and an explicit disclosure warning.
+- Rolling tokens and privacy controls.
+- No secrets or sensitive personal data in logs or unauthenticated broadcasts.
+
+## F. UX, accessibility, and Android safeguards
+
+- Philippine-flag color-looping title and waving flag visual identity.
+- Clean emergency-first UI; decorative animation never obscures or delays emergency controls.
+- High-contrast mode, scalable text, TalkBack labels, large touch targets, reduced motion, and haptic controls.
+- Android foreground service with required visible notification/actions where appropriate.
+- Safe volume policy and stealth mode.
+- Runtime permissions with plain-language rationale and safe denial paths.
+- Lifecycle handling for process death, task removal, reboot, app upgrade, permission revocation, and Android background restrictions.
+
+## G. Verification and quality
+
+- Concurrency, atomic persistence, duplicate/out-of-order message, and interrupted-operation tests.
+- Chaos tests: no internet, no signal/SIM, no GPS fix, denied permissions, Bluetooth/Wi-Fi disabled, process kill, reboot, low storage, corrupt database, interrupted migration, battery below 5%, clock changes.
+- Security tests: nonce uniqueness, vault lockout, replay, tampering, backup leakage, log redaction, and duress threat-model review.
+- Performance tests on realistic nationwide data and low-end supported hardware.
+- Build, source, data, license, physical-device, and release evidence.
+
+## Status rule
+
+Each requirement is **Planned**, **Implemented**, **Tested**, **Blocked**, or **Accepted with limitation** according to evidence. Never mark all features complete merely because they are listed here.
