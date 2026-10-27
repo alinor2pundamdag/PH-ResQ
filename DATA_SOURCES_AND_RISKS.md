@@ -21,7 +21,7 @@ For each dataset, add a row only after the source has been checked and record th
 - **National Emergency Hotline:** 911.
 - **Source:** Philippine Government Emergency Hotlines portal, https://ehotlines.e.gov.ph/.
 - **Access/review date:** 2026-10-27.
-- **Use in app:** opens the Android dialer with 911 prefilled; the user must confirm the call. This does not guarantee connectivity, answer, or response.
+- **Use in app:** opens the Android dialer with 911 prefilled; the user must confirm the call. This does not guarantee connectivity, answer, or response.\n- The app also bundles the portal's national agency contact subset (Red Cross 143, PNP 117, MMDA 136, LTFRB 1342, DOTr 7890, DSWD/PNP/PCG text hotlines, PAGASA, PHIVOLCS, BFP, and NDRRMC/PCG office lines). Reviewed 2026-10-27. Local jurisdiction and response are not guaranteed; user must verify current numbers before release.
 - **Scope limitation:** this single national number is not a completed nationwide barangay directory or verified local emergency-contact database.\n\n- **PSGC administrative reference:** PSA's official PSGC page was checked on 2026-10-27; latest release is dated 2026-10-12 and reports 42,010 barangays as of 2026-09-30. Official page: https://psa.gov.ph/classification/psgc/. The page states website content is CC BY 4.0 unless otherwise stated. The spreadsheet itself still needs to be downloaded, its file hash recorded, and coverage/schema validated before bundling.\n- **OpenStreetMap licensing:** https://www.openstreetmap.org/copyright describes ODbL 1.0 for data and attribution/share-alike requirements. No map tiles are included; tile provider rights remain unverified.
 
 ## Data pipeline requirements

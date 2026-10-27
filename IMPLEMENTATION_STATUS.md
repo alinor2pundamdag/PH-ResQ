@@ -16,7 +16,7 @@ Snapshot: 2026-10-27. Current status: early Android scaffold; not a release cand
 | BLE peer discovery | Partial — native 15-second low-power scan added; CI/device validation pending | Discovery only; no authenticated packet exchange or multi-hop mesh |\n| Wi-Fi Direct/multi-hop mesh | Not implemented | No native transfer/protocol implementation |
 | Encrypted PIN vault/duress mode | Not implemented | No security claim made |
 | PAGASA/evacuation data/cell-broadcast awareness | Not implemented | Sources/licensing not validated |
-| National 911 fallback | Added | Opens the system dialer; user confirms call; no call/delivery guarantee |\n| Local SQLite schema | Added | Transactional SOS event history plus schema foundations for location, directory, map metadata, search, bookmarks, and check-ins; full data layers/migrations are incomplete |\n| Automated unit tests | Added; CI pending | Contact parsing, message content, state transition tests |
+| Offline national hotline subset | Added from official government portal | Searchable agency list with dialer/SMS handoff; reviewed 2026-10-27; local coverage and successful response not guaranteed |\n| Local SQLite schema | Added | Transactional SOS event history plus schema foundations for location, directory, map metadata, search, bookmarks, and check-ins; full data layers/migrations are incomplete |\n| Automated unit tests | Added; CI pending | Contact parsing, message content, state transition tests |
 | Physical-device tests | Not run | Requires Android devices, SIM/network, permissions, field verification |
 | Release build/signing | Not ready | No signing configuration or release evidence |
 

@@ -51,6 +51,8 @@ import ph.resq.app.core.EncryptedFieldCipher
 import ph.resq.app.core.ConsentStore
 import ph.resq.app.core.EncryptedVoiceNoteRecorder
 import ph.resq.app.core.BleDiscoveryManager
+import ph.resq.app.core.NationalHotlineDirectory
+import ph.resq.app.core.HotlineMethod
 import ph.resq.app.core.NearbyBlePeer
 import ph.resq.app.core.SosMessage
 import ph.resq.app.core.SosState
@@ -121,6 +123,7 @@ private fun HomeScreen() {
     var messageNote by remember { mutableStateOf("") }
     var state by remember { mutableStateOf(database.latestSosState() ?: runCatching { SosState.valueOf(prefs.getString("sos_state", "IDLE") ?: "IDLE") }.getOrDefault(SosState.IDLE)) }
     var checkIn by remember { mutableStateOf(prefs.getString("checkin", "Hindi pa naitala") ?: "Hindi pa naitala") }
+    var hotlineQuery by remember { mutableStateOf("") }
     val voiceRecorder = remember { EncryptedVoiceNoteRecorder.cleanupStaleRawFiles(context); EncryptedVoiceNoteRecorder() }
     val bleDiscovery = remember { BleDiscoveryManager(context) }
     var blePeers by remember { mutableStateOf(emptyList<NearbyBlePeer>()) }
@@ -190,14 +193,24 @@ private fun HomeScreen() {
         Text("Emergency-first • offline-aware • early build")
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("National Emergency Hotline", style = MaterialTheme.typography.titleLarge)
-                Text("911 • Source: Philippine Government Emergency Hotlines portal • reviewed 2026-10-27")
-                Button(onClick = {
-                    val dialIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:911"))
-                    if (dialIntent.resolveActivity(context.packageManager) != null) context.startActivity(dialIntent)
-                    else Toast.makeText(context, "Hindi available ang phone dialer sa device na ito.", Toast.LENGTH_LONG).show()
-                }, modifier = Modifier.fillMaxWidth()) { Text("OPEN DIALER — 911") }
-                Text("Kailangan ng suportadong phone/dialer at network. Hindi ito automatic call o garantiya ng pagsagot.")
+                Text("Offline national emergency contacts", style = MaterialTheme.typography.titleLarge)
+                Text("Source: Philippine Government Emergency Hotlines portal; reviewed 2026-10-27. Ang 911 ang national emergency hotline.")
+                OutlinedTextField(value = hotlineQuery, onValueChange = { hotlineQuery = it.take(80) }, label = { Text("Search agency or number") }, modifier = Modifier.fillMaxWidth())
+                NationalHotlineDirectory.search(hotlineQuery).forEach { hotline ->
+                    Text(hotline.agency, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(hotline.displayNumber + " • " + hotline.method.label)
+                    Text(hotline.note)
+                    Button(onClick = {
+                        val scheme = if (hotline.method == HotlineMethod.SMS) "smsto:" else "tel:"
+                        val action = if (hotline.method == HotlineMethod.SMS) Intent.ACTION_SENDTO else Intent.ACTION_DIAL
+                        val contactIntent = Intent(action, Uri.parse(scheme + hotline.uriNumber))
+                        if (contactIntent.resolveActivity(context.packageManager) != null) context.startActivity(contactIntent)
+                        else Toast.makeText(context, "Hindi available ang kaukulang app sa device.", Toast.LENGTH_LONG).show()
+                    }, modifier = Modifier.fillMaxWidth()) {
+                        Text(if (hotline.method == HotlineMethod.SMS) "OPEN SMS APP" else "OPEN DIALER")
+                    }
+                }
+                Text("Kailangan ng network/phone service. Ang pag-open ng dialer o SMS app ay hindi patunay ng koneksyon, delivery, o pagsagot.")
             }
         }
         Card(Modifier.fillMaxWidth()) {
