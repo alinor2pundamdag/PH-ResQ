@@ -1,21 +1,21 @@
 # PH-ResQ Implementation Status
 
-Snapshot: 2026-10-27. Status: expanded Android implementation pass; **not a release candidate**. Latest code includes bounded fresh-location requests, a best-effort low-battery snapshot, an encrypted durable local check-in outbox, a PBKDF2/AES-GCM PIN-vault utility, and a user-visible SOS handoff foreground-service notification with a stop action. These additions do not complete all 34 requirements. Voice-note sharing now opens the Android chooser with an audio attachment and SOS draft text; an offline directory importer and integrity-checked map-tile cache are present as data primitives, not as a complete nationwide product. A locally generated Medical ID QR with explicit field selection/privacy warning and a persistent high-contrast theme toggle are also present; both remain partial pending accessibility/privacy acceptance tests.
+Snapshot: 2026-10-27. Status: expanded Android implementation pass; **not a release candidate**. Latest verified PR-head commit: `3d1e60101e1778ddd2df301ae81ca2d1d476c110`; CI run [40495534150](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40495534150) passed `lintDebug`, `testDebugUnitTest`, `assembleDebug`, and `assembleRelease`, verified the checked-out SHA against the PR-head SHA, and uploaded APKs plus SHA-256/build metadata. Release APK is unsigned. Latest code includes bounded fresh-location requests, a best-effort low-battery snapshot, an encrypted durable local check-in outbox, a PBKDF2/AES-GCM PIN-vault utility, and a user-visible SOS handoff foreground-service notification with a stop action. These additions do not complete all 34 requirements. Voice-note sharing now opens the Android chooser with an audio attachment and SOS draft text; an offline directory importer and integrity-checked map-tile cache are present as data primitives, not as a complete nationwide product. A locally generated Medical ID QR with explicit field selection/privacy warning and a persistent high-contrast theme toggle are also present; both remain partial pending accessibility/privacy acceptance tests.
 
 ## Automated evidence
 
-- **Previously validated candidate SHA:** `408e2aaaea09df70400c92038b405c5d5a47d337`; the expanded implementation commit must pass its own CI before being considered build-validated.
-- **GitHub Actions:** passed — [run 40451629467](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40451629467)
-- **Executed tasks on baseline only:** `testDebugUnitTest`, `assembleDebug`, and `assembleRelease`; artifact upload succeeded. Expanded candidate validation is pending.
+- **Current PR-head SHA:** `3d1e60101e1778ddd2df301ae81ca2d1d476c110`.
+- **GitHub Actions:** passed — [run 40495534150](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40495534150).
+- **Executed tasks on current head:** `lintDebug`, `testDebugUnitTest`, `assembleDebug`, and `assembleRelease`; checkout SHA was compared to the PR-head SHA; APKs and build evidence were uploaded.
 - **Unit-test coverage:** contact parsing and SOS message/state behavior (including retry-pending transitions); geohash encoding; SHA-256 digest verification; authenticated mesh-envelope encode/decode, tamper/expiry/hop checks and bounded deduplication; rolling-token rotation; adaptive-location interval policy; Robolectric tests for search-history deduplication/clearing, bookmark save/update/removal, family check-in persistence, and database reopen persistence.
-- **Artifact status:** `ph-resq-apk-builds` is available from the CI run until 2026-11-10. The release APK is unsigned; this is not a signed production artifact.
+- **Artifact status:** `ph-resq-apk-builds` from [run 40495534150](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40495534150) is available until 2026-11-10. It contains debug/release APKs and build evidence including SHA-256 sums. The release APK is unsigned; this is not a signed production artifact.
 - **Not evidenced by CI:** physical-device behavior, SMS recipient handling, actual GPS fixes, BLE interoperability/battery use, voice recording/playback, Android Keystore migration on a real device, nationwide data coverage, accessibility, or end-to-end emergency delivery.
 
 ## Feature status
 
 | Area | Status | Evidence / limitation |
 |---|---|---|
-| Android project and CI | Unit tests and debug/release assemble passed on the validated SHA | Every later candidate must be revalidated; no Gradle wrapper is committed |
+| Android project and CI | Current PR head passed lint, unit tests, debug/release assemble and SHA-verified artifact upload on CI run 40495534150 | No Gradle wrapper is committed; current APK is testable but not a signed production release |
 | Consent/privacy notice | Versioned consent record with acceptance timestamp and current-build notice | Legal/privacy review and full data-deletion/export behavior remain incomplete |
 | SOS press-and-hold | 2-second hold-to-prepare flow plus accessible confirmation alternative | UI timing, cancellation, haptics and accidental-activation tests remain |
 | Emergency contacts | Contact list stored encrypted with Android Keystore AES-GCM | Not a PIN vault; key-loss, reinstall/recovery, corruption and device tests remain |

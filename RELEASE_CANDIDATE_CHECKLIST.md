@@ -1,12 +1,12 @@
 # PH-ResQ Release Candidate Checklist
 
-Current decision: NO-GO. This is an early Android scaffold, not a validated emergency application.
+Current decision: **NO-GO for production release; GO for controlled APK testing.** Current PR head `3d1e60101e1778ddd2df301ae81ca2d1d476c110` passed CI run [40495534150](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40495534150), including lint, unit tests, debug/release assembly, exact-SHA verification, and APK/build-evidence upload. This is not a validated emergency service and the release APK is unsigned.
 
 ## Build and engineering
 - [x] Historical baseline commit `408e2aaaea09df70400c92038b405c5d5a47d337` passed unit tests and debug/release assemble ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40451629467)); this is not evidence for the current candidate.
-- [ ] Current PR head passes `lintDebug`, `testDebugUnitTest`, `assembleDebug`, and `assembleRelease` in one CI run.
-- [ ] CI build metadata proves the APK was built from the exact PR-head commit.
-- [ ] Debug APK and SHA-256 checksum artifact are available from the same successful current-head run.
+- [x] Current PR head passed `lintDebug`, `testDebugUnitTest`, `assembleDebug`, and `assembleRelease` in one CI run ([40495534150](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40495534150)).
+- [x] CI build metadata verifies the checked-out SHA equals the exact PR-head commit.
+- [x] Debug/release APKs and SHA-256 checksum/build evidence were uploaded from that successful current-head run (artifact expires 2026-11-10).
 - [ ] Release APK signing configured and verified; current release variant is unsigned.
 - [ ] Release variant builds reproducibly from a clean checkout with documented local build instructions.
 - [ ] Dependency versions, SDK levels, and release notes are reviewed.
