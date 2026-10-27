@@ -1,7 +1,7 @@
 # PH-ResQ Feature Traceability
 
 **Purpose:** Prevent silent feature removal and make every requirement testable.  
-**Status:** Current PR-head commit `3d1e60101e1778ddd2df301ae81ca2d1d476c110` passed `lintDebug`, `testDebugUnitTest`, `assembleDebug`, and `assembleRelease` in [CI run 40495534150](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40495534150); CI verified the exact checked-out SHA and uploaded APKs plus build evidence. Physical-device, integration, data-coverage, nationwide-data, and full feature acceptance remain outstanding.
+**Status:** Baseline commit `3d1e60101e1778ddd2df301ae81ca2d1d476c110` passed all CI tasks in [run 40495534150](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40495534150). The subsequent notification-permission change is being validated in [run 40498930268](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40498930268); do not use an older artifact as proof for a newer SHA. Current implementation also adds indexed nearby-directory search, which requires its own CI pass before validation. Physical-device, integration, data-coverage, nationwide-data, and full feature acceptance remain outstanding.
 
 | ID | Retained requirement | Planned component/area | Implementation status | Minimum acceptance evidence |
 |---|---|---|---|---|
@@ -19,7 +19,7 @@
 | F-012 | BLE peer discovery | Native BLE module | Partial — 15-second low-power discovery scan added; permission/device tests pending | Physical-device scan/permission/lifecycle tests; no placeholder success |
 | F-013 | Wi-Fi Direct transfer | Native P2P module | Planned — implementation not evidenced | Pairing, transfer, interruption, retry and device-matrix tests |
 | F-014 | Multi-hop emergency mesh | Mesh protocol/router | Partial — authenticated envelope codec plus durable encrypted outbox, bounded retry state, HMAC ACK verification and durable replay cache added; no peer-key establishment, BLE/Wi-Fi transport or multi-hop relay service | TTL, hop limit, acknowledgement, duplicate, replay, malformed-packet tests |
-| F-015 | Geohash/spatial lookup | Local data layer | Partial — geohash encoder unit-tested in CI; indexed search and realistic benchmarks pending | Indexed or benchmarked query strategy with realistic data and measured latency |
+| F-015 | Geohash/spatial lookup | Local data layer | Partial — indexed latitude/longitude bounding-box query plus Haversine radius filtering and distance sorting; migration creates a coordinate index; Robolectric tests cover radius, ordering, missing coordinates and invalid input; performance benchmark with realistic nationwide data pending | Indexed or benchmarked query strategy with realistic data and measured latency |
 | F-016 | Rolling privacy tokens | Security/mesh identity | Partial — HMAC time-window token utility unit-tested in CI; key lifecycle and clock-drift integration pending | Rotation, collision, clock drift, replay and linkability tests |
 | F-017 | Encrypted PIN-protected vault | Security vault | Partial — PBKDF2-derived AES-GCM vault is integrated into contact UI and blocks SOS while locked; five-failure temporary lockout and tests; no recovery/backup lifecycle | Encryption, key lifecycle, lockout/rate-limit, backup/reinstall and recovery tests |
 | F-018 | Optional duress PIN/dummy vault | Threat-modelled security module | Planned — implementation not evidenced | Threat-model review; no absolute secrecy or physical-safety guarantee claims |

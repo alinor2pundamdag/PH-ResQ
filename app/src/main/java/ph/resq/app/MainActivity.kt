@@ -799,9 +799,20 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
                 Text("Offline directory and local hazard cache", style = MaterialTheme.typography.titleLarge)
         Text("Hinahanap lamang nito ang data na na-import na sa device. Walang live PAGASA/LGU feed at hindi ito nangangahulugang kumpleto ang nationwide coverage.")
         Text("Ang JSON metadata ay hindi digital signature. I-import lamang ang file matapos mong beripikahin ang opisyal na source, lisensya at petsa; walang live download na ginagawa.")
-        Button(onClick = { offlineImportLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("IMPORT VERIFIED OFFLINE JSON") }
+        Button(onClick = { offlineImportLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("IMPORT OFFLINE JSON") }
         Text(offlineImportStatus)
         OutlinedTextField(value = offlineQuery, onValueChange = { offlineQuery = it.take(120) }, label = { Text("Barangay, lugar, agency o evacuation center") }, modifier = Modifier.fillMaxWidth())
+        Button(onClick = {
+            val location = LastKnownLocation.read(context)
+            if (location == null) {
+                Toast.makeText(context, "Walang huling lokasyon. I-enable ang location permission at kumuha muna ng fix.", Toast.LENGTH_LONG).show()
+            } else {
+                directoryResults = runCatching {
+                    offlineDataRepository.searchNearby(location.latitude, location.longitude, radiusKm = 25.0, limit = 100).map { it.record }
+                }.getOrDefault(emptyList())
+                if (directoryResults.isEmpty()) Toast.makeText(context, "Walang imported directory record na may coordinates sa loob ng 25 km.", Toast.LENGTH_LONG).show()
+            }
+        }, modifier = Modifier.fillMaxWidth()) { Text("FIND NEARBY (25 KM)") }
         Button(onClick = {
             directoryResults = runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList())
             directoryMetadata = runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()
@@ -812,9 +823,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
             }
         }, modifier = Modifier.fillMaxWidth()) { Text("SEARCH SAVED OFFLINE DATA") }
         directoryMetadata?.let { meta ->
-            Text("Directory dataset: ${meta["version"] ?: "unknown"} • records: ${meta["record_count"] ?: "unknown"}")
-            Text("Source: ${meta["source_url"] ?: "unknown"} • license: ${meta["license"] ?: "unknown"}")
-            Text("Verified at: ${meta["verified_at"] ?: "unknown"} • imported at: ${meta["imported_at"] ?: "unknown"}")
+            Text("Directory dataset: ${meta["version"] ?: "unknown"} • records: ${meta["recordCount"] ?: "unknown"}")
+            Text("Source: ${meta["sourceUrl"] ?: "unknown"} • license: ${meta["license"] ?: "unknown"}")
+            Text("Verified at: ${meta["verifiedAt"] ?: "unknown"} • imported at: ${meta["importedAt"] ?: "unknown"}")
         } ?: Text("Walang imported directory dataset. Mag-import lamang ng data mula sa beripikadong source at may malinaw na lisensya.")
         directoryResults.take(30).forEach { record ->
             Text(record.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)

@@ -48,6 +48,29 @@ class OfflineDataRepositoryTest {
         assertEquals(1, repository.searchDirectory("").size)
     }
 
+    @Test fun nearbySearchUsesCoordinatesFiltersRadiusAndSortsByDistance() {
+        val repository = OfflineDataRepository(context, db)
+        repository.replaceDirectory(
+            listOf(
+                DirectoryRecord("near", "Nearby Clinic", "medical", latitude = 14.600, longitude = 121.000),
+                DirectoryRecord("far", "Far Clinic", "medical", latitude = 15.100, longitude = 121.000),
+                DirectoryRecord("no-coordinates", "Unknown Clinic", "medical")
+            ),
+            DirectoryDataset("https://example.gov.ph/data", "Public-sector terms reviewed", "v2", System.currentTimeMillis())
+        )
+        val result = repository.searchNearby(14.600, 121.000, radiusKm = 5.0)
+        assertEquals(listOf("near"), result.map { it.record.id })
+        assertTrue(result.single().distanceKm < 0.1)
+    }
+
+    @Test fun nearbySearchRejectsInvalidCoordinatesAndRadius() {
+        val repository = OfflineDataRepository(context, db)
+        try { repository.searchNearby(91.0, 0.0); fail("Expected latitude validation") }
+        catch (_: IllegalArgumentException) { }
+        try { repository.searchNearby(0.0, 0.0, 0.0); fail("Expected radius validation") }
+        catch (_: IllegalArgumentException) { }
+    }
+
     @Test fun tileCacheVerifiesHashBeforeSavingAndReading() {
         val cache = OfflineMapTileCache(context, db)
         val bytes = byteArrayOf(1, 2, 3, 4, 5)

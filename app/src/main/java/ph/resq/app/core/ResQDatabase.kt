@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper
  * Local transactional foundation for durable emergency state.
  * Directory/map tables are empty until sourced datasets and importers are added.
  */
-class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCipher = EncryptedFieldCipher()) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 6) {
+class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCipher = EncryptedFieldCipher()) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 7) {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE app_state (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)")
@@ -18,6 +18,7 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
         db.execSQL("CREATE TABLE search_history (id INTEGER PRIMARY KEY AUTOINCREMENT, query TEXT NOT NULL, searched_at INTEGER NOT NULL)")
         db.execSQL("CREATE TABLE bookmarks (item_id TEXT PRIMARY KEY NOT NULL, label TEXT NOT NULL, created_at INTEGER NOT NULL)")
         db.execSQL("CREATE TABLE directory_entries (entry_id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, category TEXT NOT NULL, phone TEXT, latitude REAL, longitude REAL, source_url TEXT, verified_at INTEGER)")
+        db.execSQL("CREATE INDEX idx_directory_coordinates ON directory_entries(latitude, longitude)")
         db.execSQL("CREATE TABLE map_tiles (tile_key TEXT PRIMARY KEY NOT NULL, local_path TEXT NOT NULL, sha256 TEXT, dataset_version TEXT, updated_at INTEGER)")
         db.execSQL("CREATE TABLE dataset_meta (dataset_name TEXT PRIMARY KEY NOT NULL, source_url TEXT NOT NULL, license TEXT NOT NULL, version TEXT NOT NULL, verified_at INTEGER NOT NULL, imported_at INTEGER NOT NULL, record_count INTEGER NOT NULL)")
         db.execSQL("CREATE TABLE cached_advisories (advisory_id TEXT PRIMARY KEY NOT NULL, title TEXT NOT NULL, severity TEXT NOT NULL, body TEXT NOT NULL, source_url TEXT NOT NULL, published_at INTEGER NOT NULL, fetched_at INTEGER NOT NULL, expires_at INTEGER NOT NULL)")
@@ -73,6 +74,11 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
         if (version < 6 && newVersion >= 6) {
             db.execSQL("CREATE TABLE IF NOT EXISTS mesh_queue (id INTEGER PRIMARY KEY AUTOINCREMENT, message_id TEXT NOT NULL UNIQUE, packet_ciphertext TEXT NOT NULL, created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, max_attempts INTEGER NOT NULL DEFAULT 5, status TEXT NOT NULL, last_error TEXT, acked_by TEXT, acked_at INTEGER)")
             db.execSQL("CREATE TABLE IF NOT EXISTS mesh_seen (message_id TEXT PRIMARY KEY NOT NULL, seen_at INTEGER NOT NULL)")
+            version = 6
+        }
+        if (version < 7 && newVersion >= 7) {
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_directory_coordinates ON directory_entries(latitude, longitude)")
+            version = 7
         }
     }
 
