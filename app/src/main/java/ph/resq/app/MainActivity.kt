@@ -169,28 +169,30 @@ private fun HomeScreen() {
         var temp: File? = null
         var player: MediaPlayer? = null
         try {
-            temp = voiceRecorder.decryptToTemporaryFile(context, encryptedFile)
-            player = MediaPlayer()
-            player.setDataSource(temp.absolutePath)
-            player.setOnCompletionListener { completed ->
+            val playbackFile = voiceRecorder.decryptToTemporaryFile(context, encryptedFile)
+            temp = playbackFile
+            val activePlayer = MediaPlayer()
+            player = activePlayer
+            activePlayer.setDataSource(playbackFile.absolutePath)
+            activePlayer.setOnCompletionListener { completed ->
                 runCatching { completed.release() }
-                temp?.delete()
+                playbackFile.delete()
                 if (voicePlayer === completed) voicePlayer = null
-                if (voicePlaybackTemp == temp) voicePlaybackTemp = null
+                if (voicePlaybackTemp == playbackFile) voicePlaybackTemp = null
                 voiceStatus = "Playback complete"
             }
-            player.setOnErrorListener { failed, _, _ ->
+            activePlayer.setOnErrorListener { failed, _, _ ->
                 runCatching { failed.release() }
-                temp?.delete()
+                playbackFile.delete()
                 if (voicePlayer === failed) voicePlayer = null
-                if (voicePlaybackTemp == temp) voicePlaybackTemp = null
+                if (voicePlaybackTemp == playbackFile) voicePlaybackTemp = null
                 voiceStatus = "Playback failed; temporary decrypted file removed"
                 true
             }
-            player.prepare()
-            player.start()
-            voicePlayer = player
-            voicePlaybackTemp = temp
+            activePlayer.prepare()
+            activePlayer.start()
+            voicePlayer = activePlayer
+            voicePlaybackTemp = playbackFile
             voiceStatus = "Playing encrypted voice note"
         } catch (_: Exception) {
             runCatching { player?.release() }
