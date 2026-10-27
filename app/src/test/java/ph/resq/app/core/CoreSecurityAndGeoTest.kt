@@ -36,6 +36,7 @@ class CoreSecurityAndGeoTest {
         val now = System.currentTimeMillis()
         val expired = MeshEnvelope("old", "token", now - 90_000_000L, 1, 0, byteArrayOf(1))
         assertTrue(runCatching { MeshEnvelopeCodec.decode(MeshEnvelopeCodec.encode(expired, key), key, now) }.isFailure)
+        assertTrue(runCatching { MeshEnvelopeCodec.forward(expired) }.isFailure)
         val envelope = MeshEnvelope("one", "token", now, 1, 0, byteArrayOf(1))
         assertEquals(1, MeshEnvelopeCodec.forward(envelope).hops)
         assertTrue(runCatching { MeshEnvelopeCodec.forward(envelope.copy(hops = 1)) }.isFailure)

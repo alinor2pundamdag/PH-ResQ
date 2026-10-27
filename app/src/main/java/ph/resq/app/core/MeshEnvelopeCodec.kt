@@ -78,7 +78,7 @@ object MeshEnvelopeCodec {
     }
 
     fun forward(envelope: MeshEnvelope): MeshEnvelope {
-        validate(envelope, System.currentTimeMillis(), checkTime = false)
+        validate(envelope, System.currentTimeMillis(), checkTime = true)
         require(envelope.hops < envelope.maxHops) { "Hop limit reached" }
         return envelope.copy(hops = envelope.hops + 1)
     }
