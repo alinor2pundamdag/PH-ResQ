@@ -5,6 +5,7 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.content.ClipData
 import androidx.core.content.FileProvider
+import androidx.core.content.ContextCompat
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
 import android.content.Context
@@ -428,6 +429,15 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + recipientList)).apply { putExtra("sms_body", body) }
         try {
             if (intent.resolveActivity(context.packageManager) != null) {
+                val notificationStarted = runCatching {
+                    ContextCompat.startForegroundService(
+                        context,
+                        Intent(context, SosStatusForegroundService::class.java).setAction(SosStatusForegroundService.ACTION_START)
+                    )
+                }.isSuccess
+                if (!notificationStarted) {
+                    Toast.makeText(context, "Magpapatuloy ang SMS handoff, pero hindi masimulan ang persistent SOS status notification.", Toast.LENGTH_LONG).show()
+                }
                 context.startActivity(intent)
                 setSosState(SosState.HANDED_OFF, body, recipientList)
             } else {
@@ -435,6 +445,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
                 Toast.makeText(context, "Walang messaging app na kayang magbukas ng SMS.", Toast.LENGTH_LONG).show()
             }
         } catch (_: Exception) {
+            runCatching {
+                context.startService(Intent(context, SosStatusForegroundService::class.java).setAction(SosStatusForegroundService.ACTION_STOP))
+            }
             setSosState(SosState.FAILED, body, recipientList)
             Toast.makeText(context, "Hindi mabuksan ang messaging app; hindi naipadalang SMS.", Toast.LENGTH_LONG).show()
         }

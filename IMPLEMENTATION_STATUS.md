@@ -1,6 +1,6 @@
 # PH-ResQ Implementation Status
 
-Snapshot: 2026-10-27. Status: expanded Android implementation pass; **not a release candidate**. Latest code includes bounded fresh-location requests, a best-effort low-battery snapshot, an encrypted durable local check-in outbox, and a PBKDF2/AES-GCM PIN-vault utility. These additions do not complete all 34 requirements. Voice-note sharing now opens the Android chooser with an audio attachment and SOS draft text; an offline directory importer and integrity-checked map-tile cache are present as data primitives, not as a complete nationwide product. A locally generated Medical ID QR with explicit field selection/privacy warning and a persistent high-contrast theme toggle are also present; both remain partial pending accessibility/privacy acceptance tests.
+Snapshot: 2026-10-27. Status: expanded Android implementation pass; **not a release candidate**. Latest code includes bounded fresh-location requests, a best-effort low-battery snapshot, an encrypted durable local check-in outbox, a PBKDF2/AES-GCM PIN-vault utility, and a user-visible SOS handoff foreground-service notification with a stop action. These additions do not complete all 34 requirements. Voice-note sharing now opens the Android chooser with an audio attachment and SOS draft text; an offline directory importer and integrity-checked map-tile cache are present as data primitives, not as a complete nationwide product. A locally generated Medical ID QR with explicit field selection/privacy warning and a persistent high-contrast theme toggle are also present; both remain partial pending accessibility/privacy acceptance tests.
 
 ## Automated evidence
 
@@ -34,6 +34,7 @@ Snapshot: 2026-10-27. Status: expanded Android implementation pass; **not a rele
 | Medical ID QR | On-device QR generation with explicit user-entered fields and clear action | QR contents are not encrypted; user must control what is exposed; privacy/scan interoperability tests pending |
 | Accessibility/theme | Persistent high-contrast toggle, animated flag ribbon/title with persistent reduce-motion control, and cell-broadcast settings guidance | Formal contrast/TalkBack/touch-target/reduced-motion validation pending; device acceptance still required |
 | PAGASA/evacuation/cell-broadcast awareness | UI-connected JSON import/search for source-attributed advisories and evacuation-centre cache with expiry/stale labels; UI explains Android/carrier cell-broadcast ownership | No live PAGASA/LGU feed, signed data manifest, verified local coverage, or cell-broadcast interception; Android/carrier system handles cell broadcasts |
+| SOS handoff foreground service | Persistent notification with explicit Stop status action; Robolectric channel test added | Android 13+ notification permission and real-device service lifecycle behavior remain unverified |
 | Physical-device tests | Not run | Requires target devices, SIM/network, permissions and multi-device mesh testing |
 | Release signing | Not ready | Unsigned build only; no signed release or go/no-go evidence |
 
