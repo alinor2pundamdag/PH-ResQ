@@ -59,8 +59,8 @@ class ResQDatabaseTest {
 
         assertEquals(
             listOf(
-                "hotline:143" to "Red Cross • 143",
-                "hotline:911" to "National Emergency • 911"
+                "hotline:911" to "National Emergency • 911",
+                "hotline:143" to "Red Cross • 143"
             ),
             database.bookmarks()
         )
