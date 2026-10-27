@@ -81,6 +81,8 @@ import ph.resq.app.core.HotlineMethod
 import ph.resq.app.core.NearbyBlePeer
 import ph.resq.app.core.SosMessage
 import ph.resq.app.core.SosState
+import ph.resq.app.core.OfflineDataRepository
+import ph.resq.app.core.HazardDataRepository
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 
@@ -215,6 +217,13 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     var hotlineQuery by remember { mutableStateOf("") }
     var recentSearches by remember { mutableStateOf(runCatching { database.recentSearches() }.getOrDefault(emptyList())) }
     var savedBookmarks by remember { mutableStateOf(runCatching { database.bookmarks() }.getOrDefault(emptyList())) }
+    val offlineDataRepository = remember { OfflineDataRepository(context, database) }
+    val hazardDataRepository = remember { HazardDataRepository(database) }
+    var offlineQuery by remember { mutableStateOf("") }
+    var directoryResults by remember { mutableStateOf(emptyList<ph.resq.app.core.DirectoryRecord>()) }
+    var directoryMetadata by remember { mutableStateOf(runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()) }
+    var advisoryItems by remember { mutableStateOf(runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList())) }
+    var evacuationItems by remember { mutableStateOf(emptyList<Pair<ph.resq.app.core.EvacuationCenter, Boolean>>()) }
     val voiceRecorder = remember { EncryptedVoiceNoteRecorder.cleanupStaleRawFiles(context); EncryptedVoiceNoteRecorder() }
     val bleDiscovery = remember { BleDiscoveryManager(context) }
     var blePeers by remember { mutableStateOf(emptyList<NearbyBlePeer>()) }
@@ -738,7 +747,44 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Directory, maps, mesh and vault", style = MaterialTheme.typography.titleLarge)
+                Text("Offline directory and local hazard cache", style = MaterialTheme.typography.titleLarge)
+        Text("Hinahanap lamang nito ang data na na-import na sa device. Walang live PAGASA/LGU feed at hindi ito nangangahulugang kumpleto ang nationwide coverage.")
+        OutlinedTextField(value = offlineQuery, onValueChange = { offlineQuery = it.take(120) }, label = { Text("Barangay, lugar, agency o evacuation center") }, modifier = Modifier.fillMaxWidth())
+        Button(onClick = {
+            directoryResults = runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList())
+            directoryMetadata = runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()
+            evacuationItems = runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList())
+            advisoryItems = runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList())
+            if (directoryResults.isEmpty() && evacuationItems.isEmpty() && advisoryItems.isEmpty()) {
+                Toast.makeText(context, "Walang local directory/advisory data na available. Hindi nag-download ng data.", Toast.LENGTH_LONG).show()
+            }
+        }, modifier = Modifier.fillMaxWidth()) { Text("SEARCH SAVED OFFLINE DATA") }
+        directoryMetadata?.let { meta ->
+            Text("Directory dataset: ${meta["version"] ?: "unknown"} • records: ${meta["record_count"] ?: "unknown"}")
+            Text("Source: ${meta["source_url"] ?: "unknown"} • license: ${meta["license"] ?: "unknown"}")
+            Text("Verified at: ${meta["verified_at"] ?: "unknown"} • imported at: ${meta["imported_at"] ?: "unknown"}")
+        } ?: Text("Walang imported directory dataset. Mag-import lamang ng data mula sa beripikadong source at may malinaw na lisensya.")
+        directoryResults.take(30).forEach { record ->
+            Text(record.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text(record.category + (record.phone?.let { " • $it" } ?: ""))
+            if (record.latitude != null && record.longitude != null) Text("Coordinates: ${record.latitude}, ${record.longitude}")
+        }
+        Text("Evacuation centers (local cache)", style = MaterialTheme.typography.titleMedium)
+        if (evacuationItems.isEmpty()) Text("Walang matching imported evacuation-center records.")
+        evacuationItems.take(30).forEach { (center, stale) ->
+            Text(center.name + if (stale) " • STALE / VERIFY LOCALLY" else " • status: ${center.status}", style = MaterialTheme.typography.titleMedium)
+            Text(center.address)
+            Text("Source: ${center.sourceUrl} • verified: ${center.verifiedAt}")
+        }
+        Text("Cached advisories", style = MaterialTheme.typography.titleMedium)
+        if (advisoryItems.isEmpty()) Text("Walang cached advisories. Walang live feed request na ginawa.")
+        advisoryItems.take(10).forEach { (item, stale) ->
+            Text(item.title + if (stale) " • STALE / EXPIRED" else " • ${item.severity}", style = MaterialTheme.typography.titleMedium)
+            Text(item.body)
+            Text("Source: ${item.sourceUrl} • published: ${item.publishedAt} • expires: ${item.expiresAt}")
+        }
+
+        Text("Directory, maps, mesh and vault", style = MaterialTheme.typography.titleLarge)
                 Text("Hindi pa kumpleto: walang verified nationwide data package, offline maps, BLE/Wi-Fi emergency transport, remote sync, o integrated PIN/duress vault UI.")
             }
         }
