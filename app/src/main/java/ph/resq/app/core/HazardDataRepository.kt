@@ -54,7 +54,9 @@ class HazardDataRepository(private val database: ResQDatabase) {
         records.forEach { item ->
             require(item.id.isNotBlank() && item.id.length <= 160 && item.name.isNotBlank() && item.name.length <= 200 && item.address.isNotBlank() && item.address.length <= 400 && item.sourceUrl.startsWith("https://") && item.verifiedAt > 0 && item.verifiedAt <= now + 300_000L)
             require((item.latitude == null) == (item.longitude == null))
-            if (item.latitude != null) require(item.latitude.isFinite() && item.latitude in -90.0..90.0 && item.longitude!!.isFinite() && item.longitude in -180.0..180.0)
+            val lat = item.latitude
+            val lon = item.longitude
+            if (lat != null && lon != null) require(lat.isFinite() && lat in -90.0..90.0 && lon.isFinite() && lon in -180.0..180.0)
         }
         val db = database.writableDatabase
         db.beginTransaction()

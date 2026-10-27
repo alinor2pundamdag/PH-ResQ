@@ -31,6 +31,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -154,6 +155,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     var medicalQrBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var medicalQrStatus by remember { mutableStateOf("Walang QR na ginawa.") }
     val prefs = remember { context.getSharedPreferences("ph_resq_local", Context.MODE_PRIVATE) }
+    var reduceMotion by remember { mutableStateOf(prefs.getBoolean("reduce_motion", false)) }
     val vault = remember { LocalVault(context) }
     val pinVault = remember { PinProtectedVault(context) }
     var pinVaultEnabled by remember { mutableStateOf(prefs.getBoolean("pin_vault_enabled", false) && pinVault.isConfigured()) }
@@ -428,12 +430,14 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         animationSpec = infiniteRepeatable(tween(5000, easing = LinearEasing), repeatMode = RepeatMode.Reverse),
         label = "flagTitleColor"
     )
+    val visibleWave = if (reduceMotion) 0f else wave
+    val visibleColorPhase = if (reduceMotion) 0f else colorPhase
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(
-            Modifier.fillMaxWidth().height(8.dp).graphicsLayer(rotationZ = wave)
+            Modifier.fillMaxWidth().height(8.dp).graphicsLayer(rotationZ = visibleWave)
                 .background(Brush.horizontalGradient(listOf(Color.Blue, Color.Red, Color.White, Color.Yellow, Color.White, Color.Red, Color.Blue)))
         )
-        Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = Color.lerp(Color.Blue, Color.Red, colorPhase))
+        Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = Color.lerp(Color.Blue, Color.Red, visibleColorPhase))
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Emergency cell broadcasts", style = MaterialTheme.typography.titleLarge)
@@ -577,10 +581,10 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
                         Button(onClick = {
                             try {
                                 pinVault.configure(pinVaultPin.toCharArray(), contactsRaw)
-                                vault.clearContacts()
                                 check(prefs.edit().putBoolean("pin_vault_enabled", true).commit())
                                 pinVaultEnabled = true
                                 pinVaultUnlocked = true
+                                runCatching { vault.clearContacts() }
                                 pinVaultStatus = "PIN vault enabled. Walang recovery flow; itago ang PIN nang ligtas."
                             } catch (error: Exception) {
                                 pinVaultStatus = error.message ?: "Could not configure PIN vault."
