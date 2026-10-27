@@ -137,20 +137,80 @@ class ResQDatabase(context: Context) : SQLiteOpenHelper(context, "ph_resq_local.
     fun recordFamilyCheckin(status: String) {
         val clean = status.trim().take(200)
         require(clean.isNotEmpty()) { "Check-in status is required" }
+        val createdAt = System.currentTimeMillis()
         val values = ContentValues().apply {
             put("status", clean)
-            put("created_at", System.currentTimeMillis())
-            put("sync_state", "LOCAL_ONLY")
+            put("created_at", createdAt)
+            put("sync_state", "QUEUED_LOCAL_ONLY")
         }
+        val payload = clean.toByteArray(Charsets.UTF_8)
         val db = writableDatabase
-        db.insertOrThrow("family_checkins", null, values)
-        db.execSQL("DELETE FROM family_checkins WHERE id NOT IN (SELECT id FROM family_checkins ORDER BY id DESC LIMIT 50)")
+        db.beginTransaction()
+        try {
+            db.insertOrThrow("family_checkins", null, values)
+            val queue = ContentValues().apply {
+                put("action_type", "FAMILY_CHECKIN")
+                put("payload_ciphertext", fieldCipher.encrypt(String(payload, Charsets.UTF_8)))
+                put("created_at", createdAt)
+                put("attempts", 0)
+                put("status", "PENDING")
+            }
+            db.insertOrThrow("pending_actions", null, queue)
+            db.execSQL("DELETE FROM family_checkins WHERE id NOT IN (SELECT id FROM family_checkins ORDER BY id DESC LIMIT 50)")
+            db.setTransactionSuccessful()
+        } finally {
+            payload.fill(0)
+            db.endTransaction()
+        }
     }
 
     fun latestFamilyCheckin(): String? {
         readableDatabase.rawQuery("SELECT status FROM family_checkins ORDER BY id DESC LIMIT 1", null).use { cursor ->
             if (!cursor.moveToFirst()) return null
             return cursor.getString(0)
+        }
+    }
+
+    data class PendingAction(val id: Long, val type: String, val payload: String, val createdAt: Long, val attempts: Int, val status: String)
+
+    /** Durable encrypted outbox; items remain local until a real transport acknowledges them. */
+    fun pendingActions(limit: Int = 50): List<PendingAction> {
+        val safeLimit = limit.coerceIn(1, 100)
+        val result = mutableListOf<PendingAction>()
+        readableDatabase.rawQuery(
+            "SELECT id, action_type, payload_ciphertext, created_at, attempts, status FROM pending_actions WHERE status != 'SYNCED' ORDER BY id ASC LIMIT $safeLimit",
+            null
+        ).use { cursor ->
+            while (cursor.moveToNext()) {
+                val payload = fieldCipher.decrypt(cursor.getString(2)) ?: continue
+                result.add(PendingAction(cursor.getLong(0), cursor.getString(1), payload, cursor.getLong(3), cursor.getInt(4), cursor.getString(5)))
+            }
+        }
+        return result
+    }
+
+    fun pendingActionCount(): Int {
+        readableDatabase.rawQuery("SELECT COUNT(*) FROM pending_actions WHERE status != 'SYNCED'", null).use { cursor ->
+            return if (cursor.moveToFirst()) cursor.getInt(0) else 0
+        }
+    }
+
+    fun updatePendingAction(id: Long, status: String, error: String? = null) {
+        require(status in setOf("PENDING", "RETRY", "SYNCED", "FAILED"))
+        val db = writableDatabase
+        db.execSQL("UPDATE pending_actions SET status = ?, last_error = ?, attempts = attempts + ? WHERE id = ?",
+            arrayOf(status, error?.take(200), if (status == "RETRY" || status == "FAILED") 1 else 0, id))
+    }
+
+    fun putAppState(key: String, value: String) {
+        require(key.isNotBlank() && key.length <= 80)
+        val values = ContentValues().apply { put("key", key); put("value", value.take(1000)) }
+        writableDatabase.insertWithOnConflict("app_state", null, values, SQLiteDatabase.CONFLICT_REPLACE)
+    }
+
+    fun getAppState(key: String): String? {
+        readableDatabase.rawQuery("SELECT value FROM app_state WHERE key = ?", arrayOf(key)).use { cursor ->
+            return if (cursor.moveToFirst()) cursor.getString(0) else null
         }
     }
 
