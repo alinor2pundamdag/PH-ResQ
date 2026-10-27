@@ -26,5 +26,8 @@ class SosMessageTest {
     @Test fun stateMachineRejectsFalseDeliveryFromIdle() {
         assertEquals(false, SosStateMachine.canTransition(SosState.IDLE, SosState.DELIVERED))
         assertEquals(true, SosStateMachine.canTransition(SosState.QUEUED, SosState.HANDED_OFF))
+        assertEquals(true, SosStateMachine.canTransition(SosState.SENDING, SosState.RETRY_PENDING))
+        assertEquals(true, SosStateMachine.canTransition(SosState.RETRY_PENDING, SosState.SENDING))
+        assertEquals(false, SosStateMachine.canTransition(SosState.CANCELLED, SosState.SENDING))
     }
 }
