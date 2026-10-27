@@ -1,6 +1,6 @@
 package ph.resq.app.core
 
-import androidx.test.core.app.ApplicationProvider
+import org.robolectric.RuntimeEnvironment
 import android.content.Context
 import org.junit.Assert.*
 import org.junit.Test
@@ -12,7 +12,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [33])
 class PinProtectedVaultTest {
     @Test fun configuredVaultDecryptsOnlyWithCorrectPin() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        val context = RuntimeEnvironment.getApplication()
         context.getSharedPreferences("ph_resq_pin_vault_v1", Context.MODE_PRIVATE).edit().clear().commit()
         val vault = PinProtectedVault(context)
         vault.configure("482951".toCharArray(), "emergency contacts")
