@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper
  * Local transactional foundation for durable emergency state.
  * Directory/map tables are empty until sourced datasets and importers are added.
  */
-class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCipher = EncryptedFieldCipher()) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 4) {
+class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCipher = EncryptedFieldCipher()) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 5) {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE app_state (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)")
@@ -20,6 +20,8 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
         db.execSQL("CREATE TABLE directory_entries (entry_id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, category TEXT NOT NULL, phone TEXT, latitude REAL, longitude REAL, source_url TEXT, verified_at INTEGER)")
         db.execSQL("CREATE TABLE map_tiles (tile_key TEXT PRIMARY KEY NOT NULL, local_path TEXT NOT NULL, sha256 TEXT, dataset_version TEXT, updated_at INTEGER)")
         db.execSQL("CREATE TABLE dataset_meta (dataset_name TEXT PRIMARY KEY NOT NULL, source_url TEXT NOT NULL, license TEXT NOT NULL, version TEXT NOT NULL, verified_at INTEGER NOT NULL, imported_at INTEGER NOT NULL, record_count INTEGER NOT NULL)")
+        db.execSQL("CREATE TABLE cached_advisories (advisory_id TEXT PRIMARY KEY NOT NULL, title TEXT NOT NULL, severity TEXT NOT NULL, body TEXT NOT NULL, source_url TEXT NOT NULL, published_at INTEGER NOT NULL, fetched_at INTEGER NOT NULL, expires_at INTEGER NOT NULL)")
+        db.execSQL("CREATE TABLE evacuation_centers (center_id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, address TEXT NOT NULL, latitude REAL, longitude REAL, status TEXT NOT NULL, source_url TEXT NOT NULL, verified_at INTEGER NOT NULL)")
         db.execSQL("CREATE TABLE family_checkins (id INTEGER PRIMARY KEY AUTOINCREMENT, status TEXT NOT NULL, created_at INTEGER NOT NULL, sync_state TEXT NOT NULL)")
         db.execSQL("CREATE TABLE pending_actions (id INTEGER PRIMARY KEY AUTOINCREMENT, action_type TEXT NOT NULL, payload_ciphertext TEXT NOT NULL, created_at INTEGER NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL, last_error TEXT)")
     }
@@ -59,6 +61,11 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
         }
         if (version < 4 && newVersion >= 4) {
             db.execSQL("CREATE TABLE IF NOT EXISTS dataset_meta (dataset_name TEXT PRIMARY KEY NOT NULL, source_url TEXT NOT NULL, license TEXT NOT NULL, version TEXT NOT NULL, verified_at INTEGER NOT NULL, imported_at INTEGER NOT NULL, record_count INTEGER NOT NULL)")
+            version = 4
+        }
+        if (version < 5 && newVersion >= 5) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS cached_advisories (advisory_id TEXT PRIMARY KEY NOT NULL, title TEXT NOT NULL, severity TEXT NOT NULL, body TEXT NOT NULL, source_url TEXT NOT NULL, published_at INTEGER NOT NULL, fetched_at INTEGER NOT NULL, expires_at INTEGER NOT NULL)")
+            db.execSQL("CREATE TABLE IF NOT EXISTS evacuation_centers (center_id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, address TEXT NOT NULL, latitude REAL, longitude REAL, status TEXT NOT NULL, source_url TEXT NOT NULL, verified_at INTEGER NOT NULL)")
         }
     }
 
