@@ -1,7 +1,7 @@
 # PH-ResQ Feature Traceability
 
 **Purpose:** Prevent silent feature removal and make every requirement testable.  
-**Status:** Core unit tests and debug/release assemble tasks passed on commit `4a611c8f085cc20ac5ec9558b07074ba2c1b26df` ([CI run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40450465511)). Physical-device, integration, data-coverage, and full feature acceptance remain outstanding.
+**Status:** Core unit tests and debug/release assemble tasks passed on commit `408e2aaaea09df70400c92038b405c5d5a47d337` ([CI run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40451629467)). This includes Robolectric tests for local search history, bookmarks, check-in persistence and database reopen. Physical-device, integration, data-coverage, and full feature acceptance remain outstanding.
 
 | ID | Retained requirement | Planned component/area | Implementation status | Minimum acceptance evidence |
 |---|---|---|---|---|
