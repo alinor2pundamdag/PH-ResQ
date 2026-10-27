@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -133,6 +134,7 @@ private fun HomeScreen() {
     }
     var voiceRecording by remember { mutableStateOf(false) }
     var voiceStatus by remember { mutableStateOf("Wala pang voice note") }
+    var showAccessibleSosConfirm by remember { mutableStateOf(false) }
     fun beginBleScan() {
         try {
             bleStatus = "Scanning for up to 15 seconds…"
@@ -188,6 +190,32 @@ private fun HomeScreen() {
         runCatching { prefs.edit().putString("last_location_line_cipher", fieldCipher.encrypt(locationLine)).remove("last_location_line").apply() }
     }
 
+    fun prepareSos() {
+        setSosState(SosState.QUEUED)
+        vibrate(context)
+        val recipients = ContactList.parse(contactsRaw)
+        if (recipients.isEmpty()) {
+            Toast.makeText(context, "Maglagay muna ng emergency contact.", Toast.LENGTH_LONG).show()
+            setSosState(SosState.FAILED)
+            return
+        }
+        val body = SosMessage.build(messageNote, locationLine)
+        val recipientList = recipients.joinToString(";")
+        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + recipientList)).apply { putExtra("sms_body", body) }
+        try {
+            if (intent.resolveActivity(context.packageManager) != null) {
+                context.startActivity(intent)
+                setSosState(SosState.HANDED_OFF, body, recipientList)
+            } else {
+                setSosState(SosState.FAILED, body, recipientList)
+                Toast.makeText(context, "Walang messaging app na kayang magbukas ng SMS.", Toast.LENGTH_LONG).show()
+            }
+        } catch (_: Exception) {
+            setSosState(SosState.FAILED, body, recipientList)
+            Toast.makeText(context, "Hindi mabuksan ang messaging app; hindi naipadalang SMS.", Toast.LENGTH_LONG).show()
+        }
+    }
+
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
         Text("Emergency-first • offline-aware • early build")
@@ -219,27 +247,28 @@ private fun HomeScreen() {
                 Text("Pindutin at hawakan nang 2 segundo upang ihanda ang SMS. Bubuksan ang messaging app; kailangan mong i-review at ipadala.")
                 SosHoldButton(
                     modifier = Modifier.fillMaxWidth(),
-                    onConfirmed = {
-                        setSosState(SosState.QUEUED)
-                        vibrate(context)
-                        val recipients = ContactList.parse(contactsRaw)
-                        if (recipients.isEmpty()) {
-                            Toast.makeText(context, "Maglagay muna ng emergency contact.", Toast.LENGTH_LONG).show()
-                            setSosState(SosState.FAILED)
-                        } else {
-                            val body = SosMessage.build(messageNote, locationLine)
-                            val uri = Uri.parse("smsto:" + recipients.joinToString(";"))
-                            val intent = Intent(Intent.ACTION_SENDTO, uri).apply { putExtra("sms_body", body) }
-                            if (intent.resolveActivity(context.packageManager) != null) {
-                                context.startActivity(intent)
-                                setSosState(SosState.HANDED_OFF, body, recipients.joinToString(";"))
-                            } else {
-                                state = SosState.FAILED
-                                Toast.makeText(context, "Walang messaging app na kayang magbukas ng SMS.", Toast.LENGTH_LONG).show()
-                            }
-                        }
-                    }
+                    onConfirmed = { prepareSos() }
                 )
+                Text("Kung hindi kayang gamitin ang press-and-hold, piliin ang accessible alternative at kumpirmahin sa susunod na hakbang.")
+                Button(onClick = { showAccessibleSosConfirm = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text("ACCESSIBLE SOS ALTERNATIVE")
+                }
+                if (showAccessibleSosConfirm) {
+                    AlertDialog(
+                        onDismissRequest = { showAccessibleSosConfirm = false },
+                        title = { Text("Ihanda ang SOS?") },
+                        text = { Text("Magbubukas ang messaging app para ma-review mo ang mensahe. Hindi ito awtomatikong magpapadala at walang delivery guarantee.") },
+                        confirmButton = {
+                            Button(onClick = {
+                                showAccessibleSosConfirm = false
+                                prepareSos()
+                            }) { Text("IHANDA ANG SOS") }
+                        },
+                        dismissButton = {
+                            Button(onClick = { showAccessibleSosConfirm = false }) { Text("Kanselahin") }
+                        }
+                    )
+                }
                 Text("SOS status: " + state.label)
                 OutlinedTextField(value = messageNote, onValueChange = { messageNote = it.take(240) }, label = { Text("Optional na mensahe") }, modifier = Modifier.fillMaxWidth())
             }

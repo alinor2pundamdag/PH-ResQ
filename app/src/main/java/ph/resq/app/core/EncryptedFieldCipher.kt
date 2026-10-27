@@ -1,6 +1,5 @@
 package ph.resq.app.core
 
-import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
@@ -11,8 +10,7 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 /** Encrypts sensitive local fields with an Android Keystore AES-GCM key. */
-class EncryptedFieldCipher(context: Context) {
-    private val alias = "ph_resq_private_fields_aes_gcm_v1"
+class EncryptedFieldCipher(private val alias: String = "ph_resq_private_fields_aes_gcm_v1") {
     fun encrypt(value: String): String {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
