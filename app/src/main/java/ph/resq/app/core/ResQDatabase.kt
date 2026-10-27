@@ -77,6 +77,8 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
             version = 6
         }
         if (version < 7 && newVersion >= 7) {
+            // Older installs may predate the directory table; create it before adding the index.
+            db.execSQL("CREATE TABLE IF NOT EXISTS directory_entries (entry_id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, category TEXT NOT NULL, phone TEXT, latitude REAL, longitude REAL, source_url TEXT, verified_at INTEGER)")
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_directory_coordinates ON directory_entries(latitude, longitude)")
             version = 7
         }

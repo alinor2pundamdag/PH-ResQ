@@ -1,6 +1,7 @@
 package ph.resq.app.core
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -46,6 +47,25 @@ class OfflineDataRepositoryTest {
             fail("Expected empty import rejection")
         } catch (_: IllegalArgumentException) { }
         assertEquals(1, repository.searchDirectory("").size)
+    }
+
+    @Test fun versionSixDatabaseWithoutDirectoryTableUpgradesAndCreatesCoordinateIndex() {
+        db.close()
+        context.deleteDatabase("ph_resq_local.db")
+        val legacy = SQLiteDatabase.openOrCreateDatabase(context.getDatabasePath("ph_resq_local.db").absolutePath, null)
+        legacy.version = 6
+        legacy.close()
+
+        db = ResQDatabase(context, testCipher())
+        val upgraded = db.writableDatabase
+        upgraded.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='directory_entries'", null).use {
+            assertTrue("directory_entries table should be created during migration", it.moveToFirst())
+        }
+        upgraded.rawQuery("PRAGMA index_list('directory_entries')", null).use { cursor ->
+            var found = false
+            while (cursor.moveToNext()) if (cursor.getString(1) == "idx_directory_coordinates") found = true
+            assertTrue("coordinate index should be created during migration", found)
+        }
     }
 
     @Test fun nearbySearchUsesCoordinatesFiltersRadiusAndSortsByDistance() {
