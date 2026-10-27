@@ -29,12 +29,12 @@ All requirements in this document remain in scope unless an explicit architectur
 
 ## 3. Android architecture decision
 
-**Initial implementation baseline recorded in ADR-001:** Kotlin + Jetpack Compose; minSdk 26; compileSdk/targetSdk 35; Java 17. The initial Gradle build and CI are now in the implementation branch, but the build result is pending. This is not evidence that all features are implemented.
+**Initial implementation baseline recorded in ADR-001:** Kotlin + Jetpack Compose; minSdk 26; compileSdk/targetSdk 35; Java 17. The Gradle build and automated unit tests passed in GitHub Actions for commit `bd1cb451967bec8c6bc83ed10a80ed30edd59088` (run: https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40448972532). This verifies the listed build/test tasks only; it does not establish feature completeness or physical-device acceptance.
 
 The application is an Android app, not a browser app. Native Android APIs are required for capabilities such as location, SMS handoff, notifications, foreground services, Bluetooth Low Energy, Wi-Fi Direct, Android Keystore, lifecycle handling, and platform permission flows.
 
 - Do not use `window`, `localStorage`, IndexedDB, or browser-only lifecycle assumptions as the implementation for native Android features.
-- Build baseline: Kotlin + Jetpack Compose, minSdk 26, compileSdk/targetSdk 35, Java 17, AGP 8.7.3, Kotlin 2.0.21. This baseline remains provisional until CI passes on the latest commit. Native Android APIs own device capabilities and lifecycle work.
+- Build baseline: Kotlin + Jetpack Compose, minSdk 26, compileSdk/targetSdk 35, Java 17, AGP 8.7.3, Kotlin 2.0.21. This baseline passed CI on commit `bd1cb451967bec8c6bc83ed10a80ed30edd59088`; every later candidate must pass CI again, and device/data/security acceptance remains outstanding. Native Android APIs own device capabilities and lifecycle work.
 - Use a local database/storage layer appropriate for Android. Use a genuine spatial index only if the selected database supports it; otherwise document the chosen query strategy and benchmark it with realistic data.
 - Use Android Keystore for encryption keys where feasible, with a documented compatibility fallback. StrongBox is optional and device-dependent.
 - Background execution must follow current Android restrictions. Foreground services require the appropriate service type, permissions, and visible notification. Do not promise unrestricted continuous execution.
@@ -146,7 +146,7 @@ Additional requirements:
 
 ## 9. Nationwide emergency directory, maps, and data governance
 
-The intended scope includes national, regional, provincial, city/municipal, barangay, evacuation-centre, and emergency-service information. The target counts previously cited in planning materials (17 regions, 82 provinces, 149 cities, 1,493 municipalities, and 42,046 barangays) are planning figures, not verified completeness claims; validate current administrative counts against authoritative Philippine government sources before packaging.
+The intended scope includes national, regional, provincial, city/municipal, barangay, evacuation-centre, and emergency-service information. PSA's latest PSGC release checked 2026-10-27 reports 18 regions, 82 provinces, 149 cities, 1,493 municipalities, and 42,010 barangays as of 2026-09-30. Treat these as administrative reference counts only; acquire the source workbook, validate hierarchy and coverage, and separately source service contacts and coordinates before packaging.
 
 For each dataset, record:
 - authoritative publisher and source URL;

@@ -2,7 +2,7 @@
 
 > **Android-first, offline-first emergency assistance project for the Philippines.**
 
-**Current repository status:** An initial Kotlin/Jetpack Compose Android scaffold and Android CI workflow have been added on the implementation branch alongside the planning documents. Build/test results are pending. This is not a complete or release-ready emergency application; feature descriptions below remain requirements unless implementation and evidence are explicitly recorded in IMPLEMENTATION_STATUS.md.
+**Current repository status:** The Kotlin/Jetpack Compose scaffold passed the CI unit-test and debug/release assemble tasks at commit `bd1cb451967bec8c6bc83ed10a80ed30edd59088` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40448972532)). This is an early implementation baseline, not a complete or release-ready emergency application; physical-device, data, security, and feature acceptance remain outstanding.
 
 ## Layunin
 
@@ -40,7 +40,7 @@ Nilalayon ng PH-ResQ Vanguard 2026 na magbigay ng offline-capable emergency dire
 - [RELEASE_CANDIDATE_CHECKLIST.md](RELEASE_CANDIDATE_CHECKLIST.md) — release gate; currently NO-GO
 - GitHub Actions workflow: `.github/workflows/android-ci.yml` — unit tests, debug APK build, and APK artifact upload
 
-The initial app currently includes a consent gate, Android Keystore AES-GCM at-rest encryption for the contact field, a two-second hold interaction (validation pending), last-known location lookup (permission/device validation pending), a national 911 dialer fallback sourced from the official Philippine Government Emergency Hotlines portal, a user-confirmed SMS handoff, and locally persisted SOS state/draft. It does not yet include fresh GPS acquisition, voice notes, offline datasets/maps, a PIN-protected vault, BLE/Wi-Fi Direct mesh, or remote family sync. Do not rely on this scaffold as a validated emergency service.
+The current app includes a basic consent gate; Keystore AES-GCM encryption for emergency contacts and sensitive SOS/location fields; a 2-second hold-to-prepare-SOS flow; last-known location lookup; a user-confirmed messaging-app handoff; an offline national agency hotline subset; encrypted local voice-note recording; low-power BLE advertisement discovery; a transactional SOS event table; and tested core utilities for geohash, SHA-256 verification, rolling tokens, adaptive-location policy, and authenticated mesh envelopes. These are partial implementations. Fresh GPS, full vault/recovery, voice playback/attachment, nationwide directory/maps, Wi-Fi Direct and radio mesh transport, durable family sync, and physical-device acceptance are not complete. Do not rely on this scaffold as a validated emergency service.
 
 ## Documentation map
 
