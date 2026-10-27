@@ -91,6 +91,24 @@ class ResQDatabaseTest {
     }
 
     @Test
+    fun familyCheckInCreatesEncryptedPendingOutboxItem() {
+        database.recordFamilyCheckin("Need help at shelter")
+        assertEquals(1, database.pendingActionCount())
+        val item = database.pendingActions().single()
+        assertEquals("FAMILY_CHECKIN", item.type)
+        assertEquals("Need help at shelter", item.payload)
+        assertEquals("PENDING", item.status)
+        database.updatePendingAction(item.id, "RETRY", "No transport")
+        assertEquals(1, database.pendingActions().single().attempts)
+    }
+
+    @Test
+    fun appStatePersistsBatterySnapshot() {
+        database.putAppState("low_battery_snapshot", "Battery <=5% (4%)")
+        assertEquals("Battery <=5% (4%)", database.getAppState("low_battery_snapshot"))
+    }
+
+    @Test
     fun newDatabaseHasNoFamilyCheckIn() {
         assertNull(database.latestFamilyCheckin())
     }
