@@ -2,6 +2,7 @@ package ph.resq.app
 
 import android.Manifest
 import android.app.Activity
+import android.graphics.Bitmap
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
 import android.content.Context
@@ -19,6 +20,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +35,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,11 +47,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ph.resq.app.core.ContactList
+import ph.resq.app.core.MedicalIdQr
 import ph.resq.app.core.LastKnownLocation
 import ph.resq.app.core.FreshLocationProvider
 import ph.resq.app.core.LocalVault
@@ -76,7 +83,15 @@ private fun ResQRoot() {
     val context = LocalContext.current
     val consentStore = remember { ConsentStore(context) }
     var consentAccepted by remember { mutableStateOf(consentStore.isAccepted()) }
-    MaterialTheme {
+    val appPrefs = remember { context.getSharedPreferences("ph_resq_local", Context.MODE_PRIVATE) }
+    var highContrast by remember { mutableStateOf(appPrefs.getBoolean("high_contrast", false)) }
+    val colors = if (highContrast) darkColorScheme(
+        primary = Color.Yellow, onPrimary = Color.Black,
+        secondary = Color.Cyan, onSecondary = Color.Black,
+        background = Color.Black, onBackground = Color.White,
+        surface = Color.Black, onSurface = Color.White
+    ) else lightColorScheme()
+    MaterialTheme(colorScheme = colors) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             if (!consentAccepted) {
                 ConsentScreen(
@@ -87,7 +102,10 @@ private fun ResQRoot() {
                     onDecline = { (context as? Activity)?.finish() }
                 )
             } else {
-                HomeScreen()
+                HomeScreen(onToggleHighContrast = {
+                    highContrast = !highContrast
+                    appPrefs.edit().putBoolean("high_contrast", highContrast).apply()
+                })
             }
         }
     }
@@ -114,8 +132,15 @@ private fun ConsentScreen(onAccept: () -> Unit, onDecline: () -> Unit) {
 }
 
 @Composable
-private fun HomeScreen() {
+private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     val context = LocalContext.current
+    var medicalName by remember { mutableStateOf("") }
+    var medicalBloodType by remember { mutableStateOf("") }
+    var medicalAllergies by remember { mutableStateOf("") }
+    var medicalMedications by remember { mutableStateOf("") }
+    var medicalEmergencyContact by remember { mutableStateOf("") }
+    var medicalQrBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var medicalQrStatus by remember { mutableStateOf("Walang QR na ginawa.") }
     val prefs = remember { context.getSharedPreferences("ph_resq_local", Context.MODE_PRIVATE) }
     val vault = remember { LocalVault(context) }
     val database = remember { ResQDatabase(context) }
@@ -343,6 +368,9 @@ private fun HomeScreen() {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
         Text("Emergency-first • offline-aware • early build")
+        Button(onClick = onToggleHighContrast, modifier = Modifier.fillMaxWidth()) {
+            Text("HIGH CONTRAST: " + if (MaterialTheme.colorScheme.background == Color.Black) "ON — tap to disable" else "OFF — tap to enable")
+        }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Offline national emergency contacts", style = MaterialTheme.typography.titleLarge)
@@ -542,6 +570,31 @@ private fun HomeScreen() {
                         Toast.makeText(context, "Hindi ma-save sa database; ginamit ang local fallback.", Toast.LENGTH_LONG).show()
                     }
                 }) { Text("Save check-in locally") }
+            }
+        }
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Offline Medical ID QR", style = MaterialTheme.typography.titleLarge)
+                Text("Gumawa lamang ng QR kapag pinili mong ibahagi ang impormasyon. Hindi naka-encrypt ang QR: maaaring mabasa ng sinumang makakita o kumuha ng larawan nito. Huwag ilagay ang impormasyong ayaw mong ibunyag.")
+                OutlinedTextField(value = medicalName, onValueChange = { medicalName = it.take(80); medicalQrBitmap = null }, label = { Text("Pangalan (required)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalBloodType, onValueChange = { medicalBloodType = it.take(20); medicalQrBitmap = null }, label = { Text("Blood type (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalAllergies, onValueChange = { medicalAllergies = it.take(160); medicalQrBitmap = null }, label = { Text("Allergies (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalMedications, onValueChange = { medicalMedications = it.take(160); medicalQrBitmap = null }, label = { Text("Medications (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalEmergencyContact, onValueChange = { medicalEmergencyContact = it.take(40); medicalQrBitmap = null }, label = { Text("Emergency contact (optional)") }, modifier = Modifier.fillMaxWidth())
+                Text(medicalQrStatus)
+                Button(onClick = {
+                    try {
+                        medicalQrBitmap = MedicalIdQr.createBitmap(medicalName, medicalBloodType, medicalAllergies, medicalMedications, medicalEmergencyContact)
+                        medicalQrStatus = "QR generated on-device. It contains only the fields entered above."
+                    } catch (error: Exception) {
+                        medicalQrBitmap = null
+                        medicalQrStatus = error.message ?: "Hindi nagawa ang QR."
+                    }
+                }, modifier = Modifier.fillMaxWidth()) { Text("GENERATE MEDICAL ID QR") }
+                medicalQrBitmap?.let { bitmap ->
+                    Image(bitmap = bitmap.asImageBitmap(), contentDescription = "Medical ID QR code", modifier = Modifier.fillMaxWidth().height(260.dp))
+                    Button(onClick = { medicalQrBitmap = null; medicalQrStatus = "QR cleared from screen." }, modifier = Modifier.fillMaxWidth()) { Text("CLEAR QR FROM SCREEN") }
+                }
             }
         }
         Card(Modifier.fillMaxWidth()) {

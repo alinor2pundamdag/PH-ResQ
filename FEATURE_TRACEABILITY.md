@@ -24,8 +24,8 @@
 | F-017 | Encrypted PIN-protected vault | Security vault | Partial — PBKDF2-derived AES-GCM PIN vault utility and five-failure temporary lockout added with tests; not integrated into contact access/UI, and no key recovery/backup lifecycle | Encryption, key lifecycle, lockout/rate-limit, backup/reinstall and recovery tests |
 | F-018 | Optional duress PIN/dummy vault | Threat-modelled security module | Planned — implementation not evidenced | Threat-model review; no absolute secrecy or physical-safety guarantee claims |
 | F-019 | Stealth audio mute | SOS/audio policy | Planned — implementation not evidenced | Silent-mode test; visual status and cancellation remain available |
-| F-020 | Offline Medical ID QR | Medical ID/share UI | Planned — implementation not evidenced | Explicit field selection; QR payload minimization and disclosure warning |
-| F-021 | High-contrast accessibility | UI/accessibility | Planned — implementation not evidenced | Contrast, TalkBack, scalable text, touch-target and reduced-motion tests |
+| F-020 | Offline Medical ID QR | Medical ID/share UI | Partial — on-device QR generation with explicit field selection added; payload is intentionally unencrypted and requires privacy warning/acceptance tests | Explicit field selection; QR payload minimization and disclosure warning |
+| F-021 | High-contrast accessibility | UI/accessibility | Partial — persistent high-contrast theme toggle added; contrast audit, TalkBack, scalable text, touch-target and reduced-motion tests pending | Contrast, TalkBack, scalable text, touch-target and reduced-motion tests |
 | F-022 | Foreground service notification/actions | Android lifecycle service | Planned — implementation not evidenced | Target-SDK compliance and device tests; visible required notification |
 | F-023 | Safe volume policy | Audio/accessibility | Planned — implementation not evidenced | User settings, stealth mode, Android audio behavior tests |
 | F-024 | Verified helpline fallback | Directory/fallback UI | Partial — 911 dialer fallback verified; no nationwide/local directory | Every number has authoritative source/jurisdiction and review date |

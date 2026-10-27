@@ -1,6 +1,6 @@
 # PH-ResQ Implementation Status
 
-Snapshot: 2026-10-27. Status: expanded Android implementation pass; **not a release candidate**. Latest code includes bounded fresh-location requests, a best-effort low-battery snapshot, an encrypted durable local check-in outbox, and a PBKDF2/AES-GCM PIN-vault utility. These additions do not complete all 34 requirements.
+Snapshot: 2026-10-27. Status: expanded Android implementation pass; **not a release candidate**. Latest code includes bounded fresh-location requests, a best-effort low-battery snapshot, an encrypted durable local check-in outbox, and a PBKDF2/AES-GCM PIN-vault utility. These additions do not complete all 34 requirements. A locally generated Medical ID QR with explicit field selection/privacy warning and a persistent high-contrast theme toggle are also present; both remain partial pending accessibility/privacy acceptance tests.
 
 ## Automated evidence
 
@@ -31,6 +31,8 @@ Snapshot: 2026-10-27. Status: expanded Android implementation pass; **not a rele
 | Other SQLite tables | SOS events plus schema foundations for location, directory, map metadata and map tiles | Directory/map/location data importers, repositories, and complete UI are not implemented |
 | Nationwide directory/maps | Not implemented | No audited nationwide service-contact dataset or licensed offline map package |
 | PIN vault/duress mode | PIN-derived AES-GCM vault utility with five-failure temporary lockout and Robolectric tests added | Not wired to contact access/UI; no recovery/backup lifecycle or duress mode; not accepted as complete vault |
+| Medical ID QR | On-device QR generation with explicit user-entered fields and clear action | QR contents are not encrypted; user must control what is exposed; privacy/scan interoperability tests pending |
+| Accessibility theme | Persistent high-contrast theme toggle | Formal contrast/TalkBack/touch-target/reduced-motion validation pending |
 | PAGASA/evacuation/cell-broadcast awareness | Not implemented | Data ingestion/freshness not validated; third-party app cannot promise to intercept all cell broadcasts |
 | Physical-device tests | Not run | Requires target devices, SIM/network, permissions and multi-device mesh testing |
 | Release signing | Not ready | Unsigned build only; no signed release or go/no-go evidence |
