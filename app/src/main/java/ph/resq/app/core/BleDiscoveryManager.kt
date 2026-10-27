@@ -60,7 +60,12 @@ class BleDiscoveryManager(context: Context) {
             }
         }
         callback = scanCallback
-        activeScanner.startScan(null, ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_POWER).build(), scanCallback)
+        try {
+            activeScanner.startScan(null, ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_POWER).build(), scanCallback)
+        } catch (error: SecurityException) {
+            stop()
+            throw error
+        }
         handler.postDelayed(stopTask, 15_000L)
     }
 
