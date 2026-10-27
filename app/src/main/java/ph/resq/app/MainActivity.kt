@@ -2,6 +2,8 @@ package ph.resq.app
 
 import android.Manifest
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
@@ -47,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ph.resq.app.core.ContactList
 import ph.resq.app.core.LastKnownLocation
+import ph.resq.app.core.FreshLocationProvider
 import ph.resq.app.core.LocalVault
 import ph.resq.app.core.ResQDatabase
 import ph.resq.app.core.EncryptedFieldCipher
@@ -116,6 +119,39 @@ private fun HomeScreen() {
     val prefs = remember { context.getSharedPreferences("ph_resq_local", Context.MODE_PRIVATE) }
     val vault = remember { LocalVault(context) }
     val database = remember { ResQDatabase(context) }
+    val freshLocationProvider = remember { FreshLocationProvider(context) }
+    var freshLocationStatus by remember { mutableStateOf("Hindi pa humihingi ng fresh location.") }
+    var batterySnapshot by remember { mutableStateOf(runCatching { database.getAppState("low_battery_snapshot") }.getOrNull() ?: "Wala pang low-battery snapshot.") }
+    var pendingQueueCount by remember { mutableStateOf(runCatching { database.pendingActionCount() }.getOrDefault(0)) }
+    DisposableEffect(freshLocationProvider) {
+        onDispose { freshLocationProvider.cancel() }
+    }
+    DisposableEffect(database) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context?, intent: Intent?) {
+                val level = intent?.getIntExtra("level", -1) ?: -1
+                val scale = intent?.getIntExtra("scale", 100) ?: 100
+                if (level >= 0 && scale > 0) {
+                    val percent = (level * 100) / scale
+                    if (percent <= 5) {
+                        val previous = runCatching { database.getAppState("low_battery_level") }.getOrNull()
+                        if (previous != percent.toString()) {
+                            val snapshot = "Battery <=5% ($percent%) • captured ${System.currentTimeMillis()}"
+                            runCatching {
+                                database.putAppState("low_battery_snapshot", snapshot)
+                                database.putAppState("low_battery_level", percent.toString())
+                                batterySnapshot = snapshot
+                            }
+                        }
+                    } else {
+                        runCatching { database.putAppState("low_battery_level", percent.toString()) }
+                    }
+                }
+            }
+        }
+        context.registerReceiver(receiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        onDispose { runCatching { context.unregisterReceiver(receiver) } }
+    }
     val fieldCipher = remember { EncryptedFieldCipher() }
     var contactsRaw by remember { mutableStateOf(runCatching { vault.loadContacts() }.getOrNull() ?: "") }
     var locationLine by remember {
@@ -255,6 +291,27 @@ private fun HomeScreen() {
             "Huling lokasyon (hindi live guarantee): " + LastKnownLocation.format(location)
         }
         runCatching { prefs.edit().putString("last_location_line_cipher", fieldCipher.encrypt(locationLine)).remove("last_location_line").apply() }
+    }
+
+    val freshLocationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        if (result.values.any { it }) {
+            freshLocationStatus = "Humihingi ng bagong location fix (hanggang 15 segundo)…"
+            freshLocationProvider.request { location, message ->
+                freshLocationStatus = message
+                if (location != null) {
+                    locationLine = "Location fix: " + LastKnownLocation.format(location)
+                    runCatching {
+                        prefs.edit().putString("last_location_line_cipher", fieldCipher.encrypt(locationLine)).remove("last_location_line").apply()
+                        database.putAppState("last_location_captured_at", location.time.toString())
+                        database.putAppState("last_location_accuracy_m", if (location.hasAccuracy()) location.accuracy.toString() else "unknown")
+                    }
+                }
+            }
+        } else {
+            freshLocationStatus = "Location permission denied; walang bagong fix."
+        }
     }
 
     fun prepareSos() {
@@ -402,6 +459,13 @@ private fun HomeScreen() {
                 Text("Last-known location", style = MaterialTheme.typography.titleLarge)
                 Text(locationLine)
                 Text("Ang pinakahuling lokasyon ay maaaring luma; hindi ito real-time tracking.")
+                Text(freshLocationStatus)
+                Button(onClick = {
+                    freshLocationPermissionLauncher.launch(arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ))
+                }, modifier = Modifier.fillMaxWidth()) { Text("GET FRESH LOCATION (15s)") }
                 Button(onClick = {
                     locationPermissionLauncher.launch(arrayOf(
                         Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -464,12 +528,14 @@ private fun HomeScreen() {
                 Text("Ligtas Ako check-in", style = MaterialTheme.typography.titleLarge)
                 Text("Local status lamang; wala pang network relay o family delivery.")
                 Text("Status: " + checkIn)
+                Text("Pending encrypted local outbox items: " + pendingQueueCount + " • walang network sync/ack sa build na ito.")
                 Button(onClick = {
                     val nextStatus = "Naitala locally • " + System.currentTimeMillis()
                     runCatching {
                         database.recordFamilyCheckin(nextStatus)
                         prefs.edit().remove("checkin").apply()
                         checkIn = database.latestFamilyCheckin() ?: nextStatus
+                        pendingQueueCount = database.pendingActionCount()
                     }.onFailure {
                         checkIn = nextStatus
                         prefs.edit().putString("checkin", nextStatus).apply()
@@ -480,8 +546,15 @@ private fun HomeScreen() {
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Low-battery snapshot", style = MaterialTheme.typography.titleLarge)
+                Text(batterySnapshot)
+                Text("Best-effort: naitatala kapag bukas ang app at nakatanggap ito ng battery broadcast; hindi ito kapalit ng OS-level guaranteed callback.")
+            }
+        }
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Directory, maps, mesh and vault", style = MaterialTheme.typography.titleLarge)
-                Text("Hindi pa available sa build na ito. Walang pekeng helpline, mapa, peer scan, o security status.")
+                Text("Hindi pa kumpleto: walang verified nationwide data package, offline maps, BLE/Wi-Fi emergency transport, remote sync, o integrated PIN/duress vault UI.")
             }
         }
         Text("Ang SMS handoff ay hindi patunay ng delivery. Sa agarang panganib, gamitin ang available na opisyal na emergency channel.")
