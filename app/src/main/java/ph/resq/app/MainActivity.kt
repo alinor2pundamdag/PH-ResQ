@@ -93,9 +93,15 @@ private fun ConsentScreen(onAccept: () -> Unit, onDecline: () -> Unit) {
     Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center) {
         Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
-        Text("Offline-first emergency tools for the Philippines.")
-        Spacer(Modifier.height(12.dp))
-        Text("Early build: wala pang verified nationwide directory, offline map packages, mesh transport, o guaranteed emergency delivery. Bubuksan ang messaging app para ma-review at ikaw ang magpadala ng SMS.")
+        Text("Paunawa sa privacy at kaligtasan", style = MaterialTheme.typography.titleLarge)
+        Spacer(Modifier.height(8.dp))
+        Text("Ang emergency contacts ay naka-encrypt sa device. Babasahin lang ang huling lokasyon kapag nagbigay ka ng location permission. Gagamitin lang ang microphone kapag pinili mong mag-record ng voice note; magsisimula lang ang BLE discovery kapag pinindot mo ang scan button.")
+        Spacer(Modifier.height(8.dp))
+        Text("Kapag naghanda ka ng SOS, bubuksan ang messaging app para ma-review at ikaw ang magpadala. Hindi kayang kumpirmahin ng app na natanggap o nabasa ang SMS. Walang remote family sync sa build na ito.")
+        Spacer(Modifier.height(8.dp))
+        Text("Maagang build ito: wala pang verified nationwide barangay directory, offline map package, Wi-Fi Direct/mesh transport, kumpletong PIN vault/recovery, o physical-device validation. Huwag itong ituring na validated emergency service.")
+        Spacer(Modifier.height(8.dp))
+        Text("Ang pagpapatuloy ay nangangahulugang tinanggap mo ang paunawang ito para sa version " + ConsentStore.CURRENT_POLICY_VERSION + ".")
         Spacer(Modifier.height(20.dp))
         Button(onClick = onAccept, modifier = Modifier.fillMaxWidth()) { Text("Nauunawaan ko at magpatuloy") }
         Button(onClick = onDecline, modifier = Modifier.fillMaxWidth()) { Text("Hindi ako pumapayag — lumabas") }

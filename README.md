@@ -51,6 +51,7 @@ The current app includes a basic consent gate; Keystore AES-GCM encryption for e
 - [FEATURE_TRACEABILITY.md](FEATURE_TRACEABILITY.md) — feature-to-test traceability
 - [TEST_ACCEPTANCE_MATRIX.md](TEST_ACCEPTANCE_MATRIX.md) — measurable acceptance tests
 - [DATA_SOURCES_AND_RISKS.md](DATA_SOURCES_AND_RISKS.md) — data provenance, licensing, and risk register
+- [PRIVACY_NOTICE.md](PRIVACY_NOTICE.md) — current-build data handling and safety notice; legal review still required
 - [PHASE_1_INIT_CONSENT.md](PHASE_1_INIT_CONSENT.md) through [PHASE_6_CONCURRENCY_CHAOS.md](PHASE_6_CONCURRENCY_CHAOS.md) — phased specifications
 
 ## Working phases
