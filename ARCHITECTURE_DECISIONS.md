@@ -4,7 +4,7 @@
 **Last reviewed:** 2026-10-27
 
 ## ADR-001 — Native Android implementation baseline
-**Decision:** Implement the first Android client in Kotlin with Jetpack Compose. The configuration uses minSdk 26, compileSdk 35, targetSdk 35, Java 17, Android Gradle Plugin 8.7.3, and Kotlin 2.0.21. The baseline passed unit-test, debug-assemble, and release-assemble tasks on commit `bd1cb451967bec8c6bc83ed10a80ed30edd59088`; this does not certify device compatibility or feature completeness.
+**Decision:** Implement the first Android client in Kotlin with Jetpack Compose. The configuration uses minSdk 26, compileSdk 35, targetSdk 35, Java 17, Android Gradle Plugin 8.7.3, and Kotlin 2.0.21. The baseline passed unit-test, debug-assemble, and release-assemble tasks on commit `4a611c8f085cc20ac5ec9558b07074ba2c1b26df`; this does not certify device compatibility or feature completeness.
 **Reason:** The app depends on Android location, messaging handoff, notifications, BLE, Wi-Fi Direct, Keystore, and lifecycle APIs.
 **Consequences:** Browser APIs such as window, localStorage, IndexedDB, and DOM canvas are not implementation substitutes. Device-specific capabilities must use native Android APIs and permission/lifecycle handling.
 
