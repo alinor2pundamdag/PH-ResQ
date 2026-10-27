@@ -27,21 +27,23 @@ class PinProtectedVault(context: Context) {
     fun configure(pin: CharArray, plaintext: String) {
         require(pin.size >= minPinLength && pin.all { it.isDigit() }) { "PIN must contain at least 6 digits." }
         require(!isConfigured()) { "Vault is already configured." }
-        val salt = ByteArray(16).also(random::nextBytes)
-        val key = derive(pin, salt)
-        val iv = ByteArray(12).also(random::nextBytes)
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.ENCRYPT_MODE, key, GCMParameterSpec(128, iv))
-        val encrypted = cipher.doFinal(plaintext.toByteArray(Charsets.UTF_8))
-        check(prefs.edit()
-            .putString("salt", encode(salt))
-            .putString("iv", encode(iv))
-            .putString("ciphertext", encode(encrypted))
-            .putInt("failed_attempts", 0)
-            .putLong("locked_until", 0L)
-            .commit()) { "Unable to save vault." }
-        pin.fill('\u0000')
-        key.encoded?.fill(0)
+        try {
+            val salt = ByteArray(16).also(random::nextBytes)
+            val key = derive(pin, salt)
+            try {
+                val iv = ByteArray(12).also(random::nextBytes)
+                val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+                cipher.init(Cipher.ENCRYPT_MODE, key, GCMParameterSpec(128, iv))
+                val encrypted = cipher.doFinal(plaintext.toByteArray(Charsets.UTF_8))
+                check(prefs.edit()
+                    .putString("salt", encode(salt))
+                    .putString("iv", encode(iv))
+                    .putString("ciphertext", encode(encrypted))
+                    .putInt("failed_attempts", 0)
+                    .putLong("locked_until", 0L)
+                    .commit()) { "Unable to save vault." }
+            } finally { key.encoded?.fill(0) }
+        } finally { pin.fill('\u0000') }
     }
 
     @Synchronized

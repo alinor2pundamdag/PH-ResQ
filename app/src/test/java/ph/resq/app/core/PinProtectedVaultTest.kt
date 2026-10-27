@@ -21,6 +21,17 @@ class PinProtectedVaultTest {
         assertEquals("emergency contacts", vault.unlock("482951".toCharArray()))
     }
 
+    @Test fun replacingContactsKeepsOldVaultIfPinIsWrongAndCommitsNewValueIfCorrect() {
+        val context = RuntimeEnvironment.getApplication()
+        context.getSharedPreferences("ph_resq_pin_vault_v1", Context.MODE_PRIVATE).edit().clear().commit()
+        val vault = PinProtectedVault(context)
+        vault.configure("482951".toCharArray(), "old contacts")
+        assertFalse(vault.replace("111111".toCharArray(), "new contacts"))
+        assertEquals("old contacts", vault.unlock("482951".toCharArray()))
+        assertTrue(vault.replace("482951".toCharArray(), "new contacts"))
+        assertEquals("new contacts", vault.unlock("482951".toCharArray()))
+    }
+
     @Test fun fiveWrongPinsTemporarilyLockVault() {
         val context = RuntimeEnvironment.getApplication()
         context.getSharedPreferences("ph_resq_pin_vault_v1", Context.MODE_PRIVATE).edit().clear().commit()

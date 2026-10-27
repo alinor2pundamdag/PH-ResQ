@@ -32,7 +32,7 @@ Snapshot: 2026-10-27. Status: expanded Android implementation pass; **not a rele
 | Nationwide directory/maps | Transactional directory importer/search with source/license/version metadata and SHA-256-verified private tile cache | No audited nationwide service-contact dataset, licensed tile package, map renderer, signed manifest, or download/rollback pipeline |
 | PIN vault/duress mode | PIN-derived AES-GCM vault utility with five-failure temporary lockout and Robolectric tests added | Utility is not integrated into contact access/UI; no recovery/backup lifecycle or duress mode; not accepted as complete vault |
 | Medical ID QR | On-device QR generation with explicit user-entered fields and clear action | QR contents are not encrypted; user must control what is exposed; privacy/scan interoperability tests pending |
-| Accessibility theme | Persistent high-contrast theme toggle | Formal contrast/TalkBack/touch-target/reduced-motion validation pending |
+| Accessibility/theme | Persistent high-contrast theme toggle, animated flag ribbon/title and cell-broadcast settings guidance | Formal contrast/TalkBack/touch-target/reduced-motion validation pending; animation currently has no reduced-motion preference gate |
 | PAGASA/evacuation/cell-broadcast awareness | Local source-attributed advisory and evacuation-centre cache/search with expiry/stale labels added | No live PAGASA/LGU feed, signed data manifest, verified local coverage, or cell-broadcast interception; Android/carrier system handles cell broadcasts |
 | Physical-device tests | Not run | Requires target devices, SIM/network, permissions and multi-device mesh testing |
 | Release signing | Not ready | Unsigned build only; no signed release or go/no-go evidence |
