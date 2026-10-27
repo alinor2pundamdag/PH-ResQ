@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.content.ClipData
 import androidx.core.content.FileProvider
 import androidx.core.content.ContextCompat
+import androidx.core.app.NotificationManagerCompat
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
 import android.content.Context
@@ -429,12 +430,22 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + recipientList)).apply { putExtra("sms_body", body) }
         try {
             if (intent.resolveActivity(context.packageManager) != null) {
-                val notificationStarted = runCatching {
-                    ContextCompat.startForegroundService(
-                        context,
-                        Intent(context, SosStatusForegroundService::class.java).setAction(SosStatusForegroundService.ACTION_START)
-                    )
-                }.isSuccess
+                val notificationPermissionGranted =
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+                            android.content.pm.PackageManager.PERMISSION_GRANTED
+                val notificationStarted = if (
+                    notificationPermissionGranted && NotificationManagerCompat.from(context).areNotificationsEnabled()
+                ) {
+                    runCatching {
+                        ContextCompat.startForegroundService(
+                            context,
+                            Intent(context, SosStatusForegroundService::class.java).setAction(SosStatusForegroundService.ACTION_START)
+                        )
+                    }.isSuccess
+                } else {
+                    false
+                }
                 if (!notificationStarted) {
                     Toast.makeText(context, "Magpapatuloy ang SMS handoff, pero hindi masimulan ang persistent SOS status notification.", Toast.LENGTH_LONG).show()
                 }
@@ -453,27 +464,22 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         }
     }
 
+    var sosNotificationStatus by remember {
+        mutableStateOf(
+            if (NotificationManagerCompat.from(context).areNotificationsEnabled()) {
+                "SOS status notifications are enabled."
+            } else {
+                "SOS status notifications are disabled."
+            }
+        )
+    }
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
-        if (!granted) {
-            Toast.makeText(
-                context,
-                "Notifications are disabled. Magpapatuloy ang SOS handoff, pero maaaring hindi makita ang persistent status notification.",
-                Toast.LENGTH_LONG
-            ).show()
-        }
-        prepareSos()
-    }
-
-    fun requestSosWithNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= 33 &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
-                android.content.pm.PackageManager.PERMISSION_GRANTED
-        ) {
-            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        sosNotificationStatus = if (granted && NotificationManagerCompat.from(context).areNotificationsEnabled()) {
+            "SOS status notifications are enabled."
         } else {
-            prepareSos()
+            "Notifications are disabled. SOS handoff still works, but persistent status may not appear."
         }
     }
 
@@ -577,9 +583,26 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("SOS", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Text("Pindutin at hawakan nang 2 segundo upang ihanda ang SMS. Bubuksan ang messaging app; kailangan mong i-review at ipadala.")
+                Text(sosNotificationStatus)
+                Button(
+                    onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                                android.content.pm.PackageManager.PERMISSION_GRANTED
+                        ) {
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) {
+                            sosNotificationStatus = "Notifications are blocked in Android settings. Enable them for PH-ResQ."
+                            Toast.makeText(context, "I-enable ang Notifications sa Android App info para sa PH-ResQ.", Toast.LENGTH_LONG).show()
+                        } else {
+                            sosNotificationStatus = "SOS status notifications are enabled."
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("ENABLE SOS STATUS NOTIFICATIONS") }
                 SosHoldButton(
                     modifier = Modifier.fillMaxWidth(),
-                    onConfirmed = { requestSosWithNotificationPermission() }
+                    onConfirmed = { prepareSos() }
                 )
                 Text("Kung hindi kayang gamitin ang press-and-hold, piliin ang accessible alternative at kumpirmahin sa susunod na hakbang.")
                 Button(onClick = { showAccessibleSosConfirm = true }, modifier = Modifier.fillMaxWidth()) {
@@ -593,7 +616,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
                         confirmButton = {
                             Button(onClick = {
                                 showAccessibleSosConfirm = false
-                                requestSosWithNotificationPermission()
+                                prepareSos()
                             }) { Text("IHANDA ANG SOS") }
                         },
                         dismissButton = {
