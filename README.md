@@ -2,7 +2,7 @@
 
 > **Android-first, offline-first emergency assistance project for the Philippines.**
 
-**Current repository status:** The Kotlin/Jetpack Compose scaffold passed the CI unit-test and debug/release assemble tasks at commit `4a611c8f085cc20ac5ec9558b07074ba2c1b26df` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40450465511)). This is an early implementation baseline, not a complete or release-ready emergency application; physical-device, data, security, and feature acceptance remain outstanding.
+**Current repository status:** The Kotlin/Jetpack Compose scaffold passed the CI unit-test and debug/release assemble tasks at commit `408e2aaaea09df70400c92038b405c5d5a47d337` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40451629467)). This is an early implementation baseline, not a complete or release-ready emergency application; physical-device, data, security, and feature acceptance remain outstanding.
 
 ## Layunin
 
@@ -30,7 +30,7 @@ Nilalayon ng PH-ResQ Vanguard 2026 na magbigay ng offline-capable emergency dire
 
 - Android-native APIs are required for location, SMS, notifications, foreground services, BLE, Wi-Fi Direct, Keystore, and lifecycle-sensitive work.
 - Browser-only APIs such as `window`, `localStorage`, IndexedDB, and DOM canvas are not substitutes for Android capabilities.
-- Initial UI/build baseline: Kotlin + Jetpack Compose, minSdk 26, compileSdk/targetSdk 35, Java 17. CI passed on the documented baseline SHA; each new candidate must pass again. Complete data layers, verified sources and mesh transport remain open.
+- Initial UI/build baseline: Kotlin + Jetpack Compose, minSdk 26, compileSdk/targetSdk 35, Java 17. CI passed on the documented baseline SHA; each new candidate must pass again. Complete data repositories/index strategy, verified nationwide sources, and peer-to-peer mesh transport remain open.
 - RSSI is approximate; SMS/mesh delivery is not guaranteed; ordinary apps cannot force-stop themselves or intercept every cell broadcast.
 - Nationwide counts, map coverage, licenses, package size, and freshness must be verified from authoritative sources.
 
@@ -40,7 +40,7 @@ Nilalayon ng PH-ResQ Vanguard 2026 na magbigay ng offline-capable emergency dire
 - [RELEASE_CANDIDATE_CHECKLIST.md](RELEASE_CANDIDATE_CHECKLIST.md) — release gate; currently NO-GO
 - GitHub Actions workflow: `.github/workflows/android-ci.yml` — unit tests, debug APK build, and APK artifact upload
 
-The current app includes a basic consent gate; Keystore AES-GCM encryption for emergency contacts and sensitive SOS/location fields; a 2-second hold-to-prepare-SOS flow; last-known location lookup; a user-confirmed messaging-app handoff; an offline national agency hotline subset; encrypted local voice-note recording; low-power BLE advertisement discovery; a transactional SOS event table; and tested core utilities for geohash, SHA-256 verification, rolling tokens, adaptive-location policy, and authenticated mesh envelopes. These are partial implementations. Fresh GPS, full vault/recovery, voice playback/attachment, nationwide directory/maps, Wi-Fi Direct and radio mesh transport, durable family sync, and physical-device acceptance are not complete. Do not rely on this scaffold as a validated emergency service.
+The current app includes versioned consent and a current-build privacy notice; Keystore AES-GCM encryption for emergency contacts and sensitive SOS/location fields; a 2-second hold-to-prepare-SOS flow with accessible confirmation alternative; last-known location lookup; user-confirmed messaging-app handoff; a searchable national-agency hotline subset; encrypted local voice-note recording; low-power BLE advertisement discovery; SQLite SOS history, search history, hotline bookmarks, and local family check-ins; plus tested core utilities and Robolectric persistence tests. These are partial implementations. Fresh GPS, full vault/recovery, voice playback/attachment, nationwide directory/maps, Wi-Fi Direct and radio mesh transport, durable remote family sync, and physical-device acceptance are not complete. Do not rely on this scaffold as a validated emergency service.
 
 ## Documentation map
 

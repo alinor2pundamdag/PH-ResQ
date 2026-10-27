@@ -33,6 +33,10 @@
 | T-026 | Family check-in offline then reconnect | Queue is durable, deduplicated and reports pending/synced/failed honestly | Integration test | P1 |
 | T-027 | Helpline fallback | Displayed number matches authoritative source, jurisdiction, and review date | Data audit | P0 |
 | T-028 | Full test suite on release candidate | No unexplained critical/high failures; residual risks signed off | CI reports + device reports | Release |
+| T-029 | Search history repeated with different casing, then cleared | One distinct query remains; clear action removes all saved queries | Robolectric database test | P2 |
+| T-030 | Save, update and remove a hotline bookmark | One row per item ID; list order stable; removal persists | Robolectric database test | P2 |
+| T-031 | Save family check-in then reopen database | Latest local check-in is restored; no remote-delivery claim | Robolectric database test | P1 |
+| T-032 | Close and reopen local database | Search, bookmarks and check-in records persist without duplication | Robolectric database test | P1 |
 
 ## Release gates
 - **P0:** consent, SOS integrity, privacy/security baseline, persistence/recovery, honest delivery state, verified emergency fallback.
