@@ -108,7 +108,7 @@ private fun HomeScreen() {
     val prefs = remember { context.getSharedPreferences("ph_resq_local", Context.MODE_PRIVATE) }
     val vault = remember { LocalVault(context) }
     val database = remember { ResQDatabase(context) }
-    val fieldCipher = remember { EncryptedFieldCipher(context) }
+    val fieldCipher = remember { EncryptedFieldCipher() }
     var contactsRaw by remember { mutableStateOf(runCatching { vault.loadContacts() }.getOrNull() ?: "") }
     var locationLine by remember {
         mutableStateOf(
