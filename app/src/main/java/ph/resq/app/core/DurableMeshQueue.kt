@@ -71,6 +71,11 @@ class DurableMeshQueue(private val database: ResQDatabase, private val cipher: E
         return out
     }
 
+    fun markSent(rowId: Long): Boolean {
+        val values = ContentValues().apply { put("status", "SENT"); putNull("last_error") }
+        return database.writableDatabase.update("mesh_queue", values, "id = ? AND status IN ('QUEUED','RETRY')", arrayOf(rowId.toString())) == 1
+    }
+
     fun markAttempt(rowId: Long, error: String? = null): String {
         val db = database.writableDatabase
         db.beginTransaction()
