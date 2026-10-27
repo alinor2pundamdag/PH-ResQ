@@ -53,14 +53,16 @@ class OfflineDataRepositoryTest {
         repository.replaceDirectory(
             listOf(
                 DirectoryRecord("near", "Nearby Clinic", "medical", latitude = 14.600, longitude = 121.000),
+                DirectoryRecord("middle", "Second Clinic", "medical", latitude = 14.610, longitude = 121.000),
                 DirectoryRecord("far", "Far Clinic", "medical", latitude = 15.100, longitude = 121.000),
                 DirectoryRecord("no-coordinates", "Unknown Clinic", "medical")
             ),
             DirectoryDataset("https://example.gov.ph/data", "Public-sector terms reviewed", "v2", System.currentTimeMillis())
         )
         val result = repository.searchNearby(14.600, 121.000, radiusKm = 5.0)
-        assertEquals(listOf("near"), result.map { it.record.id })
-        assertTrue(result.single().distanceKm < 0.1)
+        assertEquals(listOf("near", "middle"), result.map { it.record.id })
+        assertTrue(result.first().distanceKm < 0.1)
+        assertTrue(result.first().distanceKm < result.last().distanceKm)
     }
 
     @Test fun nearbySearchRejectsInvalidCoordinatesAndRadius() {

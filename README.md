@@ -2,7 +2,7 @@
 
 > **Android-first, offline-first emergency assistance project for the Philippines.**
 
-**Current repository status:** The feature branch now includes UI-connected local directory/advisory/evacuation caches and a bounded user-selected JSON import flow. Current-head lint, unit tests, debug/release builds, and artifact evidence must pass in [PR #1](https://github.com/alinor2pundamdag/PH-ResQ/pull/1) before this candidate is considered build-validated. It is still not a complete or release-ready emergency application: nationwide data/maps, radio mesh, external delivery, security recovery, and physical-device acceptance remain outstanding.
+**Build/validation rule:** Treat an APK as build-validated only when the latest completed successful [PR #1 workflow](https://github.com/alinor2pundamdag/PH-ResQ/pull/1) has a `head_sha` matching the intended commit and its artifact includes `BUILD_METADATA.txt` and `SHA256SUMS`. The workflow checks out and verifies the exact source commit. CI success is not physical-device or emergency-service validation. Nationwide data/maps, radio mesh transport, external delivery confirmation, security recovery, and physical-device acceptance remain outstanding.
 
 ## Layunin
 

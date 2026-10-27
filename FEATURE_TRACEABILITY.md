@@ -1,7 +1,7 @@
 # PH-ResQ Feature Traceability
 
 **Purpose:** Prevent silent feature removal and make every requirement testable.  
-**Status:** Baseline commit `3d1e60101e1778ddd2df301ae81ca2d1d476c110` passed all CI tasks in [run 40495534150](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40495534150). The subsequent notification-permission change is being validated in [run 40498930268](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40498930268); do not use an older artifact as proof for a newer SHA. Current implementation also adds indexed nearby-directory search, which requires its own CI pass before validation. Physical-device, integration, data-coverage, nationwide-data, and full feature acceptance remain outstanding.
+**Validation rule:** CI evidence is commit-specific. Before testing, confirm the latest successful run has the same `head_sha` as the intended PR commit and that its artifact contains `BUILD_METADATA.txt` and `SHA256SUMS`. Earlier successful runs do not validate later changes. Physical-device, integration, data-coverage, nationwide-data, and full feature acceptance remain outstanding.
 
 | ID | Retained requirement | Planned component/area | Implementation status | Minimum acceptance evidence |
 |---|---|---|---|---|
@@ -26,7 +26,7 @@
 | F-019 | Stealth audio mute | SOS/audio policy | Planned — implementation not evidenced | Silent-mode test; visual status and cancellation remain available |
 | F-020 | Offline Medical ID QR | Medical ID/share UI | Partial — on-device QR generation with explicit field selection added; payload is intentionally unencrypted and requires privacy warning/acceptance tests | Explicit field selection; QR payload minimization and disclosure warning |
 | F-021 | High-contrast accessibility | UI/accessibility | Partial — persistent high-contrast theme toggle added; contrast audit, TalkBack, scalable text, touch-target and reduced-motion tests pending | Contrast, TalkBack, scalable text, touch-target and reduced-motion tests |
-| F-022 | Foreground service notification/actions | Android lifecycle service | Partial — user-visible SOS handoff foreground service with persistent notification and Stop status action; Robolectric channel test added; Android 13+ notification-permission behavior and physical-device lifecycle acceptance remain | Target-SDK compliance, notification permission, process/lifecycle and device tests; visible required notification |
+| F-022 | Foreground service notification/actions | Android lifecycle service | Partial — user-visible SOS handoff foreground service with persistent notification and Stop status action; Robolectric channel test added; explicit notification-permission opt-in is kept outside the SOS critical path; Android 13+ behavior and physical-device lifecycle acceptance remain | Target-SDK compliance, notification permission, process/lifecycle and device tests; visible required notification |
 | F-023 | Safe volume policy | Audio/accessibility | Planned — implementation not evidenced | User settings, stealth mode, Android audio behavior tests |
 | F-024 | Verified helpline fallback | Directory/fallback UI | Partial — 911 dialer fallback verified; no nationwide/local directory | Every number has authoritative source/jurisdiction and review date |
 | F-025 | PAGASA alert cache | Advisory cache | Partial — local source-attributed advisory cache, stale-state UI, and user-selected JSON import; no live PAGASA fetch or signed feed verification | Source, publication/retrieval time, expiry and stale-cache labeling |

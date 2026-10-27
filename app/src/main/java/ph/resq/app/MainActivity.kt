@@ -835,7 +835,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
                 }.getOrDefault(emptyList())
                 if (directoryResults.isEmpty()) Toast.makeText(context, "Walang imported directory record na may coordinates sa loob ng 25 km.", Toast.LENGTH_LONG).show()
             }
-        }, modifier = Modifier.fillMaxWidth()) { Text("FIND NEARBY (25 KM)") }
+        }, modifier = Modifier.fillMaxWidth()) { Text("SEARCH NEAR LAST-KNOWN LOCATION (25 KM)") }
+        Text("Gumagamit lamang ito ng huling kilalang lokasyon; maaaring luma ang fix. Hindi ito nagsisimula ng bagong GPS request.")
         Button(onClick = {
             directoryResults = runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList())
             directoryMetadata = runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()
@@ -848,7 +849,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         directoryMetadata?.let { meta ->
             Text("Directory dataset: ${meta["version"] ?: "unknown"} • records: ${meta["recordCount"] ?: "unknown"}")
             Text("Source: ${meta["sourceUrl"] ?: "unknown"} • license: ${meta["license"] ?: "unknown"}")
-            Text("Verified at: ${meta["verifiedAt"] ?: "unknown"} • imported at: ${meta["importedAt"] ?: "unknown"}")
+            Text("Source-reported verification time: ${meta["verifiedAt"] ?: "unknown"} • imported at: ${meta["importedAt"] ?: "unknown"}")
         } ?: Text("Walang imported directory dataset. Mag-import lamang ng data mula sa beripikadong source at may malinaw na lisensya.")
         directoryResults.take(30).forEach { record ->
             Text(record.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
