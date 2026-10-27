@@ -10,7 +10,11 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 /** Encrypts sensitive local fields with an Android Keystore AES-GCM key. */
-class EncryptedFieldCipher(private val alias: String = "ph_resq_private_fields_aes_gcm_v1") {
+class EncryptedFieldCipher(
+    private val alias: String = "ph_resq_private_fields_aes_gcm_v1",
+    /** Injection seam for deterministic JVM tests; production callers must use the Android Keystore default. */
+    private val testKeyProvider: (() -> SecretKey)? = null
+) {
     fun encrypt(value: String): String {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
@@ -28,6 +32,7 @@ class EncryptedFieldCipher(private val alias: String = "ph_resq_private_fields_a
         return String(cipher.doFinal(ciphertext), Charsets.UTF_8)
     }
     private fun getOrCreateKey(): SecretKey {
+        testKeyProvider?.let { return it() }
         val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         (keyStore.getKey(alias, null) as? SecretKey)?.let { return it }
         val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")

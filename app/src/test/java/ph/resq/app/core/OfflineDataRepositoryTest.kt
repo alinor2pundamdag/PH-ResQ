@@ -9,17 +9,19 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import javax.crypto.spec.SecretKeySpec
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class OfflineDataRepositoryTest {
     private lateinit var context: Context
     private lateinit var db: ResQDatabase
+    private fun testCipher() = EncryptedFieldCipher(testKeyProvider = { SecretKeySpec(ByteArray(32) { 0x5a }, "AES") })
 
     @Before fun setUp() {
         context = RuntimeEnvironment.getApplication()
         context.deleteDatabase("ph_resq_local.db")
-        db = ResQDatabase(context)
+        db = ResQDatabase(context, testCipher())
     }
 
     @After fun tearDown() { db.close(); context.deleteDatabase("ph_resq_local.db") }

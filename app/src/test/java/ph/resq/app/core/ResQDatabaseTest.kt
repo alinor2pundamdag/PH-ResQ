@@ -10,18 +10,20 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import javax.crypto.spec.SecretKeySpec
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class ResQDatabaseTest {
     private lateinit var context: Context
     private lateinit var database: ResQDatabase
+    private fun testCipher() = EncryptedFieldCipher(testKeyProvider = { SecretKeySpec(ByteArray(32) { 0x5a }, "AES") })
 
     @Before
     fun setUp() {
         context = RuntimeEnvironment.getApplication()
         context.deleteDatabase("ph_resq_local.db")
-        database = ResQDatabase(context)
+        database = ResQDatabase(context, testCipher())
     }
 
     @After
@@ -83,7 +85,7 @@ class ResQDatabaseTest {
         database.recordFamilyCheckin("Safe • local")
 
         database.close()
-        database = ResQDatabase(context)
+        database = ResQDatabase(context, testCipher())
 
         assertEquals(listOf("evacuation"), database.recentSearches())
         assertEquals(listOf("hotline:911" to "National Emergency • 911"), database.bookmarks())
