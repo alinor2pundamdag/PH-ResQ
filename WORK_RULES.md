@@ -21,7 +21,7 @@ These rules govern planning and future implementation. The current repository is
 
 - Use Android APIs for permissions, lifecycle, location, SMS, notifications, foreground services, BLE, Wi-Fi Direct, and Keystore.
 - Browser-only APIs (`window`, `localStorage`, IndexedDB, DOM canvas) must not be presented as native Android implementations.
-- Initial UI/build baseline is Kotlin + Jetpack Compose, minSdk 26, compileSdk/targetSdk 35, Java 17; recorded in ARCHITECTURE_DECISIONS.md. CI must validate it. Still document/verify the database, native services, and supported-device matrix.
+- Initial UI/build baseline is Kotlin + Jetpack Compose, minSdk 26, compileSdk/targetSdk 35, Java 17; unit tests and debug/release assemble passed on the baseline SHA recorded in IMPLEMENTATION_STATUS.md. Re-run CI on every candidate; database completeness, native services, data and supported-device matrix remain open.
 - Follow Android permission, foreground-service, notification, and background-execution rules for the chosen target SDK.
 
 ## 4. Security and privacy
