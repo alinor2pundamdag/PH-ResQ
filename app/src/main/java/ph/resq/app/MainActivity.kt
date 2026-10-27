@@ -83,6 +83,7 @@ import ph.resq.app.core.SosMessage
 import ph.resq.app.core.SosState
 import ph.resq.app.core.OfflineDataRepository
 import ph.resq.app.core.HazardDataRepository
+import ph.resq.app.core.OfflineDatasetImporter
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 
@@ -224,6 +225,17 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     var directoryMetadata by remember { mutableStateOf(runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()) }
     var advisoryItems by remember { mutableStateOf(runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList())) }
     var evacuationItems by remember { mutableStateOf(emptyList<Pair<ph.resq.app.core.EvacuationCenter, Boolean>>()) }
+    var offlineImportStatus by remember { mutableStateOf("Walang offline dataset na na-import sa session na ito.") }
+    val offlineImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            offlineImportStatus = runCatching { OfflineDatasetImporter.import(context, uri, offlineDataRepository, hazardDataRepository) }
+                .getOrElse { "Import failed: " + (it.message ?: "invalid dataset") }
+            directoryMetadata = runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()
+            directoryResults = runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList())
+            evacuationItems = runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList())
+            advisoryItems = runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList())
+        }
+    }
     val voiceRecorder = remember { EncryptedVoiceNoteRecorder.cleanupStaleRawFiles(context); EncryptedVoiceNoteRecorder() }
     val bleDiscovery = remember { BleDiscoveryManager(context) }
     var blePeers by remember { mutableStateOf(emptyList<NearbyBlePeer>()) }
@@ -749,6 +761,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Offline directory and local hazard cache", style = MaterialTheme.typography.titleLarge)
         Text("Hinahanap lamang nito ang data na na-import na sa device. Walang live PAGASA/LGU feed at hindi ito nangangahulugang kumpleto ang nationwide coverage.")
+        Text("Ang JSON metadata ay hindi digital signature. I-import lamang ang file matapos mong beripikahin ang opisyal na source, lisensya at petsa; walang live download na ginagawa.")
+        Button(onClick = { offlineImportLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("IMPORT VERIFIED OFFLINE JSON") }
+        Text(offlineImportStatus)
         OutlinedTextField(value = offlineQuery, onValueChange = { offlineQuery = it.take(120) }, label = { Text("Barangay, lugar, agency o evacuation center") }, modifier = Modifier.fillMaxWidth())
         Button(onClick = {
             directoryResults = runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList())
@@ -785,7 +800,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         }
 
         Text("Directory, maps, mesh and vault", style = MaterialTheme.typography.titleLarge)
-                Text("Hindi pa kumpleto: walang verified nationwide data package, offline maps, BLE/Wi-Fi emergency transport, remote sync, o integrated PIN/duress vault UI.")
+                Text("Hindi pa kumpleto: walang verified nationwide data package o offline map renderer, BLE/Wi-Fi emergency transport, o remote sync. Ang PIN vault ay integrated ngunit wala pang recovery/backup o duress mode.")
             }
         }
         Text("Ang SMS handoff ay hindi patunay ng delivery. Sa agarang panganib, gamitin ang available na opisyal na emergency channel.")
