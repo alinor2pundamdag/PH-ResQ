@@ -2,7 +2,6 @@ package ph.resq.app.core
 
 import android.content.Context
 import android.util.Base64
-import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.AEADBadTagException
 import javax.crypto.Cipher
@@ -52,9 +51,10 @@ class PinProtectedVault(context: Context) {
             pin.fill('\u0000')
             throw IllegalStateException("Vault temporarily locked. Try again later.")
         }
-        val salt = decode(prefs.getString("salt", null) ?: return null)
-        val iv = decode(prefs.getString("iv", null) ?: return null)
-        val encrypted = decode(prefs.getString("ciphertext", null) ?: return null)
+        if (!isConfigured()) { pin.fill('\u0000'); return null }
+        val salt = decode(prefs.getString("salt", null)!!)
+        val iv = decode(prefs.getString("iv", null)!!)
+        val encrypted = decode(prefs.getString("ciphertext", null)!!)
         return try {
             val key = derive(pin, salt)
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
@@ -83,8 +83,8 @@ class PinProtectedVault(context: Context) {
             configure(storedPin, plaintext)
             true
         } finally {
-            pin.fill('\\u0000')
-            storedPin.fill('\\u0000')
+            pin.fill('\u0000')
+            storedPin.fill('\u0000')
         }
     }
 
