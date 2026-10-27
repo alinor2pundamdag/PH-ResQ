@@ -14,7 +14,8 @@ import javax.crypto.SecretKey
 
 /**
  * Records a short local note and encrypts it at rest with an Android Keystore AES-GCM key.
- * The current version does not decrypt/play back or attach the note to an SMS.
+ * Saved recordings can be listed, decrypted only to a temporary cache file for playback, and deleted.
+ * Decrypted temporary files must be deleted by the caller after playback.
  */
 class EncryptedVoiceNoteRecorder {
     private var recorder: MediaRecorder? = null
@@ -112,6 +113,50 @@ class EncryptedVoiceNoteRecorder {
             output.write(ciphertext)
         }
         return destination
+    }
+
+    /** Returns saved encrypted notes newest first. The filename contains no user-provided data. */
+    fun listSaved(context: Context): List<File> =
+        context.filesDir.listFiles()
+            ?.filter { it.isFile && it.name.startsWith("voice-note-") && it.name.endsWith(".enc") }
+            ?.sortedByDescending { it.lastModified() }
+            ?: emptyList()
+
+    /** Decrypts a note into cache for MediaPlayer. Caller MUST delete the returned file. */
+    fun decryptToTemporaryFile(context: Context, encryptedFile: File): File {
+        require(encryptedFile.canonicalFile.parentFile == context.filesDir.canonicalFile) {
+            "Voice note must be in the app's private files directory"
+        }
+        require(encryptedFile.isFile && encryptedFile.name.startsWith("voice-note-") && encryptedFile.name.endsWith(".enc")) {
+            "Invalid voice-note file"
+        }
+        val bytes = encryptedFile.readBytes()
+        require(bytes.size > 12) { "Encrypted voice note is truncated" }
+        val iv = bytes.copyOfRange(0, 12)
+        val ciphertext = bytes.copyOfRange(12, bytes.size)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), javax.crypto.spec.GCMParameterSpec(128, iv))
+        val plaintext = cipher.doFinal(ciphertext)
+        val temp = File.createTempFile("phresq-playback-", ".m4a", context.cacheDir)
+        try {
+            temp.outputStream().use { it.write(plaintext) }
+        } catch (error: Exception) {
+            temp.delete()
+            throw error
+        } finally {
+            plaintext.fill(0)
+        }
+        return temp
+    }
+
+    fun deleteSaved(context: Context, encryptedFile: File): Boolean {
+        require(encryptedFile.canonicalFile.parentFile == context.filesDir.canonicalFile) {
+            "Voice note must be in the app's private files directory"
+        }
+        require(encryptedFile.name.startsWith("voice-note-") && encryptedFile.name.endsWith(".enc")) {
+            "Invalid voice-note file"
+        }
+        return !encryptedFile.exists() || encryptedFile.delete()
     }
 
     private fun getOrCreateKey(): SecretKey {
