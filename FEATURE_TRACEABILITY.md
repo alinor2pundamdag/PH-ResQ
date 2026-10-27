@@ -13,14 +13,14 @@
 | F-006 | Voice note attached to SOS | Recorder/attachment queue | Partial — encrypted local recording added; playback/attachment and device tests pending | Permission denial, cancellation, size limit, persistence and playback tests |
 | F-007 | Six persistence layers | Local persistence layer | Partial — encrypted contacts and SOS-state persistence only; other areas incomplete | Recovery tests for active mode, contact vault, last GPS, SOS, history/bookmarks, map tiles |
 | F-008 | Low-battery snapshot below 5% | Persistence/lifecycle | Planned — implementation not evidenced | Best-effort callback test; critical transitions persisted independently of callback |
-| F-009 | SHA-256 integrity verification | Data integrity manager | Planned — implementation not evidenced | Trusted expected digest, tamper detection, verified recovery path |
+| F-009 | SHA-256 integrity verification | Data integrity manager | Partial — SHA-256 verifier added; trusted manifest and recovery pipeline pending | Trusted expected digest, tamper detection, verified recovery path |
 | F-010 | Family “Ligtas Ako” check-in and sync queue | Check-in/sync | Partial — local-only check-in; no sync/delivery | Offline queue, deduplication, stale/pending/synced/failure states |
-| F-011 | Adaptive GPS polling | Location service | Partial — last-known location helper; no adaptive polling/fresh fix | Battery/lifecycle/permission tests and timestamp/accuracy display |
+| F-011 | Adaptive GPS polling | Location service | Partial — last-known helper and interval policy added; no lifecycle-aware polling service/fresh fix | Battery/lifecycle/permission tests and timestamp/accuracy display |
 | F-012 | BLE peer discovery | Native BLE module | Partial — 15-second low-power discovery scan added; permission/device tests pending | Physical-device scan/permission/lifecycle tests; no placeholder success |
 | F-013 | Wi-Fi Direct transfer | Native P2P module | Planned — implementation not evidenced | Pairing, transfer, interruption, retry and device-matrix tests |
-| F-014 | Multi-hop emergency mesh | Mesh protocol/router | Planned — implementation not evidenced | TTL, hop limit, acknowledgement, duplicate, replay, malformed-packet tests |
-| F-015 | Geohash/spatial lookup | Local data layer | Planned — implementation not evidenced | Indexed or benchmarked query strategy with realistic data and measured latency |
-| F-016 | Rolling privacy tokens | Security/mesh identity | Planned — implementation not evidenced | Rotation, collision, clock drift, replay and linkability tests |
+| F-014 | Multi-hop emergency mesh | Mesh protocol/router | Partial — authenticated envelope codec and bounded-hop/dedupe logic added; radio transport/acknowledgement pending | TTL, hop limit, acknowledgement, duplicate, replay, malformed-packet tests |
+| F-015 | Geohash/spatial lookup | Local data layer | Partial — geohash encoder added; indexed search and realistic benchmarks pending | Indexed or benchmarked query strategy with realistic data and measured latency |
+| F-016 | Rolling privacy tokens | Security/mesh identity | Partial — HMAC time-window token utility added; key lifecycle and clock-drift integration pending | Rotation, collision, clock drift, replay and linkability tests |
 | F-017 | Encrypted PIN-protected vault | Security vault | Partial — contact-field encryption only; no PIN-protected vault/key recovery | Encryption, key lifecycle, lockout/rate-limit, backup/reinstall and recovery tests |
 | F-018 | Optional duress PIN/dummy vault | Threat-modelled security module | Planned — implementation not evidenced | Threat-model review; no absolute secrecy or physical-safety guarantee claims |
 | F-019 | Stealth audio mute | SOS/audio policy | Planned — implementation not evidenced | Silent-mode test; visual status and cancellation remain available |
