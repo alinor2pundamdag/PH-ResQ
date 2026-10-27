@@ -51,6 +51,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -86,6 +87,7 @@ import ph.resq.app.core.SosState
 import ph.resq.app.core.OfflineDataRepository
 import ph.resq.app.core.HazardDataRepository
 import ph.resq.app.core.OfflineDatasetImporter
+import ph.resq.app.core.SafeVolumePolicy
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 
@@ -247,6 +249,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     }
     var voiceRecording by remember { mutableStateOf(false) }
     var voiceStatus by remember { mutableStateOf("Wala pang voice note") }
+    var voicePlaybackVolume by remember { mutableStateOf(prefs.getFloat("voice_playback_volume", SafeVolumePolicy.DEFAULT)) }
     var savedVoiceNotes by remember { mutableStateOf(voiceRecorder.listSaved(context)) }
     var voicePlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var voicePlaybackTemp by remember { mutableStateOf<File?>(null) }
@@ -285,6 +288,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
             val activePlayer = MediaPlayer()
             player = activePlayer
             activePlayer.setDataSource(playbackFile.absolutePath)
+            val safeVolume = SafeVolumePolicy.clamp(voicePlaybackVolume)
+            activePlayer.setVolume(safeVolume, safeVolume)
             activePlayer.setOnCompletionListener { completed ->
                 runCatching { completed.release() }
                 playbackFile.delete()
@@ -733,6 +738,14 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
                 Text("Voice note", style = MaterialTheme.typography.titleLarge)
                 Text("Hanggang 10 segundo; naka-encrypt sa local app storage. Ang share action ay magde-decrypt sa temporary cache at magbubukas ng system chooser; pumili ng app/recipient at kumpirmahin ang pagpapadala. Hindi ito auto-send at walang delivery confirmation.")
                 Text(voiceStatus)
+                Text("Safe playback volume: ${(voicePlaybackVolume * 100).toInt()}% (maximum 70%; system media volume remains unchanged)")
+                Slider(
+                    value = voicePlaybackVolume,
+                    onValueChange = { voicePlaybackVolume = SafeVolumePolicy.clamp(it) },
+                    onValueChangeFinished = { prefs.edit().putFloat("voice_playback_volume", voicePlaybackVolume).apply() },
+                    valueRange = SafeVolumePolicy.MIN..SafeVolumePolicy.MAX,
+                    steps = 5
+                )
                 Button(onClick = {
                     if (voiceRecording) voiceRecorder.stop()
                     else microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
