@@ -2,7 +2,7 @@
 
 > **Android-first, offline-first emergency assistance project for the Philippines.**
 
-**Current repository status:** The Kotlin/Jetpack Compose scaffold passed the CI unit-test and debug/release assemble tasks at commit `408e2aaaea09df70400c92038b405c5d5a47d337` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40451629467)). This is an early implementation baseline, not a complete or release-ready emergency application; physical-device, data, security, and feature acceptance remain outstanding.
+**Current repository status:** The feature branch now includes UI-connected local directory/advisory/evacuation caches and a bounded user-selected JSON import flow. Current-head lint, unit tests, debug/release builds, and artifact evidence must pass in [PR #1](https://github.com/alinor2pundamdag/PH-ResQ/pull/1) before this candidate is considered build-validated. It is still not a complete or release-ready emergency application: nationwide data/maps, radio mesh, external delivery, security recovery, and physical-device acceptance remain outstanding.
 
 ## Layunin
 
@@ -38,9 +38,9 @@ Nilalayon ng PH-ResQ Vanguard 2026 na magbigay ng offline-capable emergency dire
 
 - [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) — evidence-backed implementation status and limitations
 - [RELEASE_CANDIDATE_CHECKLIST.md](RELEASE_CANDIDATE_CHECKLIST.md) — release gate; currently NO-GO
-- GitHub Actions workflow: `.github/workflows/android-ci.yml` — unit tests, debug APK build, and APK artifact upload
+- GitHub Actions workflow: `.github/workflows/android-ci.yml` — lint, unit tests, debug/release builds, source-commit verification, APK checksums, and artifact upload
 
-The current app includes versioned consent and a current-build privacy notice; Keystore AES-GCM encryption for emergency contacts and sensitive SOS/location fields; a 2-second hold-to-prepare-SOS flow with accessible confirmation alternative; last-known location lookup; user-confirmed messaging-app handoff; a searchable national-agency hotline subset; encrypted local voice-note recording; low-power BLE advertisement discovery; SQLite SOS history, search history, hotline bookmarks, and local family check-ins; plus tested core utilities and Robolectric persistence tests. These are partial implementations. Fresh GPS, full vault/recovery, voice playback/attachment, nationwide directory/maps, Wi-Fi Direct and radio mesh transport, durable remote family sync, and physical-device acceptance are not complete. Do not rely on this scaffold as a validated emergency service.
+The current app includes versioned consent and privacy notice; encrypted emergency contacts and SOS/location fields; a 2-second SOS preparation flow; location helpers; user-confirmed messaging handoff; a searchable hotline subset; encrypted voice-note record/play/share; low-power BLE discovery; local SOS/search/bookmark/check-in persistence; a PIN-protected contact vault; Medical ID QR; and UI-connected offline directory/advisory/evacuation caches with bounded JSON import. These remain partial. Imported source metadata is not cryptographic authentication. Freshness and coverage of datasets, licensed offline map rendering, Wi-Fi Direct/radio mesh transport, remote family sync, vault recovery, and physical-device acceptance are not complete. Do not rely on this scaffold as a validated emergency service.
 
 ## Documentation map
 
@@ -49,6 +49,7 @@ The current app includes versioned consent and a current-build privacy notice; K
 - [features_update.md](features_update.md) — retained feature inventory and status rules
 - [ARCHITECTURE_DECISIONS.md](ARCHITECTURE_DECISIONS.md) — architecture decisions and open questions
 - [FEATURE_TRACEABILITY.md](FEATURE_TRACEABILITY.md) — feature-to-test traceability
+- [OFFLINE_DATA_IMPORT.md](OFFLINE_DATA_IMPORT.md) — JSON formats and safe import limitations
 - [TEST_ACCEPTANCE_MATRIX.md](TEST_ACCEPTANCE_MATRIX.md) — measurable acceptance tests
 - [DATA_SOURCES_AND_RISKS.md](DATA_SOURCES_AND_RISKS.md) — data provenance, licensing, and risk register
 - [PRIVACY_NOTICE.md](PRIVACY_NOTICE.md) — current-build data handling and safety notice; legal review still required

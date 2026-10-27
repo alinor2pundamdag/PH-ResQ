@@ -3,9 +3,11 @@
 Current decision: NO-GO. This is an early Android scaffold, not a validated emergency application.
 
 ## Build and engineering
-- [x] CI unit tests pass on commit `408e2aaaea09df70400c92038b405c5d5a47d337` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40451629467)); re-run for any newer candidate SHA.
-- [x] Debug APK build passed and CI artifact upload succeeded for that SHA.
-- [x] Unsigned release variant assemble task passed for that SHA; this is not a signed production release.
+- [x] Historical baseline commit `408e2aaaea09df70400c92038b405c5d5a47d337` passed unit tests and debug/release assemble ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40451629467)); this is not evidence for the current candidate.
+- [ ] Current PR head passes `lintDebug`, `testDebugUnitTest`, `assembleDebug`, and `assembleRelease` in one CI run.
+- [ ] CI build metadata proves the APK was built from the exact PR-head commit.
+- [ ] Debug APK and SHA-256 checksum artifact are available from the same successful current-head run.
+- [ ] Release APK signing configured and verified; current release variant is unsigned.
 - [ ] Release variant builds reproducibly from a clean checkout with documented local build instructions.
 - [ ] Dependency versions, SDK levels, and release notes are reviewed.
 - [ ] No secrets, signing keys, personal data, or debug endpoints committed.
@@ -19,6 +21,7 @@ Current decision: NO-GO. This is an early Android scaffold, not a validated emer
 - [ ] Voice note recording, encryption, size limits, deletion, and playback tested.
 
 ## Offline data and maps
+- [ ] JSON import tested with official-source sample data; metadata is reviewed manually because it is not cryptographically signed.
 - [ ] Nationwide administrative data source and coverage audited.
 - [ ] Helpline sources and jurisdiction/review dates verified.
 - [ ] Offline map redistribution rights documented.
