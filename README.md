@@ -30,7 +30,7 @@ Nilalayon ng PH-ResQ Vanguard 2026 na magbigay ng offline-capable emergency dire
 
 - Android-native APIs are required for location, SMS, notifications, foreground services, BLE, Wi-Fi Direct, Keystore, and lifecycle-sensitive work.
 - Browser-only APIs such as `window`, `localStorage`, IndexedDB, and DOM canvas are not substitutes for Android capabilities.
-- Initial UI/build baseline: Kotlin + Jetpack Compose, minSdk 26, compileSdk/targetSdk 35, Java 17. CI must validate this baseline. Database, verified data sources, and mesh protocol remain open implementation decisions.
+- Initial UI/build baseline: Kotlin + Jetpack Compose, minSdk 26, compileSdk/targetSdk 35, Java 17. CI passed on the documented baseline SHA; each new candidate must pass again. Complete data layers, verified sources and mesh transport remain open.
 - RSSI is approximate; SMS/mesh delivery is not guaranteed; ordinary apps cannot force-stop themselves or intercept every cell broadcast.
 - Nationwide counts, map coverage, licenses, package size, and freshness must be verified from authoritative sources.
 

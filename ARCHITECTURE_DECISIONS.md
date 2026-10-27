@@ -1,10 +1,10 @@
 # PH-ResQ Architecture Decisions
 
-**Status:** Baseline decisions recorded; implementation and device validation remain pending.
+**Status:** Baseline architecture and partial implementation are recorded; CI passed on the stated baseline SHA, while feature and device validation remain pending.
 **Last reviewed:** 2026-10-27
 
 ## ADR-001 — Native Android implementation baseline
-**Decision:** Implement the first Android client in Kotlin with Jetpack Compose. The initial build configuration uses minSdk 26, compileSdk 35, targetSdk 35, Java 17, Android Gradle Plugin 8.7.3, and Kotlin 2.0.21. These versions are a starting baseline and must be validated by CI before being treated as supported.
+**Decision:** Implement the first Android client in Kotlin with Jetpack Compose. The configuration uses minSdk 26, compileSdk 35, targetSdk 35, Java 17, Android Gradle Plugin 8.7.3, and Kotlin 2.0.21. The baseline passed unit-test, debug-assemble, and release-assemble tasks on commit `bd1cb451967bec8c6bc83ed10a80ed30edd59088`; this does not certify device compatibility or feature completeness.
 **Reason:** The app depends on Android location, messaging handoff, notifications, BLE, Wi-Fi Direct, Keystore, and lifecycle APIs.
 **Consequences:** Browser APIs such as window, localStorage, IndexedDB, and DOM canvas are not implementation substitutes. Device-specific capabilities must use native Android APIs and permission/lifecycle handling.
 
@@ -36,10 +36,10 @@ SHA-256 mismatch detection must compare data against a trusted expected digest o
 The first scaffold uses ACTION_SENDTO so the user can review and send the SMS. It does not request SEND_SMS or silently dispatch. Multi-recipient URI behavior is device/messaging-app dependent and must be verified; if unreliable, implement a user-confirmed per-recipient workflow. This policy does not satisfy unattended dispatch requirements.
 
 ## ADR-011 — Initial local persistence is provisional
-The scaffold uses SharedPreferences for consent and local contact/check-in input. This is not the final encrypted vault or durable SOS database. Before release, move critical state to a transactional storage layer, define migrations/recovery, and encrypt sensitive fields with a reviewed key lifecycle.
+Consent and the local check-in currently use SharedPreferences; emergency contacts are encrypted at rest with Android Keystore AES-GCM; SOS events are recorded in SQLite with encrypted draft/recipient/location fields. SQLite tables for location, directory, map metadata, search, bookmarks and check-ins are foundations only and are not fully wired to repositories/importers or UI. This is not a complete PIN vault, sync queue, or recovery system. Define and test migrations, backup/reinstall behavior, key lifecycle and transactional persistence before release.
 
 ## Open implementation decisions
-- Local database, SOS event durability, and spatial-index strategy
+- Complete repositories/migrations for the existing SQLite schema and a benchmarked spatial-index strategy
 - Authoritative directory/map/weather sources, licenses, and update pipeline
 - Location acquisition and stale-location/manual fallback behavior
 - Voice-note recording, encryption, size limits, and retention
