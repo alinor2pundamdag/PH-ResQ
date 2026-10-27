@@ -228,7 +228,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     var offlineImportStatus by remember { mutableStateOf("Walang offline dataset na na-import sa session na ito.") }
     val offlineImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
-            offlineImportStatus = runCatching { OfflineDatasetImporter.import(context, uri, offlineDataRepository, hazardDataRepository) }
+            offlineImportStatus = runCatching { OfflineDatasetImporter.importDataset(context, uri, offlineDataRepository, hazardDataRepository) }
                 .getOrElse { "Import failed: " + (it.message ?: "invalid dataset") }
             directoryMetadata = runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()
             directoryResults = runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList())

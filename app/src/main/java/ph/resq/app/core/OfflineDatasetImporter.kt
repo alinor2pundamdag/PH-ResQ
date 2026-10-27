@@ -19,7 +19,7 @@ object OfflineDatasetImporter {
         data class EvacuationCenters(val records: List<EvacuationCenter>) : ParsedDataset()
     }
 
-    fun import(context: Context, uri: Uri, directory: OfflineDataRepository, hazards: HazardDataRepository): String {
+    fun importDataset(context: Context, uri: Uri, directory: OfflineDataRepository, hazards: HazardDataRepository): String {
         val json = readBounded(context, uri)
         return when (val dataset = parseJson(json)) {
             is ParsedDataset.Directory -> {
