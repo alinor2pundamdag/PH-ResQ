@@ -3,7 +3,7 @@
 Current decision: NO-GO. This is an early Android scaffold, not a validated emergency application.
 
 ## Build and engineering
-- [x] CI unit tests pass on commit `bd1cb451967bec8c6bc83ed10a80ed30edd59088` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40448972532)); re-run for any newer candidate SHA.
+- [x] CI unit tests pass on commit `4a611c8f085cc20ac5ec9558b07074ba2c1b26df` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40450465511)); re-run for any newer candidate SHA.
 - [x] Debug APK build passed and CI artifact upload succeeded for that SHA.
 - [x] Unsigned release variant assemble task passed for that SHA; this is not a signed production release.
 - [ ] Release variant builds reproducibly from a clean checkout with documented local build instructions.

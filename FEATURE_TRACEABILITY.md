@@ -1,7 +1,7 @@
 # PH-ResQ Feature Traceability
 
 **Purpose:** Prevent silent feature removal and make every requirement testable.  
-**Status:** Core unit tests and debug/release assemble tasks passed on commit `bd1cb451967bec8c6bc83ed10a80ed30edd59088` ([CI run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40448972532)). Physical-device, integration, data-coverage, and full feature acceptance remain outstanding.
+**Status:** Core unit tests and debug/release assemble tasks passed on commit `4a611c8f085cc20ac5ec9558b07074ba2c1b26df` ([CI run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40450465511)). Physical-device, integration, data-coverage, and full feature acceptance remain outstanding.
 
 | ID | Retained requirement | Planned component/area | Implementation status | Minimum acceptance evidence |
 |---|---|---|---|---|
