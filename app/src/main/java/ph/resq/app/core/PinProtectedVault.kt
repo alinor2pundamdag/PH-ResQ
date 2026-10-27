@@ -74,15 +74,17 @@ class PinProtectedVault(context: Context) {
 
     @Synchronized
     fun replace(pin: CharArray, plaintext: String): Boolean {
-        val old = unlock(pin) ?: return false
-        // Unlock verifies the PIN; rotate salt/IV and re-encrypt with the same PIN.
+        // Preserve a temporary copy because unlock deliberately wipes its input array.
         val storedPin = pin.copyOf()
         return try {
-            prefs.edit().remove("salt").remove("iv").remove("ciphertext").commit()
+            val old = unlock(pin)
+            if (old == null) return false
+            check(prefs.edit().remove("salt").remove("iv").remove("ciphertext").commit())
             configure(storedPin, plaintext)
-            old.length >= 0
+            true
         } finally {
-            storedPin.fill('\u0000')
+            pin.fill('\\u0000')
+            storedPin.fill('\\u0000')
         }
     }
 
