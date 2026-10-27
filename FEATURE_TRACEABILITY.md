@@ -14,7 +14,7 @@
 | F-007 | Six persistence layers | Local persistence layer | Partial — encrypted contacts and SOS-state persistence only; other areas incomplete | Recovery tests for active mode, contact vault, last GPS, SOS, history/bookmarks, map tiles |
 | F-008 | Low-battery snapshot below 5% | Persistence/lifecycle | Planned — implementation not evidenced | Best-effort callback test; critical transitions persisted independently of callback |
 | F-009 | SHA-256 integrity verification | Data integrity manager | Partial — SHA-256 verifier added and unit-tested in CI; trusted manifest and recovery pipeline pending | Trusted expected digest, tamper detection, verified recovery path |
-| F-010 | Family “Ligtas Ako” check-in and sync queue | Check-in/sync | Partial — local-only check-in; no sync/delivery | Offline queue, deduplication, stale/pending/synced/failure states |
+| F-010 | Family “Ligtas Ako” check-in and sync queue | Check-in/sync | Partial — local SQLite check-in persistence added; no sync/delivery | Offline queue, deduplication, stale/pending/synced/failure states |
 | F-011 | Adaptive GPS polling | Location service | Partial — last-known helper and interval policy unit-tested in CI; no lifecycle-aware polling service/fresh fix | Battery/lifecycle/permission tests and timestamp/accuracy display |
 | F-012 | BLE peer discovery | Native BLE module | Partial — 15-second low-power discovery scan added; permission/device tests pending | Physical-device scan/permission/lifecycle tests; no placeholder success |
 | F-013 | Wi-Fi Direct transfer | Native P2P module | Planned — implementation not evidenced | Pairing, transfer, interruption, retry and device-matrix tests |

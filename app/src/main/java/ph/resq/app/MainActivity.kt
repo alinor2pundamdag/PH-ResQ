@@ -123,8 +123,10 @@ private fun HomeScreen() {
     }
     var messageNote by remember { mutableStateOf("") }
     var state by remember { mutableStateOf(database.latestSosState() ?: runCatching { SosState.valueOf(prefs.getString("sos_state", "IDLE") ?: "IDLE") }.getOrDefault(SosState.IDLE)) }
-    var checkIn by remember { mutableStateOf(prefs.getString("checkin", "Hindi pa naitala") ?: "Hindi pa naitala") }
+    var checkIn by remember { mutableStateOf(database.latestFamilyCheckin() ?: prefs.getString("checkin", "Hindi pa naitala") ?: "Hindi pa naitala") }
     var hotlineQuery by remember { mutableStateOf("") }
+    var recentSearches by remember { mutableStateOf(database.recentSearches()) }
+    var savedBookmarks by remember { mutableStateOf(database.bookmarks()) }
     val voiceRecorder = remember { EncryptedVoiceNoteRecorder.cleanupStaleRawFiles(context); EncryptedVoiceNoteRecorder() }
     val bleDiscovery = remember { BleDiscoveryManager(context) }
     var blePeers by remember { mutableStateOf(emptyList<NearbyBlePeer>()) }
@@ -224,6 +226,20 @@ private fun HomeScreen() {
                 Text("Offline national emergency contacts", style = MaterialTheme.typography.titleLarge)
                 Text("Source: Philippine Government Emergency Hotlines portal; reviewed 2026-10-27. Ang 911 ang national emergency hotline.")
                 OutlinedTextField(value = hotlineQuery, onValueChange = { hotlineQuery = it.take(80) }, label = { Text("Search agency or number") }, modifier = Modifier.fillMaxWidth())
+                Button(onClick = {
+                    database.recordSearch(hotlineQuery)
+                    recentSearches = database.recentSearches()
+                }, modifier = Modifier.fillMaxWidth(), enabled = hotlineQuery.isNotBlank()) { Text("SAVE SEARCH LOCALLY") }
+                if (recentSearches.isNotEmpty()) {
+                    Text("Recent saved searches", style = MaterialTheme.typography.titleMedium)
+                    recentSearches.forEach { query ->
+                        Button(onClick = { hotlineQuery = query }, modifier = Modifier.fillMaxWidth()) { Text(query) }
+                    }
+                    Button(onClick = {
+                        database.clearSearchHistory()
+                        recentSearches = emptyList()
+                    }, modifier = Modifier.fillMaxWidth()) { Text("CLEAR SEARCH HISTORY") }
+                }
                 NationalHotlineDirectory.search(hotlineQuery).forEach { hotline ->
                     Text(hotline.agency, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                     Text(hotline.displayNumber + " • " + hotline.method.label)
@@ -236,6 +252,20 @@ private fun HomeScreen() {
                         else Toast.makeText(context, "Hindi available ang kaukulang app sa device.", Toast.LENGTH_LONG).show()
                     }, modifier = Modifier.fillMaxWidth()) {
                         Text(if (hotline.method == HotlineMethod.SMS) "OPEN SMS APP" else "OPEN DIALER")
+                    }
+                    Button(onClick = {
+                        database.saveBookmark("hotline:" + hotline.agency, hotline.agency + " • " + hotline.displayNumber)
+                        savedBookmarks = database.bookmarks()
+                    }, modifier = Modifier.fillMaxWidth()) { Text("BOOKMARK HOTLINE") }
+                }
+                if (savedBookmarks.isNotEmpty()) {
+                    Text("Saved hotline bookmarks", style = MaterialTheme.typography.titleMedium)
+                    savedBookmarks.forEach { bookmark ->
+                        Text(bookmark.second)
+                        Button(onClick = {
+                            database.removeBookmark(bookmark.first)
+                            savedBookmarks = database.bookmarks()
+                        }, modifier = Modifier.fillMaxWidth()) { Text("REMOVE BOOKMARK") }
                     }
                 }
                 Text("Kailangan ng network/phone service. Ang pag-open ng dialer o SMS app ay hindi patunay ng koneksyon, delivery, o pagsagot.")
@@ -334,8 +364,16 @@ private fun HomeScreen() {
                 Text("Local status lamang; wala pang network relay o family delivery.")
                 Text("Status: " + checkIn)
                 Button(onClick = {
-                    checkIn = "Naitala locally • " + System.currentTimeMillis()
-                    prefs.edit().putString("checkin", checkIn).apply()
+                    val nextStatus = "Naitala locally • " + System.currentTimeMillis()
+                    runCatching {
+                        database.recordFamilyCheckin(nextStatus)
+                        prefs.edit().remove("checkin").apply()
+                        checkIn = database.latestFamilyCheckin() ?: nextStatus
+                    }.onFailure {
+                        checkIn = nextStatus
+                        prefs.edit().putString("checkin", nextStatus).apply()
+                        Toast.makeText(context, "Hindi ma-save sa database; ginamit ang local fallback.", Toast.LENGTH_LONG).show()
+                    }
                 }) { Text("Save check-in locally") }
             }
         }

@@ -77,6 +77,83 @@ class ResQDatabase(context: Context) : SQLiteOpenHelper(context, "ph_resq_local.
         }
     }
 
+    /** Store one distinct recent query; re-searching updates its recency instead of duplicating it. */
+    fun recordSearch(query: String) {
+        val clean = query.trim().take(80)
+        if (clean.isEmpty()) return
+        val db = writableDatabase
+        db.beginTransaction()
+        try {
+            db.delete("search_history", "lower(query) = lower(?)", arrayOf(clean))
+            val values = ContentValues().apply {
+                put("query", clean)
+                put("searched_at", System.currentTimeMillis())
+            }
+            db.insertOrThrow("search_history", null, values)
+            db.execSQL("DELETE FROM search_history WHERE id NOT IN (SELECT id FROM search_history ORDER BY searched_at DESC, id DESC LIMIT 30)")
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+    }
+
+    fun recentSearches(limit: Int = 8): List<String> {
+        val safeLimit = limit.coerceIn(1, 30)
+        val result = mutableListOf<String>()
+        readableDatabase.rawQuery(
+            "SELECT query FROM search_history ORDER BY searched_at DESC, id DESC LIMIT $safeLimit",
+            null
+        ).use { cursor -> while (cursor.moveToNext()) result.add(cursor.getString(0)) }
+        return result
+    }
+
+    fun clearSearchHistory() {
+        writableDatabase.delete("search_history", null, null)
+    }
+
+    fun saveBookmark(itemId: String, label: String) {
+        val safeId = itemId.trim().take(120)
+        val safeLabel = label.trim().take(240)
+        require(safeId.isNotEmpty() && safeLabel.isNotEmpty()) { "Bookmark ID and label are required" }
+        val values = ContentValues().apply {
+            put("item_id", safeId)
+            put("label", safeLabel)
+            put("created_at", System.currentTimeMillis())
+        }
+        writableDatabase.insertWithOnConflict("bookmarks", null, values, SQLiteDatabase.CONFLICT_REPLACE)
+    }
+
+    fun removeBookmark(itemId: String) {
+        writableDatabase.delete("bookmarks", "item_id = ?", arrayOf(itemId))
+    }
+
+    fun bookmarks(): List<Pair<String, String>> {
+        val result = mutableListOf<Pair<String, String>>()
+        readableDatabase.rawQuery("SELECT item_id, label FROM bookmarks ORDER BY label COLLATE NOCASE", null)
+            .use { cursor -> while (cursor.moveToNext()) result.add(cursor.getString(0) to cursor.getString(1)) }
+        return result
+    }
+
+    fun recordFamilyCheckin(status: String) {
+        val clean = status.trim().take(200)
+        require(clean.isNotEmpty()) { "Check-in status is required" }
+        val values = ContentValues().apply {
+            put("status", clean)
+            put("created_at", System.currentTimeMillis())
+            put("sync_state", "LOCAL_ONLY")
+        }
+        val db = writableDatabase
+        db.insertOrThrow("family_checkins", null, values)
+        db.execSQL("DELETE FROM family_checkins WHERE id NOT IN (SELECT id FROM family_checkins ORDER BY id DESC LIMIT 50)")
+    }
+
+    fun latestFamilyCheckin(): String? {
+        readableDatabase.rawQuery("SELECT status FROM family_checkins ORDER BY id DESC LIMIT 1", null).use { cursor ->
+            if (!cursor.moveToFirst()) return null
+            return cursor.getString(0)
+        }
+    }
+
     fun latestSosState(): SosState? {
         readableDatabase.rawQuery("SELECT state FROM sos_events ORDER BY id DESC LIMIT 1", null).use { cursor ->
             if (!cursor.moveToFirst()) return null
