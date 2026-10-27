@@ -33,7 +33,7 @@ Snapshot: 2026-10-27. Status: expanded Android implementation pass; **not a rele
 | PIN vault/duress mode | PIN-derived AES-GCM vault utility with five-failure temporary lockout and Robolectric tests added | Utility is not integrated into contact access/UI; no recovery/backup lifecycle or duress mode; not accepted as complete vault |
 | Medical ID QR | On-device QR generation with explicit user-entered fields and clear action | QR contents are not encrypted; user must control what is exposed; privacy/scan interoperability tests pending |
 | Accessibility theme | Persistent high-contrast theme toggle | Formal contrast/TalkBack/touch-target/reduced-motion validation pending |
-| PAGASA/evacuation/cell-broadcast awareness | Not implemented | Data ingestion/freshness not validated; third-party app cannot promise to intercept all cell broadcasts |
+| PAGASA/evacuation/cell-broadcast awareness | Local source-attributed advisory and evacuation-centre cache/search with expiry/stale labels added | No live PAGASA/LGU feed, signed data manifest, verified local coverage, or cell-broadcast interception; Android/carrier system handles cell broadcasts |
 | Physical-device tests | Not run | Requires target devices, SIM/network, permissions and multi-device mesh testing |
 | Release signing | Not ready | Unsigned build only; no signed release or go/no-go evidence |
 
