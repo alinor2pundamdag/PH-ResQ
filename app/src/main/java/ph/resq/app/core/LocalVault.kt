@@ -21,4 +21,10 @@ class LocalVault(context: Context) {
         val encrypted = prefs.getString("contacts_ciphertext", null) ?: return ""
         return cipher.decrypt(encrypted) ?: ""
     }
+
+    fun clearContacts() {
+        check(prefs.edit().remove("contacts_ciphertext").commit()) {
+            "Unable to clear legacy encrypted contacts after vault migration"
+        }
+    }
 }

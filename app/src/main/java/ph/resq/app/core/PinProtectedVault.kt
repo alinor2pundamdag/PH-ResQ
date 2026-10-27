@@ -74,17 +74,29 @@ class PinProtectedVault(context: Context) {
 
     @Synchronized
     fun replace(pin: CharArray, plaintext: String): Boolean {
-        // Preserve a temporary copy because unlock deliberately wipes its input array.
-        val storedPin = pin.copyOf()
-        return try {
+        val workingPin = pin.copyOf()
+        try {
             val old = unlock(pin)
             if (old == null) return false
-            check(prefs.edit().remove("salt").remove("iv").remove("ciphertext").commit())
-            configure(storedPin, plaintext)
-            true
+            // Encrypt the replacement before touching the existing record; commit atomically.
+            val salt = ByteArray(16).also(random::nextBytes)
+            val key = derive(workingPin, salt)
+            val iv = ByteArray(12).also(random::nextBytes)
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.ENCRYPT_MODE, key, GCMParameterSpec(128, iv))
+            val encrypted = cipher.doFinal(plaintext.toByteArray(Charsets.UTF_8))
+            check(prefs.edit()
+                .putString("salt", encode(salt))
+                .putString("iv", encode(iv))
+                .putString("ciphertext", encode(encrypted))
+                .putInt("failed_attempts", 0)
+                .putLong("locked_until", 0L)
+                .commit()) { "Unable to update vault." }
+            key.encoded?.fill(0)
+            return true
         } finally {
             pin.fill('\u0000')
-            storedPin.fill('\u0000')
+            workingPin.fill('\u0000')
         }
     }
 

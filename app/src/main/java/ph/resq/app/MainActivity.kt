@@ -60,6 +60,7 @@ import ph.resq.app.core.MedicalIdQr
 import ph.resq.app.core.LastKnownLocation
 import ph.resq.app.core.FreshLocationProvider
 import ph.resq.app.core.LocalVault
+import ph.resq.app.core.PinProtectedVault
 import ph.resq.app.core.ResQDatabase
 import ph.resq.app.core.EncryptedFieldCipher
 import ph.resq.app.core.ConsentStore
@@ -145,6 +146,11 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     var medicalQrStatus by remember { mutableStateOf("Walang QR na ginawa.") }
     val prefs = remember { context.getSharedPreferences("ph_resq_local", Context.MODE_PRIVATE) }
     val vault = remember { LocalVault(context) }
+    val pinVault = remember { PinProtectedVault(context) }
+    var pinVaultEnabled by remember { mutableStateOf(prefs.getBoolean("pin_vault_enabled", false) && pinVault.isConfigured()) }
+    var pinVaultUnlocked by remember { mutableStateOf(!pinVaultEnabled) }
+    var pinVaultPin by remember { mutableStateOf("") }
+    var pinVaultStatus by remember { mutableStateOf(if (pinVaultEnabled) "Vault locked. I-unlock bago gumamit ng saved contacts." else "Optional PIN vault is disabled.") }
     val database = remember { ResQDatabase(context) }
     val freshLocationProvider = remember { FreshLocationProvider(context) }
     var freshLocationStatus by remember { mutableStateOf("Hindi pa humihingi ng fresh location.") }
@@ -180,7 +186,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         onDispose { runCatching { context.unregisterReceiver(receiver) } }
     }
     val fieldCipher = remember { EncryptedFieldCipher() }
-    var contactsRaw by remember { mutableStateOf(runCatching { vault.loadContacts() }.getOrNull() ?: "") }
+    var contactsRaw by remember { mutableStateOf(if (pinVaultEnabled) "" else (runCatching { vault.loadContacts() }.getOrNull() ?: "")) }
     var locationLine by remember {
         mutableStateOf(
             runCatching { fieldCipher.decrypt(prefs.getString("last_location_line_cipher", null)) }.getOrNull()
@@ -373,6 +379,10 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     }
 
     fun prepareSos() {
+        if (pinVaultEnabled && !pinVaultUnlocked) {
+            Toast.makeText(context, "I-unlock muna ang PIN-protected emergency contacts.", Toast.LENGTH_LONG).show()
+            return
+        }
         setSosState(SosState.QUEUED)
         vibrate(context)
         val recipients = ContactList.parse(contactsRaw)
@@ -505,14 +515,65 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Emergency contacts", style = MaterialTheme.typography.titleLarge)
-                Text("Ilagay ang mga numero na pinaghihiwalay ng kuwit o bagong linya (hanggang 10). Nasa device lang ang listahan.")
-                OutlinedTextField(value = contactsRaw, onValueChange = {
-                    contactsRaw = it
-                    val saved = runCatching { vault.saveContacts(it) }.isSuccess
-                    if (!saved) Toast.makeText(context, "Hindi ligtas na na-save ang contacts. Huwag umasa sa storage na ito.", Toast.LENGTH_LONG).show()
-                }, label = { Text("Hal. +639171234567, 09181234567") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
-                Text("Valid-looking contacts: " + ContactList.parse(contactsRaw).size)
-                Text("Naka-encrypt at rest gamit ang Android Keystore; wala pang PIN vault o recovery flow.")
+                Text("Ilagay ang hanggang 10 numero. Nasa device lang ang listahan.")
+                if (pinVaultEnabled && !pinVaultUnlocked) {
+                    Text("Naka-lock ang PIN vault. Hindi mababasa ang saved contacts o makakapaghanda ng SOS hanggang ma-unlock.")
+                    OutlinedTextField(value = pinVaultPin, onValueChange = { pinVaultPin = it.filter(Char::isDigit).take(12) }, label = { Text("Vault PIN") }, modifier = Modifier.fillMaxWidth())
+                    Button(onClick = {
+                        try {
+                            val secret = pinVault.unlock(pinVaultPin.toCharArray())
+                            if (secret == null) pinVaultStatus = "Maling PIN o hindi mabuksan ang vault."
+                            else {
+                                contactsRaw = secret
+                                pinVaultUnlocked = true
+                                pinVaultStatus = "Vault unlocked for this app session."
+                            }
+                        } catch (error: Exception) {
+                            pinVaultStatus = error.message ?: "Vault unlock failed."
+                        } finally { pinVaultPin = "" }
+                    }, modifier = Modifier.fillMaxWidth()) { Text("UNLOCK CONTACT VAULT") }
+                } else {
+                    OutlinedTextField(value = contactsRaw, onValueChange = {
+                        contactsRaw = it
+                        if (!pinVaultEnabled) {
+                            val saved = runCatching { vault.saveContacts(it) }.isSuccess
+                            if (!saved) Toast.makeText(context, "Hindi ligtas na na-save ang contacts. Huwag umasa sa storage na ito.", Toast.LENGTH_LONG).show()
+                        }
+                    }, enabled = pinVaultUnlocked, label = { Text("Hal. +639171234567, 09181234567") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
+                    Text("Valid-looking contacts: " + ContactList.parse(contactsRaw).size)
+                    if (!pinVaultEnabled) {
+                        OutlinedTextField(value = pinVaultPin, onValueChange = { pinVaultPin = it.filter(Char::isDigit).take(12) }, label = { Text("Optional new vault PIN (6+ digits)") }, modifier = Modifier.fillMaxWidth())
+                        Button(onClick = {
+                            try {
+                                pinVault.configure(pinVaultPin.toCharArray(), contactsRaw)
+                                vault.clearContacts()
+                                check(prefs.edit().putBoolean("pin_vault_enabled", true).commit())
+                                pinVaultEnabled = true
+                                pinVaultUnlocked = true
+                                pinVaultStatus = "PIN vault enabled. Walang recovery flow; itago ang PIN nang ligtas."
+                            } catch (error: Exception) {
+                                pinVaultStatus = error.message ?: "Could not configure PIN vault."
+                            } finally { pinVaultPin = "" }
+                        }, enabled = contactsRaw.isNotBlank() && pinVaultPin.length >= 6, modifier = Modifier.fillMaxWidth()) { Text("MOVE CONTACTS TO PIN-PROTECTED VAULT") }
+                    } else {
+                        OutlinedTextField(value = pinVaultPin, onValueChange = { pinVaultPin = it.filter(Char::isDigit).take(12) }, label = { Text("Vault PIN to save changes") }, modifier = Modifier.fillMaxWidth())
+                        Button(onClick = {
+                            try {
+                                if (pinVault.replace(pinVaultPin.toCharArray(), contactsRaw)) pinVaultStatus = "Protected contacts updated."
+                                else pinVaultStatus = "Maling PIN; hindi na-update ang contacts."
+                            } catch (error: Exception) {
+                                pinVaultStatus = error.message ?: "Could not update protected contacts."
+                            } finally { pinVaultPin = "" }
+                        }, enabled = pinVaultPin.length >= 6, modifier = Modifier.fillMaxWidth()) { Text("SAVE PROTECTED CONTACTS") }
+                        Button(onClick = {
+                            contactsRaw = ""
+                            pinVaultUnlocked = false
+                            pinVaultStatus = "Vault locked for this session."
+                        }, modifier = Modifier.fillMaxWidth()) { Text("LOCK CONTACT VAULT") }
+                    }
+                }
+                Text(pinVaultStatus)
+                Text(if (pinVaultEnabled) "PIN-derived AES-GCM. Walang PIN recovery o duress mode; pagkawala ng PIN ay maaaring permanenteng mawala ang contacts." else "Default: Android Keystore AES-GCM. Optional PIN vault adds a PIN-derived encryption layer.")
             }
         }
         Card(Modifier.fillMaxWidth()) {
