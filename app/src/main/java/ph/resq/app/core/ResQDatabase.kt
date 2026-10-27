@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper
  * Local transactional foundation for durable emergency state.
  * Directory/map tables are empty until sourced datasets and importers are added.
  */
-class ResQDatabase(context: Context) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 3) {
+class ResQDatabase(context: Context) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 4) {
     private val fieldCipher = EncryptedFieldCipher()
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -20,6 +20,7 @@ class ResQDatabase(context: Context) : SQLiteOpenHelper(context, "ph_resq_local.
         db.execSQL("CREATE TABLE bookmarks (item_id TEXT PRIMARY KEY NOT NULL, label TEXT NOT NULL, created_at INTEGER NOT NULL)")
         db.execSQL("CREATE TABLE directory_entries (entry_id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, category TEXT NOT NULL, phone TEXT, latitude REAL, longitude REAL, source_url TEXT, verified_at INTEGER)")
         db.execSQL("CREATE TABLE map_tiles (tile_key TEXT PRIMARY KEY NOT NULL, local_path TEXT NOT NULL, sha256 TEXT, dataset_version TEXT, updated_at INTEGER)")
+        db.execSQL("CREATE TABLE dataset_meta (dataset_name TEXT PRIMARY KEY NOT NULL, source_url TEXT NOT NULL, license TEXT NOT NULL, version TEXT NOT NULL, verified_at INTEGER NOT NULL, imported_at INTEGER NOT NULL, record_count INTEGER NOT NULL)")
         db.execSQL("CREATE TABLE family_checkins (id INTEGER PRIMARY KEY AUTOINCREMENT, status TEXT NOT NULL, created_at INTEGER NOT NULL, sync_state TEXT NOT NULL)")
         db.execSQL("CREATE TABLE pending_actions (id INTEGER PRIMARY KEY AUTOINCREMENT, action_type TEXT NOT NULL, payload_ciphertext TEXT NOT NULL, created_at INTEGER NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL, last_error TEXT)")
     }
@@ -55,6 +56,10 @@ class ResQDatabase(context: Context) : SQLiteOpenHelper(context, "ph_resq_local.
         }
         if (version < 3 && newVersion >= 3) {
             db.execSQL("CREATE TABLE IF NOT EXISTS pending_actions (id INTEGER PRIMARY KEY AUTOINCREMENT, action_type TEXT NOT NULL, payload_ciphertext TEXT NOT NULL, created_at INTEGER NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL, last_error TEXT)")
+            version = 3
+        }
+        if (version < 4 && newVersion >= 4) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS dataset_meta (dataset_name TEXT PRIMARY KEY NOT NULL, source_url TEXT NOT NULL, license TEXT NOT NULL, version TEXT NOT NULL, verified_at INTEGER NOT NULL, imported_at INTEGER NOT NULL, record_count INTEGER NOT NULL)")
         }
     }
 
