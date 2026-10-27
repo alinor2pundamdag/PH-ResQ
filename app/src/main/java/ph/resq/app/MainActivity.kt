@@ -3,6 +3,8 @@ package ph.resq.app
 import android.Manifest
 import android.app.Activity
 import android.graphics.Bitmap
+import android.content.ClipData
+import androidx.core.content.FileProvider
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
 import android.content.Context
@@ -208,6 +210,14 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     var savedVoiceNotes by remember { mutableStateOf(voiceRecorder.listSaved(context)) }
     var voicePlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var voicePlaybackTemp by remember { mutableStateOf<File?>(null) }
+    var voiceShareTemp by remember { mutableStateOf<File?>(null) }
+    val voiceShareLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        voiceShareTemp?.delete()
+        voiceShareTemp = null
+        voiceStatus = "Voice-note share flow ended; delivery is not confirmed."
+    }
     DisposableEffect(Unit) {
         onDispose {
             runCatching { voicePlayer?.stop() }
@@ -259,6 +269,29 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
             runCatching { player?.release() }
             temp?.delete()
             voiceStatus = "Cannot play this note; it may be corrupt or its Keystore key is unavailable"
+        }
+    }
+    fun shareVoiceNote(encryptedFile: File) {
+        var temp: File? = null
+        try {
+            val plaintextFile = voiceRecorder.decryptToTemporaryFile(context, encryptedFile)
+            temp = plaintextFile
+            val uri = FileProvider.getUriForFile(context, context.packageName + ".fileprovider", plaintextFile)
+            val share = Intent(Intent.ACTION_SEND).apply {
+                type = "audio/mp4"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_TEXT, SosMessage.build(messageNote, locationLine))
+                clipData = ClipData.newUri(context.contentResolver, "PH-ResQ SOS voice note", uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            voiceShareTemp?.delete()
+            voiceShareTemp = plaintextFile
+            voiceStatus = "Choose a messaging app and recipient; the audio is shared as plaintext. Sending/delivery is not confirmed."
+            voiceShareLauncher.launch(Intent.createChooser(share, "Share SOS message and voice note"))
+        } catch (_: Exception) {
+            temp?.delete()
+            voiceShareTemp = null
+            voiceStatus = "Could not prepare voice-note share; no message was sent."
         }
     }
     var showAccessibleSosConfirm by remember { mutableStateOf(false) }
@@ -521,7 +554,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Voice note", style = MaterialTheme.typography.titleLarge)
-                Text("Hanggang 10 segundo; naka-encrypt sa local app storage. Hindi ito awtomatikong nakakabit sa SMS.")
+                Text("Hanggang 10 segundo; naka-encrypt sa local app storage. Ang share action ay magde-decrypt sa temporary cache at magbubukas ng system chooser; pumili ng app/recipient at kumpirmahin ang pagpapadala. Hindi ito auto-send at walang delivery confirmation.")
                 Text(voiceStatus)
                 Button(onClick = {
                     if (voiceRecording) voiceRecorder.stop()
@@ -539,6 +572,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
                     Text(note.name)
                     Button(onClick = { playVoiceNote(note) }, modifier = Modifier.fillMaxWidth()) {
                         Text(if (voicePlayer != null && voicePlaybackTemp != null) "PLAY / RESTART NOTE" else "PLAY NOTE")
+                    }
+                    Button(onClick = { shareVoiceNote(note) }, modifier = Modifier.fillMaxWidth()) {
+                        Text("ATTACH TO SOS DRAFT / SHARE")
                     }
                     Button(onClick = {
                         if (voicePlaybackTemp != null && voicePlayer != null) stopVoicePlayback()

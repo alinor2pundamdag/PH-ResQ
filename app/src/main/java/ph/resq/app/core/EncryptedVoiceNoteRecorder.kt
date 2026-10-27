@@ -29,6 +29,9 @@ class EncryptedVoiceNoteRecorder {
             context.cacheDir.listFiles()
                 ?.filter { it.name.startsWith("phresq-voice-") && it.name.endsWith(".m4a") }
                 ?.forEach { it.delete() }
+            File(context.cacheDir, "voice-share").listFiles()
+                ?.filter { it.name.startsWith("phresq-playback-") && it.name.endsWith(".m4a") }
+                ?.forEach { it.delete() }
         }
     }
 
@@ -137,7 +140,8 @@ class EncryptedVoiceNoteRecorder {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), javax.crypto.spec.GCMParameterSpec(128, iv))
         val plaintext = cipher.doFinal(ciphertext)
-        val temp = File.createTempFile("phresq-playback-", ".m4a", context.cacheDir)
+        val shareCache = File(context.cacheDir, "voice-share").apply { mkdirs() }
+        val temp = File.createTempFile("phresq-playback-", ".m4a", shareCache)
         try {
             temp.outputStream().use { it.write(plaintext) }
         } catch (error: Exception) {
