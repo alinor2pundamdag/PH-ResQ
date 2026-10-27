@@ -22,7 +22,7 @@ class PinProtectedVaultTest {
     }
 
     @Test fun fiveWrongPinsTemporarilyLockVault() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        val context = RuntimeEnvironment.getApplication()
         context.getSharedPreferences("ph_resq_pin_vault_v1", Context.MODE_PRIVATE).edit().clear().commit()
         val vault = PinProtectedVault(context)
         vault.configure("482951".toCharArray(), "private")

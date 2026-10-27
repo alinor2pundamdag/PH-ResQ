@@ -2,8 +2,13 @@ package ph.resq.app.core
 
 import org.json.JSONObject
 import org.junit.Assert.*
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.junit.Test
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class MedicalIdQrTest {
     @Test fun payloadContainsOnlyExplicitFieldsAndVersion() {
         val payload = MedicalIdQr.payload(" Ana ", "O+", "Penicillin", "", "+639171234567")

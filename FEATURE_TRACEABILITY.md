@@ -6,8 +6,8 @@
 | ID | Retained requirement | Planned component/area | Implementation status | Minimum acceptance evidence |
 |---|---|---|---|---|
 | F-001 | Offline-first core operation | Local storage, cached data, queue | Planned — implementation not evidenced | Core flows work in airplane mode with previously downloaded data |
-| F-002 | Nationwide emergency directory down to barangay level | Data import/search | Planned — implementation not evidenced | Source, license, freshness, and coverage audit; missing data surfaced |
-| F-003 | Offline maps | Licensed map package/cache | Planned — implementation not evidenced | Tested offline rendering, coverage/version metadata, package-size report |
+| F-002 | Nationwide emergency directory down to barangay level | Data import/search | Partial — transactional directory import/search with HTTPS source, license, version and verification metadata; no complete nationwide/barangay dataset bundled | Source, license, freshness, and coverage audit; missing data surfaced |
+| F-003 | Offline maps | Licensed map package/cache | Partial — hash-verified private tile cache and version metadata; no licensed map package, renderer, or nationwide coverage bundled | Tested offline rendering, coverage/version metadata, package-size report |
 | F-004 | Two-second SOS press-and-hold with haptic feedback | SOS UI/state machine | Partial — 2-second hold plus explicit accessible confirmation alternative added; timing, cancellation, haptic and accessibility tests pending | Instrumented timing, accidental activation, accessibility and haptic tests |
 | F-005 | Tagalog SMS to up to 10 emergency contacts with location | SOS dispatcher | Partial — messaging-app handoff; no confirmed delivery; recipient URI/device tests pending | Tests for permission/SIM/network failures and honest send/handoff status |
 | F-006 | Voice note attached to SOS | Recorder/attachment queue | Partial — encrypted recording, list, playback via temporary decrypted cache, and delete are implemented; attaching/transmitting a note with SOS is not implemented; device tests pending | Permission denial, cancellation, size limit, persistence and playback tests |
@@ -38,7 +38,7 @@
 | F-031 | 15-second mesh battery-saver scan window | Mesh scheduler | Planned — implementation not evidenced | Measured scan duty cycle/battery behavior; document OS scheduling limits |
 | F-032 | Search and bookmark history | Local data layer | Partial — local search history and hotline bookmarks added; UI/database resilience tests pending | Persistence, clear-history/privacy controls and migration tests |
 | F-033 | SMS/mesh delivery state | SOS/mesh state machine | Partial — state/draft persistence; SMS delivery confirmation absent | Queued/sending/sent-to-handoff/delivered/acknowledged/failure states tested |
-| F-034 | Nationwide map and directory updates | Data pipeline | Planned — implementation not evidenced | Source license, version, freshness, size, update rollback and incomplete-update tests |
+| F-034 | Nationwide map and directory updates | Data pipeline | Partial — transactional directory importer and hash-verified tile cache support source/license/version metadata; no signed manifest, nationwide data package, or update/rollback downloader | Source license, version, freshness, size, update rollback and incomplete-update tests |
 
 ## Status vocabulary
 - **Planned:** requirement retained, implementation not evidenced.
