@@ -2,7 +2,7 @@
 
 > **Android-first, offline-first emergency assistance project for the Philippines.**
 
-**Current repository status:** The Kotlin/Jetpack Compose scaffold passed the CI unit-test and debug/release assemble tasks at commit `bd1cb451967bec8c6bc83ed10a80ed30edd59088` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40448972532)). This is an early implementation baseline, not a complete or release-ready emergency application; physical-device, data, security, and feature acceptance remain outstanding.
+**Current repository status:** The Kotlin/Jetpack Compose scaffold passed the CI unit-test and debug/release assemble tasks at commit `4a611c8f085cc20ac5ec9558b07074ba2c1b26df` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40450465511)). This is an early implementation baseline, not a complete or release-ready emergency application; physical-device, data, security, and feature acceptance remain outstanding.
 
 ## Layunin
 
