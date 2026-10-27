@@ -453,6 +453,30 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         }
     }
 
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (!granted) {
+            Toast.makeText(
+                context,
+                "Notifications are disabled. Magpapatuloy ang SOS handoff, pero maaaring hindi makita ang persistent status notification.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+        prepareSos()
+    }
+
+    fun requestSosWithNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            prepareSos()
+        }
+    }
+
     val flagTransition = rememberInfiniteTransition(label = "phFlag")
     val wave by flagTransition.animateFloat(
         initialValue = -1.4f, targetValue = 1.4f,
@@ -555,7 +579,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
                 Text("Pindutin at hawakan nang 2 segundo upang ihanda ang SMS. Bubuksan ang messaging app; kailangan mong i-review at ipadala.")
                 SosHoldButton(
                     modifier = Modifier.fillMaxWidth(),
-                    onConfirmed = { prepareSos() }
+                    onConfirmed = { requestSosWithNotificationPermission() }
                 )
                 Text("Kung hindi kayang gamitin ang press-and-hold, piliin ang accessible alternative at kumpirmahin sa susunod na hakbang.")
                 Button(onClick = { showAccessibleSosConfirm = true }, modifier = Modifier.fillMaxWidth()) {
@@ -569,7 +593,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
                         confirmButton = {
                             Button(onClick = {
                                 showAccessibleSosConfirm = false
-                                prepareSos()
+                                requestSosWithNotificationPermission()
                             }) { Text("IHANDA ANG SOS") }
                         },
                         dismissButton = {
