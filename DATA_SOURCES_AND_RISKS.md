@@ -1,58 +1,61 @@
 # PH-ResQ Data Sources, Licensing & Risk Register
 
-**Status:** Source verification pending. This register does not assert that a dataset has been acquired, licensed, or validated.
+**Status:** Initial source references reviewed; data acquisition, licensing review, and coverage validation are incomplete. A reference URL is not proof that a complete dataset has been bundled or accepted.
 
 ## Required data inventory
 
-For each dataset, add a row only after the source has been checked and record the official source URL, license/terms, access date, version, geographic coverage, attribution, update cadence, expected offline size, schema, and validation result.
+Record official source URL, license/terms, access date, version, geographic coverage, attribution, update cadence, expected offline size, schema, and validation result for every packaged dataset.
 
-| Dataset | Intended use | Required source/evidence | Key risks |
+| Dataset | Intended use | Current source/evidence | Key risks and remaining work |
 |---|---|---|---|
-| Administrative boundaries and barangay list | Nationwide directory/search and map labels | Philippine Statistics Authority (PSA) Philippine Standard Geographic Code (PSGC), https://psa.gov.ph/classification/psgc/; latest release checked 2026-10-27 reports 18 regions, 82 provinces, 1493 municipalities, and 42,010 barangays as of 2026-09-30. PSA site states CC BY 4.0 unless otherwise stated. Source file still must be acquired, parsed, and audited. | Outdated counts, changed boundaries/names, duplicates, missing coordinates; PSGC alone does not supply all service contacts or precise geospatial points |
-| Emergency service contacts and hotlines | Emergency fallback | National Emergency Hotline 911 checked against the Philippine Government Emergency Hotlines portal on 2026-10-27: https://ehotlines.e.gov.ph/; additional/local numbers require their own authoritative source and review date | Wrong or stale number, coverage ambiguity |
-| Evacuation centres | Disaster planning | LGU/official disaster-management source, status timestamp | Temporary closure, capacity/status becoming stale |
-| Offline base maps/tiles | Offline navigation | OpenStreetMap data is ODbL 1.0 with attribution/share-alike obligations: https://www.openstreetmap.org/copyright. Tile-provider terms and offline redistribution rights must be reviewed separately; OSM data licensing does not automatically authorize copying any tile server's rendered tiles. | Licensing restrictions, package size, stale roads/boundaries |
-| PAGASA advisories | Weather/disaster awareness | Official PAGASA source, retrieval/publication timestamps | Network failure, stale alerts, terms/API changes |
-| Public safety/disaster advisories | Cached offline information | Issuing authority and usage terms | Misinformation, stale or superseded notice |
-| Medical ID fields | User-generated local data | User entry and explicit sharing choices | Unintended disclosure through QR, logs, backup, or screenshots |
+| Administrative boundaries and barangay list | Nationwide directory/search and map labels | Philippine Statistics Authority (PSA) Philippine Standard Geographic Code (PSGC): https://psa.gov.ph/classification/psgc/. Latest release checked 2026-10-27 reports 18 regions, 82 provinces, 149 cities, 1,493 municipalities, and 42,010 barangays as of 2026-09-30. PSA site states CC BY 4.0 unless otherwise stated. | Workbook has not been bundled, parsed or coverage-audited. PSGC does not provide a complete emergency-service contact list or all precise coordinates. |
+| National emergency hotline | Emergency fallback | 911 listed on the Philippine Government Emergency Hotlines portal: https://ehotlines.e.gov.ph/; checked 2026-10-27. | Dialer handoff is not proof of network access, answer, or response. |
+| Other national-agency contact subset | Searchable offline fallback | A subset is copied into the app from the same portal and marked reviewed 2026-10-27. | Each number, method, jurisdiction, availability, and freshness must be independently rechecked before release; not all entries are emergency dispatch lines. |
+| Local LGU/barangay emergency services | Nationwide local fallback | No complete authoritative dataset acquired yet. | Critical coverage gap; require source owner, jurisdiction, verification date, duplicates/missing-field audit and update process. |
+| Evacuation centres | Disaster planning | Official LGU/disaster-management sources still to be selected. | Closure/capacity may change rapidly; require timestamp and stale status. |
+| Offline base maps/tiles | Offline navigation | OpenStreetMap data licensing: https://www.openstreetmap.org/copyright (ODbL 1.0, attribution/share-alike obligations). | OSM data license does not automatically grant permission to copy rendered tiles from any tile server. No offline map package is included; provider terms, coverage, size and attribution remain open. |
+| PAGASA advisories | Weather/disaster awareness | Official PAGASA source and permitted access method still to be documented. | Network failure, stale alerts, terms/API changes; show source and publication/retrieval/expiry times. |
+| Public safety/disaster advisories | Cached offline information | Issuing authority and usage terms must be recorded per source. | Misinformation, stale or superseded notices. |
+| Medical ID fields | User-generated local data | User entry and explicit sharing choices. | Unintended disclosure through QR, logs, backup or screenshots. |
 
-## Verified source entries (initial)
+## Verified-source notes
 
-- **National Emergency Hotline:** 911.
-- **Source:** Philippine Government Emergency Hotlines portal, https://ehotlines.e.gov.ph/.
-- **Access/review date:** 2026-10-27.
-- **Use in app:** opens the Android dialer with 911 prefilled; the user must confirm the call. This does not guarantee connectivity, answer, or response.\n- The app also bundles the portal's national agency contact subset (Red Cross 143, PNP 117, MMDA 136, LTFRB 1342, DOTr 7890, DSWD/PNP/PCG text hotlines, PAGASA, PHIVOLCS, BFP, and NDRRMC/PCG office lines). Reviewed 2026-10-27. Local jurisdiction and response are not guaranteed; user must verify current numbers before release.
-- **Scope limitation:** this single national number is not a completed nationwide barangay directory or verified local emergency-contact database.\n\n- **PSGC administrative reference:** PSA's official PSGC page was checked on 2026-10-27; latest release is dated 2026-10-12 and reports 42,010 barangays as of 2026-09-30. Official page: https://psa.gov.ph/classification/psgc/. The page states website content is CC BY 4.0 unless otherwise stated. The spreadsheet itself still needs to be downloaded, its file hash recorded, and coverage/schema validated before bundling.\n- **OpenStreetMap licensing:** https://www.openstreetmap.org/copyright describes ODbL 1.0 for data and attribution/share-alike requirements. No map tiles are included; tile provider rights remain unverified.
+- **911:** the app opens the Android dialer with 911 prefilled; the user confirms the call. This does not guarantee connectivity, answer, or response.
+- **National-agency subset:** includes Red Cross 143, PNP 117, MMDA 136, LTFRB 1342, DOTr 7890, DSWD/PNP/PCG text hotlines, PAGASA, PHIVOLCS, BFP, and NDRRMC/PCG office lines. These entries have not all been independently revalidated for current service, jurisdiction, or emergency-dispatch suitability. Recheck before release.
+- **PSGC:** official page checked 2026-10-27; latest release noted as dated 2026-10-12 and reports 42,010 barangays as of 2026-09-30. Download the source workbook, record its SHA-256, validate its schema/hierarchy and report missing/extra records before packaging.
+- **OpenStreetMap:** ODbL data obligations apply; map tile provider rights are separate. No map tiles are included in this branch.
 
 ## Data pipeline requirements
-1. Download/import only from sources whose terms allow the intended use.
-2. Preserve source attribution and retrieval date in the package metadata.
-3. Normalize names and administrative hierarchy without discarding the original source identifiers.
-4. Validate required fields, coordinates, duplicates, malformed records, and hierarchy consistency.
-5. Compare coverage against an authoritative current list; report missing/extra records.
+
+1. Acquire only data whose terms permit the intended use.
+2. Preserve attribution, source URL, retrieval date and source version in package metadata.
+3. Normalize names/hierarchy without discarding source identifiers.
+4. Validate required fields, coordinates, duplicates, malformed records and hierarchy consistency.
+5. Compare coverage against a current authoritative list and report missing/extra records.
 6. Build a versioned package with a manifest and trusted expected digest/signature.
-7. Estimate compressed and installed size on target devices; do not promise a fixed APK/offline package size before measuring.
-8. Test partial download, interrupted update, rollback, expired cache, and no-network startup.
-9. Do not overwrite a verified package with a partial or unauthenticated update.
-10. Show users when data was last updated and identify unavailable or stale content.
+7. Measure compressed and installed size on target devices.
+8. Test partial download, interrupted update, rollback, expired cache and no-network startup.
+9. Never overwrite a verified package with a partial or unauthenticated update.
+10. Show users when data was last updated and identify unavailable/stale content.
 
 ## Risk register
 
 | Risk | Severity | Mitigation / acceptance condition |
 |---|---|---|
-| Incomplete or stale nationwide directory | Critical | Authoritative coverage audit, versioned source, missing-data report |
-| Unlicensed map redistribution | High | Legal/terms review before packaging |
-| SMS not delivered due to carrier/SIM/network | Critical | Durable state, explicit status, fallback instructions; no delivery guarantee |
-| Android background execution restrictions | High | Target-SDK-compliant foreground service, lifecycle tests, documented limits |
-| BLE/Wi-Fi Direct incompatibility across devices | High | Physical-device matrix; disclose unsupported combinations |
-| RSSI distance misleading users | High | Approximation labels and uncertainty; no exact-distance claims |
-| Vault key lost on reinstall/device change | High | Explicit key lifecycle and recovery policy; test backup/reinstall |
-| Duress PIN activity detected by adversary | Critical | Threat-model review; no absolute secrecy/physical safety promise |
+| Incomplete or stale nationwide directory | Critical | Authoritative coverage audit, versioned source and missing-data report |
+| Unlicensed map redistribution | High | License/provider terms review before packaging |
+| SMS not delivered due to carrier/SIM/network | Critical | Durable state, explicit status and fallback instructions; no delivery guarantee |
+| Android background execution restrictions | High | Target-SDK-compliant foreground service, lifecycle tests and documented limits |
+| BLE/Wi-Fi Direct incompatibility | High | Physical-device matrix and disclosed unsupported combinations |
+| RSSI distance misleads users | High | Approximation labels and uncertainty; no exact-distance claims |
+| Vault key lost on reinstall/device change | High | Defined key lifecycle/recovery policy and backup/reinstall tests |
+| Duress PIN activity detected by adversary | Critical | Threat-model review; no absolute secrecy/physical-safety promise |
 | QR reveals sensitive medical data | High | Minimal user-selected payload, explicit reveal action and warning |
-| Hash treated as self-healing | High | Trusted manifest + verified recovery source; integrity mismatch must not silently “repair” |
+| Hash treated as self-healing | High | Trusted manifest plus verified recovery source |
 | Cell Broadcast assumed accessible to app | High | Explain OS/carrier control; no claim of intercepting every alert |
-| Process death before low-battery callback | Medium | Persist critical state at each transition; low-battery snapshot remains best-effort |
-| Data source/API changes | Medium/High | Scheduled source review, schema validation, stale-data labeling, graceful fallback |
+| Process dies before low-battery callback | Medium | Persist critical state at each transition; low-battery snapshot is best-effort |
+| Data source/API changes | Medium/High | Scheduled review, schema validation, stale labeling and graceful fallback |
 
 ## Verification rule
-No source, license, coverage, size, or freshness claim is accepted until the evidence and review date are recorded. Administrative counts in planning documents are targets to verify, not a guarantee of completeness.
+
+No source, license, coverage, size or freshness claim is accepted until the evidence and review date are recorded. Administrative counts are reference counts, not a guarantee that the application contains complete emergency-service coverage.

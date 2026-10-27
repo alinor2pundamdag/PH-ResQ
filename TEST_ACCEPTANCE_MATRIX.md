@@ -1,6 +1,6 @@
 # PH-ResQ Test & Acceptance Matrix
 
-**Status:** Test plan only. No passing test results are implied by this document.  
+**Automated CI snapshot:** Commit `bd1cb451967bec8c6bc83ed10a80ed30edd59088` passed `testDebugUnitTest`, `assembleDebug`, and `assembleRelease` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40448972532)). This does not mean the full matrix passed: unexecuted tests remain open.  
 **Rule:** Record repository commit SHA, build variant, device/API, test result, logs/screenshots, and tester for each executed case.
 
 | Test ID | Scenario | Expected result | Evidence required | Gate |

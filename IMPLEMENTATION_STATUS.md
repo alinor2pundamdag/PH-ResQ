@@ -1,23 +1,38 @@
 # PH-ResQ Implementation Status
 
-Snapshot: 2026-10-27. Current status: early Android scaffold; not a release candidate.
+Snapshot: 2026-10-27. Status: early Android implementation baseline; **not a release candidate**.
+
+## Automated evidence
+
+- **Validated commit:** `bd1cb451967bec8c6bc83ed10a80ed30edd59088`
+- **GitHub Actions:** passed — [run 40448972532](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40448972532)
+- **Executed tasks:** `testDebugUnitTest`, `assembleDebug`, and `assembleRelease`; workflow artifact upload succeeded.
+- **Unit coverage in this revision:** contact parsing and SOS message/state behavior; geohash encoding; SHA-256 digest verification; authenticated mesh-envelope encode/decode, tamper/expiry/hop checks and bounded deduplication; rolling-token rotation; adaptive-location interval policy.
+- **Artifact status:** CI uploaded APK build outputs for 14 days. The release APK is unsigned; this is not a signed production artifact.
+- **Not evidenced by CI:** physical-device behavior, SMS recipient handling, actual GPS fixes, BLE interoperability/battery use, voice recording/playback, key migration on a real device, offline data coverage, accessibility, or end-to-end emergency delivery.
+
+## Feature status
 
 | Area | Status | Evidence / limitation |
 |---|---|---|
-| Android project and CI definition | Added; CI pending | Gradle Android application module and GitHub Actions workflow added in this branch |
-| Consent gate | Basic local preference implemented | Requires lifecycle/UI tests |
-| SOS press-and-hold | Code path added; CI/device validation pending | Pointer hold timeout is set to 2 seconds; timing, cancellation, accessibility, and accidental activation still require tests |
-| Emergency contact list | Basic local input with Android Keystore AES-GCM at-rest encryption | Not a PIN vault; key-loss/reinstall/recovery and tamper tests remain pending |
-| SMS | User-confirmed messaging-app handoff | Recipient URI behavior requires physical-device verification; no delivery confirmation; last draft and state are locally persisted |
-| Location in SOS | Last-known location helper added; permission/device validation pending | Reads only a cached last-known fix; no fresh GPS acquisition or accuracy/staleness threshold enforcement |
-| Voice note | Encrypted local recording added; CI/device validation pending | Max 10 seconds/2 MB and AES-GCM at rest; no playback or SMS attachment, so F-006 remains partial |
-| Family check-in | Local-only | No network relay or family delivery |
-| Offline directory/maps | Not implemented | No verified dataset or licensed map package |
-| BLE peer discovery | Partial — native 15-second low-power scan added; CI/device validation pending | Discovery only; no authenticated packet exchange or multi-hop mesh |\n| Geohash encoding | Utility added; tests pending on latest SHA | Coordinate encoding only; no spatial query/index wired to directory UI |\n| SHA-256 verifier | Utility added; tests pending on latest SHA | Verifies against caller-supplied trusted expected digest; no dataset manifest/repair pipeline wired |\n| Mesh envelope protocol | Partial — HMAC-authenticated packet codec, TTL/hop bounds, timestamp/size validation and dedupe cache added | No BLE/Wi-Fi transport, peer key establishment, acknowledgements, or end-to-end delivery |\n| Rolling privacy token | Utility added; key provisioning and device tests pending | HMAC-based window token; no identity/clock-drift integration |\n| Adaptive location policy | Policy utility added; no polling service | Chooses intervals only; no lifecycle-aware Android location foreground service |\n| Wi-Fi Direct/multi-hop mesh | Not implemented | No native transfer/protocol implementation |
-| Encrypted PIN vault/duress mode | Not implemented | No security claim made |
-| PAGASA/evacuation data/cell-broadcast awareness | Not implemented | Sources/licensing not validated |
-| Offline national hotline subset | Added from official government portal | Searchable agency list with dialer/SMS handoff; reviewed 2026-10-27; local coverage and successful response not guaranteed |\n| Local SQLite schema | Added | Transactional SOS event history plus schema foundations for location, directory, map metadata, search, bookmarks, and check-ins; full data layers/migrations are incomplete |\n| Automated unit tests | Added; CI pending | Contact parsing, message content, state transition tests |
-| Physical-device tests | Not run | Requires Android devices, SIM/network, permissions, field verification |
-| Release build/signing | Not ready | No signing configuration or release evidence |
+| Android project and CI | Build and unit tests passed on the validated SHA | Every later candidate must be revalidated; no Gradle wrapper is currently committed |
+| Consent gate | Basic local preference implemented | Consent version/timestamp and full policy/lifecycle testing remain incomplete |
+| SOS press-and-hold | Implemented as a 2-second hold-to-prepare flow | UI timing, cancellation, accessible alternative, haptics and accidental-activation tests remain |
+| Emergency contacts | Contact list stored encrypted with Android Keystore AES-GCM | Not a PIN vault; key-loss, reinstall/recovery, corruption and device tests remain |
+| SMS | User-confirmed messaging-app handoff | Recipient URI behavior varies; no delivery confirmation; no unattended/direct SMS dispatch |
+| SOS persistence | SQLite SOS event history with encrypted draft/recipient/location fields | Broader retry/recovery state machine and database migration tests remain |
+| Location | Last-known location helper and adaptive interval policy utility | No fresh GPS acquisition, lifecycle-aware polling, stale/accuracy enforcement or foreground location service |
+| Voice note | Encrypted local recording, capped at 10 seconds/2 MB | No playback, deletion UI, or attachment to SOS; device and lifecycle tests remain |
+| Hotline subset | Searchable offline national-agency contacts and dialer/SMS handoff | 911 portal source checked 2026-10-27; remaining numbers need independent current verification and local jurisdiction data |
+| BLE | 15-second low-power advertisement discovery | No authenticated data exchange, SOS transfer or multi-hop transport |
+| Mesh protocol utilities | HMAC-authenticated versioned envelope, payload/time/hop bounds and in-memory dedupe cache | No peer key establishment, BLE/Wi-Fi transport, durable replay cache, ACK/retry or end-to-end delivery |
+| Geohash/integrity/token utilities | Implemented and unit-tested in CI | Not connected to a nationwide data importer, trusted manifest or recovery pipeline |
+| SQLite schema | SOS events plus schema foundations for location, directory, map metadata, search, bookmarks and family check-ins | Most tables have no complete repositories/importers, UI or migration/acceptance coverage |
+| Family check-in | Local-only status | No network relay or family delivery; not yet a durable sync queue |
+| Nationwide directory/maps | Not implemented | No audited nationwide service-contact dataset or licensed offline map package |
+| PIN vault/duress mode | Not implemented | Contact-field encryption alone is not a PIN-protected vault |
+| PAGASA/evacuation/cell-broadcast awareness | Not implemented | Data ingestion/freshness not validated; third-party app cannot promise to intercept all cell broadcasts |
+| Physical-device tests | Not run | Requires target devices, SIM/network, permissions and multi-device mesh testing |
+| Release signing | Not ready | Unsigned build only; no signed release or go/no-go evidence |
 
-A manifest permission, UI card, or declared interface is not evidence of a completed feature. Do not distribute this early build as a dependable emergency service.
+A manifest permission, UI card, schema table, utility, or successful build is not proof that a complete feature works. Do not distribute this early build as a dependable emergency service.
