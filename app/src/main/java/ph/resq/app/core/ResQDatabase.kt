@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper
  * Directory/map tables are empty until sourced datasets and importers are added.
  */
 class ResQDatabase(context: Context) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 2) {
-    private val fieldCipher = EncryptedFieldCipher(context)
+    private val fieldCipher = EncryptedFieldCipher()
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE app_state (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)")
