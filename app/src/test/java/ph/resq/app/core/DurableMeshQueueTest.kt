@@ -53,6 +53,6 @@ class DurableMeshQueueTest {
         assertTrue(queue.pending(now = now).isEmpty())
         assertTrue(queue.rememberReceived("incoming-1", now, now))
         assertFalse(queue.rememberReceived("incoming-1", now, now + 1))
-        assertTrue(queue.rememberReceived("incoming-1", now, now + 86_400_001L))
+        assertTrue(queue.rememberReceived("incoming-1", now + 86_400_001L, now + 86_400_001L))
     }
 }
