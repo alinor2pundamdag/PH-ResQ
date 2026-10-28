@@ -5,7 +5,8 @@ These rules govern architecture documentation and implementation. The repository
 ## 1. Scope preservation and change control
 
 - Preserve every requirement in `FEATURE_TRACEABILITY.md`. Do not silently delete, weaken, or replace a feature.
-- If a requirement conflicts with Android platform behavior, security, licensing, or another requirement, document the conflict and a technically feasible alternative in `ARCHITECTURE_DECISIONS.md`; preserve the user-facing goal where possible.
+- If a requirement conflicts with Android platform behavior, security, licensing, or another requirement, document the conflict and a technically feasible alternative in `ARCHITECTURE_DECISIONS.md`; preserve the user-facing goal wherever feasible. A capability/permission/device limitation requires graceful degradation or a documented unsupported state and acceptance test—not silent feature removal.
+- Document authority is defined in Section 14 of `MASTER_PLAN.md`: master plan = scope authority; work rules = change/verification process; ADRs = approved technical trade-offs; feature inventory/traceability = retained scope and status; phase/domain docs = implementation contracts; test docs = acceptance; roadmap = sequencing; status/README/patch notes = evidence summary/history. No lower-level document may silently narrow the master scope.
 - The repository owner has explicitly authorized the current documentation correction on branch `docs/architecture-correction-2026-10-27`. This authorization does not imply permission to merge directly to `main`, deploy, or release.
 - For future destructive or scope-changing work, explain impact before acting. Use a branch, inspect diffs, and keep recoverable history.
 

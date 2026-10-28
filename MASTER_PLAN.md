@@ -208,7 +208,25 @@ Do not declare PH-ResQ ready for public release until all of the following are t
 8. Known limitations, emergency-service fallback, and residual risks are documented.
 9. Release artifact, version, checksums, test reports, and rollback/recovery plan are recorded.
 
-## 14. Required companion documents
+## 14. Document authority, dependencies, and required companion documents
+
+### Authority and conflict-resolution order
+
+1. **`MASTER_PLAN.md` is the product-scope and end-to-end requirement authority.** It defines the user-facing outcomes, retained features, non-negotiable constraints, and release gates.
+2. **`WORK_RULES.md` governs how changes are made and verified.** It cannot silently narrow product scope.
+3. **`ARCHITECTURE_DECISIONS.md` records approved technical decisions and trade-offs.** An ADR may define a platform-specific implementation or fallback, but it must preserve the feature goal wherever feasible and must not silently delete a requirement.
+4. **`features_update.md` and `FEATURE_TRACEABILITY.md` enumerate requirements.** The feature inventory is the human-readable scope index; traceability is the feature-by-feature status/evidence ledger. All 34 IDs must remain represented.
+5. **Phase 1–6 documents and domain specifications** (`SOS_STATE_MACHINE.md`, `DATABASE_SPEC.md`, `SECURITY_MODEL.md`, `MESH_PROTOCOL.md`, `DATA_SOURCES_AND_RISKS.md`) define implementation contracts and safety invariants within the master scope.
+6. **`TEST_ACCEPTANCE_MATRIX.md` and `TEST_AND_ACCEPTANCE_PLAN.md` define test cases and acceptance evidence.** A requirement is not accepted merely because its implementation exists or compiles.
+7. **`IMPLEMENTATION_ROADMAP.md` orders work; it does not redefine scope.** `IMPLEMENTATION_STATUS.md` and the release checklist record evidence snapshots and open gates. `README.md` summarizes the project without stronger claims than these records. `PATCH_NOTES.md` records collection changes.
+
+When documents conflict, do not choose whichever statement is more convenient: preserve the user-facing requirement, inspect current code/tests and platform constraints, update the stale documents together, and record any necessary trade-off in an ADR. A device lacking a capability must trigger an explicit permission/setup/fallback or a clear unsupported-state message; it is not a reason to erase the feature from the plan. Mark the limitation and its test evidence.
+
+### Dependency flow
+
+`MASTER_PLAN.md` → `WORK_RULES.md` + `features_update.md` → architecture decisions and Phase 1–6/domain specifications → `FEATURE_TRACEABILITY.md` → `TEST_ACCEPTANCE_MATRIX.md` + `TEST_AND_ACCEPTANCE_PLAN.md` → `IMPLEMENTATION_ROADMAP.md` → implementation status/release checklist. This is a dependency map, not permission to skip a lower-level specification. Any change to a requirement must propagate to its dependent design, test, and status records in the same documentation change.
+
+### Required companion documents
 
 Maintain these documents alongside this master plan and keep them mutually consistent:
 

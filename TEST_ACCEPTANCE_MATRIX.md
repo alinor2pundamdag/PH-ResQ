@@ -1,6 +1,6 @@
 # PH-ResQ Test & Acceptance Matrix
 
-**Automated CI snapshot:** Commit `4a611c8f085cc20ac5ec9558b07074ba2c1b26df` passed `testDebugUnitTest`, `assembleDebug`, and `assembleRelease` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40450465511)). This does not mean the full matrix passed: unexecuted tests remain open.  
+**Historical CI evidence:** Commit `4a611c8f085cc20ac5ec9558b07074ba2c1b26df` passed `testDebugUnitTest`, `assembleDebug`, and `assembleRelease` ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40450465511)). The last PR-head CI snapshot observed during this documentation review was commit `343f2f0b76c8de5fed7cc1f03b4a38de32098d43`, run [40628394485](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40628394485), which passed lint, unit tests, debug/release assembly, exact-SHA verification and artifact upload. This document change creates a new candidate SHA; neither run proves the new revision has passed. The full acceptance matrix has not passed: unexecuted tests remain open.  
 **Rule:** Record repository commit SHA, build variant, device/API, test result, logs/screenshots, and tester for each executed case.
 
 | Test ID | Scenario | Expected result | Evidence required | Gate |
@@ -33,6 +33,57 @@
 | T-026 | Family check-in offline then reconnect | Queue is durable, deduplicated and reports pending/synced/failed honestly | Integration test | P1 |
 | T-027 | Helpline fallback | Displayed number matches authoritative source, jurisdiction, and review date | Data audit | P0 |
 | T-028 | Full test suite on release candidate | No unexplained critical/high failures; residual risks signed off | CI reports + device reports | Release |
+| T-029 | Core flows in airplane mode after first-run setup | Cached directory, saved contacts, queued SOS draft, local history and imported data remain usable; unavailable live features are labeled clearly | Automated offline tests + physical-device test | P0 |
+| T-030 | Encrypted voice-note lifecycle and SOS share chooser | Record/list/play/delete works within limits; share explicitly includes the selected audio and draft text; app never claims delivery from opening a chooser | Unit/Robolectric + physical-device share test | P0 |
+| T-031 | Duress PIN and dummy-vault threat model | When implemented, duress behavior does not expose the real vault through ordinary UI paths; limitations and recovery behavior are explicit. Until implementation exists, status remains NOT IMPLEMENTED, not PASS | Security review + adversarial device test | P1 |
+| T-032 | SOS foreground-service notification lifecycle | Notification starts/stops correctly, remains truthful, handles Android 13+ notification permission denial and service restrictions without blocking SOS preparation | Instrumented test + supported-device matrix | P0 |
+| T-033 | Safe-volume and audio privacy policy | Playback gain stays within configured limits; mute policy does not imply secret recording; system volume is not changed without user action | Unit tests + device loudness/route tests | P1 |
+| T-034 | Evacuation-centre import, freshness and stale-state display | Invalid records are rejected, source/time metadata is visible, stale/unknown status is not represented as confirmed-open | Parser tests + UI/device test + source audit | P1 |
+| T-035 | Cell-broadcast guidance | UI points users to Android/carrier emergency-alert settings and never claims app-level interception of all broadcasts | UI assertion + copy review | P1 |
+| T-036 | Search/bookmark/check-in persistence | History, bookmarks and check-ins survive database reopen; delete/clear and pending-sync states remain truthful | Robolectric database tests + UI/device test | P1 |
+| T-037 | Rolling privacy-token rotation and clock drift | Tokens rotate in the configured window; invalid/expired tokens are rejected; clock drift behavior is bounded and documented | Unit/property tests + integration test | P1 |
+| T-038 | BLE scan duty cycle and battery behavior | Discovery respects the 15-second scan window, stops after timeout/permission revocation, and reports measured battery impact without claiming unsupported transport | Instrumented lifecycle test + physical-device battery report | P1 |
+
+## Feature-to-test dependency map
+
+This map ensures every retained requirement has at least one planned acceptance route. A listed test ID is a required test dependency, not evidence that the test has passed.
+
+| Feature ID | Required test IDs | Acceptance note |
+|---|---|---|
+| F-001 | T-029 | Offline behavior is tested with preloaded data; first-time downloads are not expected offline. |
+| F-002 | T-019, T-034 | Nationwide coverage and source licensing require a separate data audit. |
+| F-003 | T-020, T-011 | Tile integrity is not equivalent to a licensed renderer or nationwide coverage. |
+| F-004 | T-004, T-005 | Hold duration, cancellation and haptics require device/UI evidence. |
+| F-005 | T-006, T-007 | Messaging handoff is not delivery confirmation. |
+| F-006 | T-030 | User-selected app/recipient and delivery limitations must be explicit. |
+| F-007 | T-010, T-013, T-025, T-036 | All six persistence areas need recovery/migration coverage. |
+| F-008 | T-024 | Low-battery snapshot is best effort; critical state must already be persisted. |
+| F-009 | T-011 | Digest must come from a trusted expected value or authenticated manifest. |
+| F-010 | T-026, T-036 | Remote sync/ack remains open until an actual transport exists. |
+| F-011 | T-009, T-024, T-025 | Freshness, permission, lifecycle and battery behavior are required. |
+| F-012 | T-014, T-038 | Discovery alone is not packet transfer. |
+| F-013 | T-016 | Requires actual Wi-Fi Direct transport on supported devices. |
+| F-014 | T-015, T-017, T-038 | Envelope/queue tests do not substitute for radio interoperability. |
+| F-015 | T-019 | Benchmark realistic dataset size and target hardware. |
+| F-016 | T-037 | Key lifecycle and clock-drift integration remain acceptance dependencies. |
+| F-017 | T-012, T-013 | Include lockout, key loss, reinstall and recovery behavior. |
+| F-018 | T-031 | Remains NOT IMPLEMENTED until the feature and threat-model tests exist. |
+| F-019 | T-033 | No secret recording or false “zero indication” claims. |
+| F-020 | T-022 | QR fields are user-selected and not encrypted by default. |
+| F-021 | T-023 | Include TalkBack, scaling, contrast, touch targets and reduced motion. |
+| F-022 | T-032 | Foreground-service and notification permission behavior need device tests. |
+| F-023 | T-033 | Device/system volume differs; app policy is not a hardware loudness guarantee. |
+| F-024 | T-027 | Number, jurisdiction, source and review date must match. |
+| F-025 | T-021 | Source and freshness metadata must be visible. |
+| F-026 | T-034 | No live LGU feed is implied by local JSON import. |
+| F-027 | T-035 | Cell Broadcast remains an OS/carrier/government capability. |
+| F-028 | T-001, T-002, T-003 | Consent/privacy review is separate from unit-test success. |
+| F-029 | T-008, T-010, T-025, T-028 | Chaos testing must include interrupted operations and recovery. |
+| F-030 | T-023 | Animation must respect reduce-motion and never block emergency controls. |
+| F-031 | T-014, T-038 | Scan-window compliance and battery measurement are separate assertions. |
+| F-032 | T-036 | Search history/bookmarks require persistence, clear/delete and UI tests. |
+| F-033 | T-007, T-015, T-017 | Distinguish queued, handed-off, received, acknowledged and delivered states. |
+| F-034 | T-011, T-020, T-021, T-034 | Signed manifests/update/rollback and nationwide coverage remain open. |
 | T-029 | Search history repeated with different casing, then cleared | One distinct query remains; clear action removes all saved queries | Robolectric database test | P2 |
 | T-030 | Save, update and remove a hotline bookmark | One row per item ID; list order stable; removal persists | Robolectric database test | P2 |
 | T-031 | Save family check-in then reopen database | Latest local check-in is restored; no remote-delivery claim | Robolectric database test | P1 |

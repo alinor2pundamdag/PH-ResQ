@@ -1,7 +1,8 @@
 # PH-ResQ Architecture Collection — Patch Notes
 
 **Collection revision:** 2026-10-28  
-**Status:** Documentation consolidation on the existing feature branch; not merged to `main`.
+**Status:** Documentation consistency pass in progress on the existing feature branch; not merged to `main`.
+**Reviewed baseline:** PR #1 head `343f2f0b76c8de5fed7cc1f03b4a38de32098d43` passed current-head CI run [40628394485](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40628394485). Any subsequent commit—including this collection correction—requires its own CI result before that newer revision is build-validated.
 
 ## Purpose
 
@@ -26,6 +27,11 @@ This patch restores the missing standalone architecture documents in the 11-docu
 The collection does not replace or delete `PHASE_1_INIT_CONSENT.md` through `PHASE_6_CONCURRENCY_CHAOS.md`, `features_update.md`, `FEATURE_TRACEABILITY.md`, `TEST_ACCEPTANCE_MATRIX.md`, `DATA_SOURCES_AND_RISKS.md`, `IMPLEMENTATION_STATUS.md`, `OFFLINE_DATA_IMPORT.md`, `PRIVACY_NOTICE.md`, or `RELEASE_CANDIDATE_CHECKLIST.md`. These remain supporting specifications and evidence ledgers.
 
 ## Corrections and clarifications
+
+- Added a document-authority and dependency flow to `MASTER_PLAN.md`, including a rule that device capability limits require graceful fallback or a clear unsupported state rather than silent feature removal.
+- Aligned `WORK_RULES.md` with that authority order and preserved the 34-feature scope.
+- Corrected F-007's persistence status to acknowledge the existing SQLite-backed state/history/bookmark/check-in/cache/mesh tables while keeping full lifecycle recovery and acceptance open.
+- Expanded `TEST_ACCEPTANCE_MATRIX.md` with missing acceptance cases and an explicit F-001–F-034 → test-ID dependency map; mapped tests are requirements, not claims of execution/pass.
 
 - Keep planned, partially implemented, automated-tested, device-accepted and release-ready as distinct statuses.
 - SOS messaging-app handoff is not proof of SMS delivery.

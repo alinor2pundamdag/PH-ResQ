@@ -1,7 +1,7 @@
 # PH-ResQ Architecture Decisions
 
 **Status:** Baseline architecture and partial implementation are recorded; CI passed on the stated baseline SHA, while feature and device validation remain pending.
-**Last reviewed:** 2026-10-27
+**Last reviewed:** 2026-10-28
 
 ## ADR-001 — Native Android implementation baseline
 **Decision:** Implement the first Android client in Kotlin with Jetpack Compose. The configuration uses minSdk 26, compileSdk 35, targetSdk 35, Java 17, Android Gradle Plugin 8.7.3, and Kotlin 2.0.21. The baseline passed unit-test, debug-assemble, and release-assemble tasks on commit `408e2aaaea09df70400c92038b405c5d5a47d337`; this does not certify device compatibility or feature completeness.
