@@ -15,10 +15,10 @@ Persist a versioned consent state and check it at launch and protected navigatio
 Persist SOS transitions and distinguish queued, sending, transport handoff, confirmed delivery, acknowledgement, cancellation, and failure. A successful API/intent handoff is not recipient delivery. Current scaffold hands off to a messaging app and does not confirm delivery.
 
 ## ADR-004 — Security keys and vault lifecycle
-Use authenticated encryption, with keys protected by Android Keystore where feasible. Before vault release, define nonce uniqueness, key rotation, PIN derivation/rate limits, backup/reinstall behavior, fallback, and recovery. StrongBox is optional and device-dependent. The current scaffold does not implement the vault.
+Use authenticated encryption, with keys protected by Android Keystore where feasible. The current source includes an AES-GCM field cipher and a PBKDF2-derived AES-GCM PIN-protected vault with temporary lockout. This is partial protection, not a duress vault or a complete recovery/backup/key-rotation design. Before release, verify nonce uniqueness, key rotation, PIN derivation/rate limits, backup/reinstall behavior, fallback, and recovery. StrongBox is optional and device-dependent.
 
-## ADR-005 — Mesh protocol must be specified before coding
-BLE/Wi-Fi Direct requires a versioned packet format, authenticated peer exchange, TTL/hop limit, acknowledgement, retry/backoff, duplicate suppression, replay resistance, queue/rate limits, and malformed-packet handling. Do not advertise sensitive precise location or medical data. Current scaffold has no mesh transport.
+## ADR-005 — Mesh protocol primitives precede radio integration
+A versioned envelope codec and durable encrypted outbox now provide packet bounds, HMAC validation, expiry/hop checks, retry state, ACK verification primitives, and replay suppression. They do not establish peer identity or shared keys and are not connected to BLE data exchange, Wi-Fi Direct, or a multi-hop forwarding service. Operational mesh remains unimplemented until authenticated peer exchange, radio transport, and multi-device acceptance pass. Do not advertise sensitive precise location or medical data.
 
 ## ADR-006 — RSSI is approximate
 RSSI may support rough proximity only. Exact distance and trilateration are not guaranteed; show uncertainty or unavailable status unless reference geometry and measurements meet documented quality criteria.
@@ -35,10 +35,14 @@ SHA-256 mismatch detection must compare data against a trusted expected digest o
 ## ADR-010 — Initial SMS policy is explicit messaging-app handoff
 The first scaffold uses ACTION_SENDTO so the user can review and send the SMS. It does not request SEND_SMS or silently dispatch. Multi-recipient URI behavior is device/messaging-app dependent and must be verified; if unreliable, implement a user-confirmed per-recipient workflow. This policy does not satisfy unattended dispatch requirements.
 
-## ADR-011 — Initial local persistence is provisional
-Consent and the local check-in currently use SharedPreferences; emergency contacts are encrypted at rest with Android Keystore AES-GCM; SOS events are recorded in SQLite with encrypted draft/recipient/location fields. SQLite tables for location, directory, map metadata, search, bookmarks and check-ins are foundations only and are not fully wired to repositories/importers or UI. This is not a complete PIN vault, sync queue, or recovery system. Define and test migrations, backup/reinstall behavior, key lifecycle and transactional persistence before release.
+## ADR-011 — Local persistence is incremental and evidence-gated
+The current source has SQLite schema version 7 with SOS, location, search/bookmark, directory, map metadata, advisories, evacuation centres, mesh queue/replay cache, family check-ins, and pending-action tables. A user-selected JSON importer handles directory/advisory/evacuation datasets; repository coverage and all migrations are not yet fully accepted. Consent and selected preferences use SharedPreferences; SOS draft/recipient/location fields use encrypted columns; the optional PIN vault and encrypted mesh outbox exist as partial components. This does not prove all six persistence layers, sync, retention, backup/recovery, or key lifecycle are production-complete. Migration fixtures, transactional invariants, key-loss behavior and physical-device recovery must pass before release.
 
 ## Open implementation decisions
+- Complete SOS transition persistence and transport-backed delivery/acknowledgement evidence
+- Authenticated peer-key establishment and real BLE/Wi-Fi Direct transport
+- Current-head CI and physical-device acceptance for the latest source revision
+- Consistency review across `SOS_STATE_MACHINE.md`, `DATABASE_SPEC.md`, `SECURITY_MODEL.md`, `MESH_PROTOCOL.md`, and the acceptance plan
 - Complete repositories/migrations for the existing SQLite schema and a benchmarked spatial-index strategy
 - Authoritative directory/map/weather sources, licenses, and update pipeline
 - Location acquisition and stale-location/manual fallback behavior

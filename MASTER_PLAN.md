@@ -69,7 +69,7 @@ Record the policy version, consent state, and timestamp without collecting unnec
 
 Persist state transitions so process death does not erase a pending emergency. At minimum, distinguish:
 
-`IDLE → CONFIRMING → QUEUED → SENDING → SENT_TO_HANDOFF → DELIVERED (if confirmed) → ACKNOWLEDGED (if recipient/app confirms)`
+`IDLE → QUEUED → SENDING → HANDED_OFF → DELIVERED (only with a verified transport receipt) → ACKNOWLEDGED (only with recipient/service acknowledgement)`
 
 Also represent `CANCELLED`, `RETRY_PENDING`, and `FAILED`. Do not label a message “delivered” merely because Android accepted an SMS request or a network API call returned success.
 
@@ -220,5 +220,12 @@ Maintain these documents alongside this master plan and keep them mutually consi
 - `FEATURE_TRACEABILITY.md` — requirement → component → test → evidence mapping.
 - `TEST_ACCEPTANCE_MATRIX.md` — test cases, preconditions, expected results, execution status, and evidence.
 - `DATA_SOURCES_AND_RISKS.md` — authoritative datasets, licensing, freshness, coverage, and limitations.
+- `SOS_STATE_MACHINE.md` — legal SOS transitions, recovery and truthful delivery semantics.
+- `DATABASE_SPEC.md` — SQLite schema, migration invariants, sensitive fields and import behavior.
+- `SECURITY_MODEL.md` — assets, trust boundaries, controls, threat assumptions and residual risk.
+- `MESH_PROTOCOL.md` — packet format, authentication prerequisites, forwarding and delivery semantics.
+- `TEST_AND_ACCEPTANCE_PLAN.md` — P0/P1 test strategy and stop-ship criteria.
+- `IMPLEMENTATION_ROADMAP.md` — ordered implementation gates and exit evidence.
+- `PATCH_NOTES.md` — architecture collection index and revision notes.
 
 **Status rule:** Planning, implementation, tested, and release-ready are separate states. Mark each honestly and link evidence for every claimed completion.

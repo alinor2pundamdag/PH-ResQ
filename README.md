@@ -48,6 +48,13 @@ The current app includes versioned consent and privacy notice; encrypted emergen
 - [WORK_RULES.md](WORK_RULES.md) — repository and implementation safeguards
 - [features_update.md](features_update.md) — retained feature inventory and status rules
 - [ARCHITECTURE_DECISIONS.md](ARCHITECTURE_DECISIONS.md) — architecture decisions and open questions
+- [SOS_STATE_MACHINE.md](SOS_STATE_MACHINE.md) — SOS states, legal transitions and honest delivery semantics
+- [DATABASE_SPEC.md](DATABASE_SPEC.md) — SQLite schema, migrations, retention and import invariants
+- [SECURITY_MODEL.md](SECURITY_MODEL.md) — security assets, threat model and residual risks
+- [MESH_PROTOCOL.md](MESH_PROTOCOL.md) — mesh envelope, authentication prerequisites and radio integration gaps
+- [TEST_AND_ACCEPTANCE_PLAN.md](TEST_AND_ACCEPTANCE_PLAN.md) — test layers, P0/P1 gates and stop-ship conditions
+- [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) — implementation gates and exit evidence
+- [PATCH_NOTES.md](PATCH_NOTES.md) — Architecture Collection inventory and revision notes
 - [FEATURE_TRACEABILITY.md](FEATURE_TRACEABILITY.md) — feature-to-test traceability
 - [OFFLINE_DATA_IMPORT.md](OFFLINE_DATA_IMPORT.md) — JSON formats and safe import limitations
 - [TEST_ACCEPTANCE_MATRIX.md](TEST_ACCEPTANCE_MATRIX.md) — measurable acceptance tests
