@@ -56,10 +56,10 @@ This map ensures every retained requirement has at least one planned acceptance 
 | F-004 | T-004, T-005 | Hold duration, cancellation and haptics require device/UI evidence. |
 | F-005 | T-006, T-007 | Messaging handoff is not delivery confirmation. |
 | F-006 | T-030 | User-selected app/recipient and delivery limitations must be explicit. |
-| F-007 | T-010, T-013, T-025, T-036 | All six persistence areas need recovery/migration coverage. |
+| F-007 | T-010, T-013, T-025, T-036, T-039–T-042 | All six persistence areas need recovery/migration coverage. |
 | F-008 | T-024 | Low-battery snapshot is best effort; critical state must already be persisted. |
 | F-009 | T-011 | Digest must come from a trusted expected value or authenticated manifest. |
-| F-010 | T-026, T-036 | Remote sync/ack remains open until an actual transport exists. |
+| F-010 | T-026, T-036, T-041–T-042 | Remote sync/ack remains open until an actual transport exists. |
 | F-011 | T-009, T-024, T-025 | Freshness, permission, lifecycle and battery behavior are required. |
 | F-012 | T-014, T-038 | Discovery alone is not packet transfer. |
 | F-013 | T-016 | Requires actual Wi-Fi Direct transport on supported devices. |
@@ -81,13 +81,13 @@ This map ensures every retained requirement has at least one planned acceptance 
 | F-029 | T-008, T-010, T-025, T-028 | Chaos testing must include interrupted operations and recovery. |
 | F-030 | T-023 | Animation must respect reduce-motion and never block emergency controls. |
 | F-031 | T-014, T-038 | Scan-window compliance and battery measurement are separate assertions. |
-| F-032 | T-036 | Search history/bookmarks require persistence, clear/delete and UI tests. |
+| F-032 | T-036, T-039–T-040 | Search history/bookmarks require persistence, clear/delete and UI tests. |
 | F-033 | T-007, T-015, T-017 | Distinguish queued, handed-off, received, acknowledged and delivered states. |
 | F-034 | T-011, T-020, T-021, T-034 | Signed manifests/update/rollback and nationwide coverage remain open. |
-| T-029 | Search history repeated with different casing, then cleared | One distinct query remains; clear action removes all saved queries | Robolectric database test | P2 |
-| T-030 | Save, update and remove a hotline bookmark | One row per item ID; list order stable; removal persists | Robolectric database test | P2 |
-| T-031 | Save family check-in then reopen database | Latest local check-in is restored; no remote-delivery claim | Robolectric database test | P1 |
-| T-032 | Close and reopen local database | Search, bookmarks and check-in records persist without duplication | Robolectric database test | P1 |
+| T-039 | Search history repeated with different casing, then cleared | One distinct query remains; clear action removes all saved queries | Robolectric database test | P2 |
+| T-040 | Save, update and remove a hotline bookmark | One row per item ID; list order stable; removal persists | Robolectric database test | P2 |
+| T-041 | Save family check-in then reopen database | Latest local check-in is restored; no remote-delivery claim | Robolectric database test | P1 |
+| T-042 | Close and reopen local database | Search, bookmarks and check-in records persist without duplication | Robolectric database test | P1 |
 
 ## Release gates
 - **P0:** consent, SOS integrity, privacy/security baseline, persistence/recovery, honest delivery state, verified emergency fallback.
