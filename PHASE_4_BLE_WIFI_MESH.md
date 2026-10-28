@@ -1,6 +1,6 @@
 # Phase 4 — BLE, Wi-Fi Direct & Offline Emergency Mesh
 
-**Status:** Protocol specification only; real scanning, transfer, interoperability, and battery use remain unverified.
+**Status:** BLE discovery and version-1 envelope/durable queue primitives exist. Authenticated peer-key establishment, BLE payload transport, Wi-Fi Direct transfer, multi-hop forwarding, interoperability, and battery acceptance remain unimplemented or unverified.
 
 ## Objective
 Preserve peer discovery and local emergency transfer during network outages while protecting privacy and preventing duplicate, stale, replayed, or malformed messages.
@@ -38,6 +38,9 @@ Use an authenticated handshake, bounded payload transfer, integrity verification
 
 ## 6. Battery-saver policy
 Preserve the requested 15-second scan window as a configurable duty-cycle policy. Android may defer or constrain background work, so do not promise exact scheduling. Measure battery usage and stop scanning when disabled, permission is revoked, or no longer needed.
+
+## Current implementation boundary
+`BleDiscoveryManager`, `MeshEnvelopeCodec`, and `DurableMeshQueue` provide discovery/codec/queue primitives only. Do not claim that an SOS packet is transmitted between devices or delivered end-to-end until an authenticated transport and physical multi-device tests exist. See `MESH_PROTOCOL.md`.
 
 ## Acceptance criteria
 - Physical-device tests demonstrate actual discovery and authenticated transfer.

@@ -1,6 +1,6 @@
 # Phase 2 — Emergency-First UI, Accessibility & Visual Identity
 
-**Status:** Design/implementation specification; no performance or accessibility pass is implied.
+**Status:** Partial Compose UI and visual identity controls exist; no formal performance, TalkBack, contrast, touch-target, or physical-device accessibility pass is implied.
 
 ## Objective
 Deliver a readable, low-friction emergency UI with the PH-ResQ visual identity, high-contrast accessibility, safe-area support, and battery-aware animation.
@@ -29,6 +29,9 @@ Implement visuals using the selected Android UI framework or a documented native
 - Show explicit stale/unavailable labels for location, cached alerts, directory records, and map coverage.
 - Provide visible pending/sent-to-handoff/delivered/acknowledged/failed status where relevant.
 - Do not use color alone to distinguish statuses; combine icon/text/state descriptions.
+
+## Current implementation boundary
+A flag-title animation and reduce-motion control exist, along with several emergency flows. Their presence is not evidence of complete screen coverage, accessible semantics, or device acceptance. The SOS path must remain unobstructed in all states.
 
 ## Acceptance criteria
 - Accessibility audit covers TalkBack, text scaling, high contrast, reduced motion, and touch targets.

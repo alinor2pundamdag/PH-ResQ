@@ -1,6 +1,6 @@
 # Phase 1 — Android Foundation, Initialization & Consent
 
-**Status:** Specification only; implementation and device validation pending. See `ARCHITECTURE_DECISIONS.md`.
+**Status:** Partial implementation exists for versioned consent/privacy notice and permission guidance; full navigation/lifecycle acceptance and physical-device validation remain pending. See `ARCHITECTURE_DECISIONS.md` and `FEATURE_TRACEABILITY.md`.
 
 ## Objective
 Establish the Android project baseline, selected framework/SDK, privacy policy, persistent consent state, permission strategy, and a reproducible initialization flow.
@@ -37,6 +37,9 @@ Required states: `NOT_DECIDED`, `ACCEPTED(policyVersion, timestamp)`, and `DECLI
 
 ## 4. Permissions and privacy
 Request a permission only when the associated feature is used and explain why it is needed. Define a safe denial path for location, SMS, microphone, notifications, Bluetooth/nearby devices, and Wi-Fi-related capabilities. Never bypass Android permission controls.
+
+## Current implementation boundary
+The source includes a consent store and privacy notice. This does not prove every protected route checks consent after process death, policy-version change, deep link, or restored task. Validate those paths against `TEST_AND_ACCEPTANCE_PLAN.md`.
 
 ## Acceptance criteria
 - Consent cannot be bypassed through app navigation or relaunch.

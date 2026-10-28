@@ -1,6 +1,6 @@
 # Phase 5 — Encrypted Vault, PIN Security & Privacy
 
-**Status:** Security specification only; no cryptographic implementation or security audit is implied.
+**Status:** Partial cryptographic components exist (AES-GCM field cipher, PBKDF2/AES-GCM PIN vault with temporary lockout, HMAC mesh envelope/ACK primitives, and local QR generation). No complete key-lifecycle/recovery solution, duress vault, penetration test, or security acceptance is implied.
 
 ## Objective
 Protect emergency contacts and sensitive Medical ID data at rest, define the key lifecycle, and preserve optional duress behavior without making impossible secrecy guarantees.
@@ -28,6 +28,9 @@ Define cryptographic token generation, rotation interval, clock-drift handling, 
 
 ## 5. Offline Medical ID QR
 The QR feature must remain available offline, but the QR is not inherently encrypted: any compatible camera/scanner may read its contents. Include only user-selected minimal fields, show an explicit reveal/share action, and warn before display. Do not imply that an arbitrary camera can decrypt a vault ciphertext.
+
+## Current implementation boundary
+The PIN-protected vault is not a duress vault and has no recovery/backup guarantee. Mesh HMAC does not establish peer identity by itself. Medical ID QR is readable by scanners and is not encrypted by default. See `SECURITY_MODEL.md`.
 
 ## Acceptance criteria
 - Encryption/decryption round-trip and tamper detection pass.

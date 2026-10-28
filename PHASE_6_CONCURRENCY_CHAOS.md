@@ -1,6 +1,6 @@
 # Phase 6 — Concurrency, Lifecycle Recovery & Chaos Testing
 
-**Status:** Test specification only. No zero-crash or zero-bug guarantee is claimed.
+**Status:** Partial automated unit/Robolectric tests exist, but the full chaos matrix, physical-device lifecycle tests, and recovery acceptance have not been run. No zero-crash or zero-bug guarantee is claimed.
 
 ## Objective
 Prove that critical state remains consistent during concurrent work, interrupted operations, lifecycle changes, and resource failures on supported Android devices.
@@ -37,6 +37,9 @@ For each test, record:
 - measured startup/search latency, memory, battery, APK and offline-data size where applicable.
 
 Do not label a test suite “complete” if scenarios were skipped. Do not claim zero crashes or zero bugs; report observed failures and residual risk.
+
+## Current implementation boundary
+Current automated tests cover selected core utilities, database behavior, dataset import, vault behavior, mesh queue primitives, and a foreground-notification primitive. This is not evidence that every scenario below has executed. Record each run against the exact candidate SHA in `TEST_ACCEPTANCE_MATRIX.md` and `TEST_AND_ACCEPTANCE_PLAN.md`.
 
 ## Acceptance criteria
 - No critical SOS/consent/vault state is silently lost in tested failure scenarios.

@@ -1,6 +1,6 @@
 # Phase 3 — Local Database, Six Persistence Areas & Geospatial Search
 
-**Status:** Specification only. Database choice, data acquisition, performance, and implementation remain unverified.
+**Status:** Partial SQLite implementation exists (`ResQDatabase`, schema version 7), with directory/advisory/evacuation JSON import and local query primitives. Complete nationwide data, all persistence flows, migration/recovery acceptance, spatial performance, and offline map rendering remain unverified.
 
 ## Objective
 Provide reliable offline storage for emergency data and local spatial search, with atomic updates, trusted integrity metadata, and recovery behavior.
@@ -44,6 +44,9 @@ Use atomic transactions and schema migrations. Persist critical state at transit
 
 ## 5. Data provenance and maps
 For every dataset, record authoritative source URL, license, attribution, access date, version, update cadence, coverage, validation results, and compressed/installed size. Preserve partial-update rollback and label stale or missing data. Administrative counts in the plan are targets to verify, not evidence of completeness.
+
+## Current implementation boundary
+The database currently contains app state, SOS events, last location, search history, bookmarks, directory entries, map metadata, dataset metadata, advisories, evacuation centres, mesh queue/replay cache, family check-ins, and pending actions. Table existence does not prove every table is fully wired to UI/repositories or that data is complete. See `DATABASE_SPEC.md`.
 
 ## Acceptance criteria
 - Six persistence areas survive process death and expected restart flows.
