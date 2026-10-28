@@ -1,117 +1,42 @@
-# PH-ResQ Vanguard 2026: Phase 2 - Crisis-Grade UI/UX & Canvas Physics Animation
+# Phase 2 — Emergency-First UI, Accessibility & Visual Identity
+
+**Status:** Partial Compose UI and visual identity controls exist; no formal performance, TalkBack, contrast, touch-target, or physical-device accessibility pass is implied.
 
 ## Objective
-Implement a high-performance, cognitive-load-free mobile UI featuring responsive safe-area layout management, high-contrast accessibility mode, and custom canvas physics simulations (Infinite Philippine Flag Color-Looping Header and Wind-Swaying Animation) designed for low-end Android devices with zero CPU/GPU frame drops.
+Deliver a readable, low-friction emergency UI with the PH-ResQ visual identity, high-contrast accessibility, safe-area support, and battery-aware animation.
 
----
+## 1. Visual identity
+Preserve the requested:
+- PH-ResQ / PH-ResQ Vanguard 2026 title.
+- Infinite Philippine-flag color-looping title using yellow, blue, red, and white.
+- Optional waving Philippine-flag background/canvas-like visual.
+- Clean emergency-first layout with the most important actions immediately accessible.
 
-## Step 1: Responsive Layout & Safe-Area Header Component
-Create `src/components/header/CrisisHeader.tsx` to handle dynamic window insets, notches, and high-contrast toggles:
+Implement visuals using the selected Android UI framework or a documented native rendering component. Earlier DOM/canvas examples are conceptual only and must not be used as proof of native implementation.
 
-```typescript
-import React, { useState } from 'react';
+## 2. Safety and usability rules
+- Never place animation over SOS controls, consent actions, or status/error messages.
+- Stop or reduce animation when backgrounded, low on battery, or when reduced-motion is enabled.
+- Maintain legible text contrast in every phase of the flag animation; do not rely on color alone for status.
+- Support Android safe areas/window insets, display cutouts, font scaling, landscape where supported, and screen-reader navigation.
+- Provide high-contrast mode, large touch targets, TalkBack labels, haptic feedback controls, and reduced-motion behavior.
+- SOS activation must use the specified two-second hold guard and clear countdown/cancellation feedback. Do not hide critical state behind decorative UI.
+- Audio/siren behavior must respect stealth mode, safe-volume policy, and user settings.
 
-export const CrisisHeader: React.FC = () => {
-  const [highContrast, setHighContrast] = useState<boolean>(false);
+## 3. Layout and interaction specification
+- Startup and consent screens must be accessible and readable without animation.
+- Dashboard must surface SOS, emergency contacts, local directory/search, offline map access, family check-in, and Medical ID without misleading “online” indicators when offline.
+- Show explicit stale/unavailable labels for location, cached alerts, directory records, and map coverage.
+- Provide visible pending/sent-to-handoff/delivered/acknowledged/failed status where relevant.
+- Do not use color alone to distinguish statuses; combine icon/text/state descriptions.
 
-  const toggleHighContrast = () => {
-    setHighContrast(!highContrast);
-    document.body.classList.toggle('high-contrast-mode', !highContrast);
-  };
+## Current implementation boundary
+A flag-title animation and reduce-motion control exist, along with several emergency flows. Their presence is not evidence of complete screen coverage, accessible semantics, or device acceptance. The SOS path must remain unobstructed in all states.
 
-  return (
-    <header className={`crisis-header ${highContrast ? 'contrast-active' : ''}`}>
-      <div className="flag-canvas-container">
-        <canvas id="phil-flag-canvas" width="300" height="60" />
-      </div>
-      <div className="header-controls">
-        <h1 className="app-title">PH-ResQ Vanguard</h1>
-        <button 
-          onClick={toggleHighContrast}
-          className="accessibility-btn"
-          aria-label="Toggle High Contrast Mode"
-        >
-          {highContrast ? 'Normal Mode' : 'High Contrast (PWD/Senior)'}
-        </button>
-      </div>
-    </header>
-  );
-};
-```
+## Acceptance criteria
+- Accessibility audit covers TalkBack, text scaling, high contrast, reduced motion, and touch targets.
+- Emergency controls remain usable at supported screen sizes and with animation disabled.
+- Animation does not obscure text or prevent emergency action; CPU/battery behavior is measured on target devices.
+- UI correctly reflects offline mode, stale data, permission denial, and SOS delivery limitations.
 
----
-
-## Step 2: Wind-Swaying Canvas Physics Simulation
-Create `src/components/header/FlagPhysics.ts` to render the infinite color-looping header with wave physics:
-
-```typescript
-export class FlagPhysicsRenderer {
-  private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
-  private animationFrameId: number = 0;
-  private time: number = 0;
-
-  constructor(canvasId: string) {
-    this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-    this.ctx = this.canvas.getContext('2d')!;
-  }
-
-  public startAnimation(): void {
-    const render = () => {
-      this.time += 0.05;
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-      // Render Philippine flag color bands with sine wave distortion
-      const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, 0);
-      gradient.addColorStop(0, '#0038A8'); // Royal Blue
-      gradient.addColorStop(0.5, '#CE1126'); // Crimson Red
-      gradient.addColorStop(1, '#FCD116'); // Yellow Sun Gold
-
-      this.ctx.fillStyle = gradient;
-      this.ctx.beginPath();
-      
-      for (let x = 0; x < this.canvas.width; x++) {
-        const y = Math.sin(x * 0.03 + this.time) * 5 + 30;
-        if (x === 0) this.ctx.moveTo(x, y);
-        else this.ctx.lineTo(x, y);
-      }
-
-      this.ctx.lineTo(this.canvas.width, this.canvas.height);
-      this.ctx.lineTo(0, this.canvas.height);
-      this.ctx.closePath();
-      this.ctx.fill();
-
-      this.animationFrameId = requestAnimationFrame(render);
-    };
-    render();
-  }
-
-  public stopAnimation(): void {
-    cancelAnimationFrame(this.animationFrameId);
-  }
-}
-```
-
----
-
-## Step 3: Crisis-Grade Accessibility CSS Styling
-Add high-contrast rules to ensure maximum visibility during daylight or power blackout scenarios:
-
-```css
-body.high-contrast-mode {
-  background-color: #000000 !important;
-  color: #FFFF00 !important;
-}
-
-body.high-contrast-mode .crisis-header {
-  background-color: #000000;
-  border-bottom: 3px solid #FFFF00;
-}
-
-.crisis-header {
-  padding-top: env(safe-area-inset-top);
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-```
+Related: `TEST_ACCEPTANCE_MATRIX.md` T-004, T-023.

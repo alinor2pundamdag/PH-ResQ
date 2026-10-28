@@ -1,63 +1,249 @@
-# PH-ResQ Vanguard 2026: Master Architecture & Implementation Plan
+# PH-ResQ Vanguard 2026 — Master Architecture & Implementation Plan
 
-This repository contains the master architectural blueprint, advanced technical specifications, legal compliance framework, device permissions policy, cybersecurity standards, user-defined PIN vault mechanism, user-consent emergency data sharing framework, and comprehensive nationwide emergency directory for **PH-ResQ Vanguard 2026**, a 100% functional, secure, un-bypassable, and nationwide emergency application built for Filipinos.
+**Document status:** Planning baseline; not proof of an implemented or release-ready Android application.  
+**Target platform:** Android-first, offline-first emergency assistance for the Philippines.  
+**Repository scope:** Planning documents, native Android source, automated tests, CI, and release evidence. Implementation status must be demonstrated by passing builds, device tests, and data-source evidence—not by this plan alone.
 
----
+## 1. Purpose, scope, and non-negotiable requirements
 
-## 🏛️ 1. Executive Summary & Core Design Principles
-- **Name:** PH-ResQ Vanguard 2026
-- **Target Users:** All Filipino citizens, commuters, families, students, motorists, senior citizens, PWDs (Persons with Disabilities), workers, OFWs, pet lovers/owners, and residents across **all 17 Regions, 82 Provinces, 149 Cities, 1,493 Municipalities, 42,046 Barangays, every street, and coastal/marine boundaries** of Luzon, Visayas, and Mindanao.
-- **Design Philosophy & Zero-Bug Architecture:** Clean, professional UI where unnecessary elements are hidden, and vital emergency tools are immediately tappable. Low-end device optimized with a lightweight APK footprint, neon sci-fi glassmorphic aesthetic, and immersive visual identity. Built with airtight state machines, null-safety guards, and strict memory management to guarantee **zero crashes, zero bugs, zero memory leaks, and zero logic contradictions** under extreme disaster conditions.
-- **Header & Visual FX Identity:**
-  - **Infinite Philippine Flag Color-Looping Main Header:** The main header title (**"PH-ResQ"**) features an infinite, smooth animated color gradient flowing continuously from left to right using the official colors of the Philippine flag (Yellow, Blue, Red, White). The color wave loops endlessly across the letters without disrupting readability, paired with a 100% looping wind-swaying Philippine flag canvas physics simulation as the application's immersive live background.
+PH-ResQ is intended to help people access emergency information and coordinate distress messages during disasters, including periods with weak or unavailable connectivity. The plan covers Luzon, Visayas, and Mindanao and targets residents, commuters, families, students, motorists, older adults, persons with disabilities, workers, and other people who may need emergency assistance.
 
----
+All requirements in this document remain in scope unless an explicit architecture decision records a reason, impact, replacement, and user approval. Implementation must not silently remove or weaken a feature to make a build pass.
 
-## 📱 2. Starting Page, Non-Bypassable Persistent Consent Loop & First-Time Onboarding Architecture
-- **Complete Starting Page & App Initialization Flow:**
-  1. **Splash Screen (Instant Launch & SHA-256 Integrity Check):** A clean, rapid initial loading screen featuring the infinite color-looping title **"PH-ResQ Vanguard"** and wind-swaying flag background. In the background (within 1-2 seconds), it performs a silent cryptographic SHA-256 verification of the local 42,046 barangays database and initializes the 6-layer persistence state machine.
-  2. **Mandatory Privacy, Data Protection & License Policy Acceptance Screen (First Launch):** 
-     - Before reaching the dashboard or onboarding steps on first launch, every user is presented with an un-bypassable policy agreement detailing adherence to **RA 10173 (Data Privacy Act of 2012)**, client-side encryption, local storage rules, and the **Apache License 2.0** legal governance framework.
-     - **Non-Bypassable Persistent Consent Loop & Force-Stop Architecture:**
-       - **No Auto-Force Stop on Read:** When the application opens and displays the Mandatory Privacy & License Acceptance Screen, the app **never auto-closes or force-stops** while the user is actively reading or reviewing the terms on screen. Complete freedom to read and examine the policy without abrupt exits.
-       - **Explicit Consent Buttons (`[Tanggapin at Sumang-ayon / Accept]` / `[Tumanggi / Decline]`):**
-         - If the user taps **`[Accept]`**: The app encrypts and saves the cryptographic consent flag locally, unlocks the interface, starts background integrity checks, and proceeds directly to onboarding/dashboard.
-         - If the user taps **`[Decline]`**: The app displays a clear warning (*"Paunawa: Hindi mo magagamit ang mga features, database, at emergency system ng PH-ResQ Vanguard 2026 nang hindi sinasang-ayunan ang patakaran sa privacy (RA 10173) at lisensya. Ang aplikasyon ay aalis na."*), locks navigation routes, executes an **automatic persistent force-stop / exit to device home screen**, and sets the consent state to `DECLINED`.
-       - **Persistent Loop Block (Absolute Non-Bypassable Enforcement):** Whenever the user re-opens the app from the app drawer or home screen after declining, the app inspects the stored consent flag before loading any dashboard. Because it is marked `DECLINED`, the app **never reaches the Main Dashboard** and instead routes the user straight back to the Mandatory Privacy & License Acceptance Screen. This loop repeats indefinitely until the user consciously taps `[Accept]`, ensuring absolute compliance without unwanted sudden shutdowns during reading.
+### Core design principles
 
----
+- **Android-first:** Native Android APIs own device capabilities and lifecycle-sensitive work. Any shared UI layer must be justified by a documented architecture decision and must not substitute browser APIs for Android capabilities.
+- **Offline-first:** Core emergency contacts, cached directories, saved locations, queued SOS events, and downloaded map data remain available without internet, subject to device storage and permissions.
+- **Truthful capability claims:** No promise of zero bugs, exact radio-derived distance, universal delivery, absolute secrecy, or guaranteed nationwide data completeness. State measurable acceptance criteria and known limits.
+- **Least privilege and informed consent:** Explain permissions in Filipino and English where appropriate, request them when needed, and degrade safely when denied.
+- **Recoverable state:** Persist critical transitions, use bounded retries, deduplicate messages, and handle process death, reboot, storage pressure, and partial network availability.
+- **Accessibility and low-end-device support:** High contrast, readable text, large touch targets, TalkBack labels, reduced-motion support, efficient background work, and battery-aware polling.
+- **Traceability:** Every feature must map to requirements, implementation components, tests, evidence, and residual risks.
 
-## 📡 3. Advanced Proximity & Mesh Detection Architecture (BLE RSSI, Wi-Fi Direct & Geohash)
-To ensure absolute accuracy when detecting nearby users and emergency peers during total cellular network blackouts, PH-ResQ executes a multi-layered local mesh engine:
-1. **BLE (Bluetooth Low Energy) RSSI Distance Estimation & Trilateration:**
-   - **Continuous Beaconing:** Background PH-ResQ instances broadcast lightweight, encrypted, anonymized BLE advertising packets containing randomized rolling tokens and localized GPS coordinates.
-   - **RSSI Distance Computation:** The app measures Received Signal Strength Indicator (RSSI dBm) to dynamically compute exact distances (e.g., `1m - 5m away`, `15m away`).
-   - **Multi-Peer Trilateration:** When 3 or more peer beacons are detected, the local R-Tree engine triangulates relative user positions within the immediate perimeter without external servers.
-2. **Wi-Fi Direct (Wi-Fi P2P) High-Speed Proximity Handshake:**
-   - Automatically establishes direct device-to-device socket links for longer-range peer discovery (up to 50–100m) and heavy payload transmission (such as compressed voice SOS notes and medical profiles).
-3. **Geohash & Local Spatial Grid Indexing (IndexedDB):**
-   - Converts geographic coordinates into high-precision alphanumeric **Geohash strings** (e.g., 10m x 10m spatial grids) stored locally in IndexedDB, enabling instant spatial querying and filtering of nearby assets and users in milliseconds.
-4. **Cryptographic Rolling Tokens & RA 10173 Privacy Shield:**
-   - Device identifiers rotate cryptographically every few minutes using AES-GCM to prevent third-party tracking, ensuring full compliance with the Data Privacy Act of 2012 while maintaining reliable emergency peer discovery.
+## 2. Visual identity and primary experience
 
----
+- Product name: **PH-ResQ Vanguard 2026**; primary in-app title: **PH-ResQ**.
+- The intended visual identity includes a clean emergency-first interface, neon/glass styling used without compromising legibility, and a Philippine-flag color-looping title (yellow, blue, red, white) with an optional flag-waving background.
+- Animation must respect Android reduced-motion/accessibility settings, avoid obscuring emergency controls, and stop or reduce work when the app is backgrounded or battery constrained.
+- Emergency actions must remain immediately discoverable. Decorative effects must never delay SOS initiation or block interaction.
 
-## 🔮 4. Future Update & Security Modules: Stealth Audio Mute, Offline QR Code Card & Duress PIN Vault
-1. **One-Tap Emergency Audio & Siren Mute / Stealth Mode:**
-   - Designed for high-risk security threats (hostage situations, break-ins, or hiding from hostile actors). Allows silent dispatch of emergency SMS coordinates and distress packets instantly while muting all audible sirens and alarms.
-2. **Emergency Family Vault & Medical ID Offline QR Code Card:**
-   - Dynamically renders an offline secure QR code from the user's AES-GCM encrypted local Medical ID and Emergency Contact Vault. Allows first responders to scan the screen directly with any camera during total power blackouts to instantly retrieve critical blood types, allergies, and contact numbers.
-3. **Duress PIN Vault Recovery Protocol (Coercion Safety):**
-   - Supports a secondary panic passcode. When entered during coercion, the app silently opens a clean dummy vault containing zero sensitive personal data while dispatching a discreet distress signal. **Zero-Indication Guarantee:** The code implementation never displays errors, warnings, or indicators that a fake PIN was entered, guaranteeing absolute physical protection.
-4. **P2P Mesh 15-Second Battery-Saver Timeout:**
-   - Implements strict background throttling and an automatic 15-second scanning timeout for BLE/Wi-Fi Direct discovery loops to prevent battery drain during prolonged periods with no nearby mesh nodes.
+## 3. Android architecture decision
 
----
+**Initial implementation baseline recorded in ADR-001:** Kotlin + Jetpack Compose; minSdk 26; compileSdk/targetSdk 35; Java 17. The Gradle build and automated unit tests passed in GitHub Actions for commit `408e2aaaea09df70400c92038b405c5d5a47d337` (run: https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40451629467). This verifies the listed build/test tasks only; it does not establish feature completeness or physical-device acceptance.
 
-## 🛡️ 5. Comprehensive Data Persistence & Reliability Standards
-Enforces strict local persistence across 6 operational layers: Active Mode, Emergency Contact Vault, Last Known GPS Fallback, Crisis SOS State, Search/Bookmark History, and Offline Map Tiles (MBTiles/Vector cache), backed by SHA-256 database self-healing checksum verification and low-battery auto-save snapshots (<5%).
+The application is an Android app, not a browser app. Native Android APIs are required for capabilities such as location, SMS handoff, notifications, foreground services, Bluetooth Low Energy, Wi-Fi Direct, Android Keystore, lifecycle handling, and platform permission flows.
 
----
+- Do not use `window`, `localStorage`, IndexedDB, or browser-only lifecycle assumptions as the implementation for native Android features.
+- Build baseline: Kotlin + Jetpack Compose, minSdk 26, compileSdk/targetSdk 35, Java 17, AGP 8.7.3, Kotlin 2.0.21. This baseline passed CI on commit `408e2aaaea09df70400c92038b405c5d5a47d337`; every later candidate must pass CI again, and device/data/security acceptance remains outstanding. Native Android APIs own device capabilities and lifecycle work.
+- Use a local database/storage layer appropriate for Android. Use a genuine spatial index only if the selected database supports it; otherwise document the chosen query strategy and benchmark it with realistic data.
+- Use Android Keystore for encryption keys where feasible, with a documented compatibility fallback. StrongBox is optional and device-dependent.
+- Background execution must follow current Android restrictions. Foreground services require the appropriate service type, permissions, and visible notification. Do not promise unrestricted continuous execution.
 
-## 🏛️ 6. Comprehensive Nationwide Emergency Directory & Legal Compliance
-Houses exhaustive emergency directories across all 17 regions, 82 provinces, 149 cities, 1,493 municipalities, and 42,046 barangays, governed strictly by **Apache License 2.0**, **RA 10173 (Data Privacy Act of 2012)**, and **RA 10639 (Free Mobile Disaster Alerts Act)**.
+## 4. First launch, privacy policy, consent, and onboarding
+
+### Required flow
+
+1. Launch to a short initialization screen.
+2. Run a bounded integrity check against a trusted expected digest or signed manifest, and load the six persistence areas described in Section 8.
+3. On first launch, show the privacy notice, data-use explanation, applicable license information, and explicit **Accept** and **Decline** actions before protected features are available.
+4. If **Accept** is selected, persist a versioned consent record and continue to onboarding/dashboard.
+5. If **Decline** is selected, do not persist acceptance; explain that protected app features remain unavailable and allow the user to leave normally. A declined user must see the consent gate again on a later launch.
+
+### Platform limitation and enforcement
+
+An ordinary Android app cannot reliably force-stop itself or force the operating system to return to the home screen. Do not claim that it can. Enforce consent inside the app: on every launch and protected navigation, check the persisted consent state and show the consent screen until accepted. Do not abruptly close the app while the user is reading the policy.
+
+Record the policy version, consent state, and timestamp without collecting unnecessary personal data. Re-consent is required when material changes to the policy or data use warrant it. Provide access to the current policy and a way to review consent status.
+
+## 5. SOS workflow and emergency communications
+
+### SOS interaction
+
+- Require a deliberate **2-second press-and-hold** to initiate SOS, with haptic feedback where supported and a clear visual countdown.
+- Provide an accessible alternative interaction that preserves protection against accidental activation.
+- Support a voice-note attachment when available and explicitly selected/configured by the user.
+- Provide a cancellation window where safe and appropriate, with a clear state transition and audit event.
+- Support stealth/silent mode for situations where audible alarms may increase risk. Muting must not silently disable essential visual status or the user's ability to cancel.
+
+### Durable SOS state machine
+
+Persist state transitions so process death does not erase a pending emergency. At minimum, distinguish:
+
+`IDLE → QUEUED → SENDING → HANDED_OFF → DELIVERED (only with a verified transport receipt) → ACKNOWLEDGED (only with recipient/service acknowledgement)`
+
+Also represent `CANCELLED`, `RETRY_PENDING`, and `FAILED`. Do not label a message “delivered” merely because Android accepted an SMS request or a network API call returned success.
+
+- Send a Tagalog SMS to up to **10 configured emergency contacts**, subject to SIM availability, Android permissions, carrier behavior, and the user's SMS configuration. The message should include the most recent location, timestamp, and accuracy estimate when available.
+- If the app cannot send SMS directly under platform/permission rules, offer an explicit SMS-app handoff where supported; clearly show whether the message was sent by PH-ResQ or handed off to another app.
+- Keep retry count and backoff bounded. Prevent duplicate sends using a durable event ID and idempotency/deduplication rules where the transport allows.
+- Handle unavailable SIM, denied permissions, no signal, no GPS fix, stale location, app process death, reboot, and interrupted send operations.
+- Make the current status and last error visible without exposing sensitive contact/location data unnecessarily.
+- Never guarantee that an SMS or voice note will reach a recipient.
+
+## 6. Location, proximity, and spatial search
+
+### GPS and location fallback
+
+- Use adaptive location polling based on active mode, movement, battery state, and Android background limits.
+- Persist the last known location with capture timestamp, accuracy, and source. Mark stale or low-accuracy values; never present them as current without qualification.
+- Explain why location is requested and support manual location selection if GPS is unavailable.
+
+### BLE and Wi-Fi Direct mesh
+
+- Preserve the requirement for nearby peer discovery and local device-to-device emergency data transfer using BLE and Wi-Fi Direct where supported.
+- Specify a versioned packet protocol before implementation: message ID, sender pseudonym, creation time, TTL, hop limit, payload type/size, integrity/authentication tag, and protocol version.
+- Define acknowledgement, retry/backoff, duplicate suppression, forwarding policy, TTL expiry, replay resistance, queue limits, rate limits, and malformed-packet rejection.
+- Use cryptographically rotating pseudonyms/tokens where feasible. Do not broadcast precise GPS coordinates or sensitive medical data in BLE advertisements; exchange sensitive payloads only after an authenticated, consent-aware connection.
+- Use Android permission checks and real platform scan/connection operations. Placeholder methods that always return success or only log are not implementations.
+- Include the planned **15-second battery-saver scan window** as a configurable policy, not as a guarantee that Android will schedule every scan exactly on time. Measure battery use and document the behavior when no peers are found.
+
+### RSSI and geospatial accuracy
+
+- RSSI supports only rough proximity estimates; walls, device orientation, antenna differences, interference, and environment can make distance estimates unreliable. Do not display RSSI-derived distance as exact.
+- Trilateration requires sufficient known reference positions and acceptable measurement geometry. If those conditions are not met, show an uncertainty range or “distance unavailable.”
+- Use geohash or another documented grid for coarse spatial grouping. Store/query it with a real index where supported; benchmark actual query latency on target devices and realistic datasets.
+- A local spatial query is not a substitute for an authoritative location fix.
+
+## 7. Security, encrypted vault, privacy, and duress mode
+
+### Encrypted vault
+
+- Encrypt emergency contacts and sensitive Medical ID fields at rest using an authenticated encryption scheme such as AES-GCM.
+- Define key creation, Android Keystore storage, nonce uniqueness, backup/restore behavior, rotation, revocation, reinstall behavior, and recovery before implementation. Never reuse an AES-GCM nonce with the same key.
+- If a PIN-derived key is required, use a suitable password-based key derivation function with a per-vault salt and calibrated cost; enforce rate limits and secure failure handling. A PIN is not itself an encryption key.
+- Handle devices without StrongBox by using the best supported Keystore-backed option and documenting the reduced guarantee.
+- Keep secrets out of logs, crash reports, analytics, clipboard, and unencrypted backups.
+
+### Duress PIN and dummy vault
+
+- Preserve the optional secondary duress PIN, dummy vault, and discreet distress-signal requirements, but document the threat model and safety risks.
+- Do not claim “zero indication” or absolute physical protection: timing, system UI, network activity, notifications, forensic access, and device behavior may reveal activity.
+- Make the feature opt-in, explain the risks, and test behavior under network loss, permission denial, and failed dispatch. Never claim that a distress signal was sent unless the transport reports a supported status.
+- Preserve stealth audio mute and ensure it does not override user-configured critical accessibility needs.
+
+### Rolling tokens and integrity
+
+- Rotate privacy-preserving identifiers using a defined cryptographic design and test for linkability, replay, clock drift, and collision behavior.
+- SHA-256 detects a mismatch only when compared with a trusted expected digest or authenticated manifest. A checksum alone does not self-heal data. Recovery requires a verified backup or a trusted re-download source.
+- Protect integrity metadata and avoid treating a hash stored beside mutable data as proof of authenticity.
+
+## 8. Six required persistence layers and recovery
+
+The implementation must preserve these six areas:
+
+1. **Active mode** — current app/emergency mode and safe restoration rules.
+2. **Emergency contact vault** — encrypted contacts and relevant consent/configuration.
+3. **Last known GPS fallback** — coordinate, timestamp, accuracy, and provenance.
+4. **Crisis SOS state** — durable queue, state transitions, attempts, and outcomes.
+5. **Search and bookmark history** — local history/bookmarks with privacy controls.
+6. **Offline map tiles** — downloaded MBTiles/vector or other licensed cache with coverage/version metadata.
+
+Additional requirements:
+- Trigger a best-effort low-battery snapshot when battery falls below **5%**, while recognizing Android may terminate the process before the callback runs. Critical state must be persisted continuously at transition boundaries, not only at low battery.
+- Use atomic writes/transactions and schema migrations. Test interrupted writes, corrupt records, low storage, database upgrade, and recovery from verified backup.
+- Keep the family check-in and sync queue durable and idempotent. Sync only when connectivity is available and respect user consent and data minimization.
+- Cache PAGASA-related alerts/advisories with source, retrieval time, publication time, and expiry/staleness information. Do not present stale cached alerts as current.
+
+## 9. Nationwide emergency directory, maps, and data governance
+
+The intended scope includes national, regional, provincial, city/municipal, barangay, evacuation-centre, and emergency-service information. PSA's latest PSGC release checked 2026-10-27 reports 18 regions, 82 provinces, 149 cities, 1,493 municipalities, and 42,010 barangays as of 2026-09-30. Treat these as administrative reference counts only; acquire the source workbook, validate hierarchy and coverage, and separately source service contacts and coordinates before packaging.
+
+For each dataset, record:
+- authoritative publisher and source URL;
+- license/terms and attribution requirements;
+- retrieval date, data version, and update cadence;
+- geographic and administrative coverage;
+- offline package size and device storage requirements;
+- validation rules, duplicates, missing fields, and stale-record policy;
+- update mechanism and behavior when an update cannot be downloaded.
+
+Do not label the directory “complete nationwide” until automated coverage checks and source verification demonstrate it. Offline maps must have a documented source, licensing, region coverage, update strategy, and package-size estimate. Missing or stale information must be clearly identified, with available official phone numbers or other fallback paths where verified.
+
+### Emergency alerts and RA 10639
+
+Cell Broadcast / Wireless Emergency Alerts behavior is controlled by Android, the device manufacturer, carrier, and government alert system. A normal third-party app cannot promise to intercept every cell broadcast. PH-ResQ may provide alert-awareness guidance and cache authorized public advisories, but must not claim system-level reception or privileged access it does not possess.
+
+## 10. Medical ID QR, family check-in, and accessibility
+
+- Provide an **offline Medical ID QR** containing only the fields the user explicitly chooses to share. Explain that a QR displayed on screen is not inherently encrypted or access-controlled; use a minimal payload and an explicit reveal/share action. Do not expose the encrypted vault blob as though any camera could decrypt it.
+- Preserve family check-in and a durable sync queue with clear pending/synced/failed states.
+- Include high-contrast mode, scalable text, screen-reader labels, large touch targets, haptic feedback controls, reduced motion, and non-color-only status indicators.
+- Provide emergency helpline fallback only for verified numbers and identify the jurisdiction/source. Never fabricate a helpline or imply it works without cellular service.
+- Apply safe-volume policy: no automatic loud siren when stealth mode is active; respect user choice, Android audio behavior, and accessibility settings.
+
+## 11. Permissions, foreground service, and lifecycle
+
+- Request only the permissions required for the feature being activated, with a plain-language explanation and a denial path.
+- Test location, SMS, Bluetooth/nearby devices, Wi-Fi, notifications, microphone/voice note, and any foreground-service permissions against the selected target SDK and supported Android versions.
+- A foreground service must display its required persistent notification and use the correct service type. Provide notification actions where appropriate and ensure stopping the service leaves SOS state recoverable.
+- Respect Android background execution limits, battery optimizations, and manufacturer-specific restrictions. Explain settings the user may optionally change; do not use deceptive prompts.
+- Test process death, task removal, reboot, permission revocation, app upgrade, and device restart.
+
+## 12. Testing, reliability, and acceptance criteria
+
+The project must not use “zero crash,” “zero bugs,” “100% guaranteed,” or “un-bypassable” as verified outcomes. Replace them with repeatable tests, measured results, and disclosed residual risks.
+
+Required test groups:
+- Unit tests for consent, SOS state transitions, retry/backoff, deduplication, expiry, encryption/decryption, token rotation, and data validation.
+- Instrumentation tests for permission flows, lifecycle, foreground service notification/actions, SMS handoff/direct-send paths, QR sharing, and accessibility.
+- Integration tests for BLE discovery, authenticated peer connection, Wi-Fi Direct transfer, message acknowledgement, TTL, duplicate/out-of-order packets, malformed payloads, and interrupted connections on supported physical devices.
+- Resilience tests for no internet, no mobile signal, no SIM, denied permissions, no GPS fix, stale GPS, Bluetooth/Wi-Fi disabled, process kill, reboot, low storage, corrupted database, interrupted migration, battery below 5%, and clock changes.
+- Data tests for administrative coverage, duplicate/invalid coordinates, source attribution, map coverage, update failure, and stale alerts.
+- Security tests for nonce uniqueness, vault lockout/rate limiting, log redaction, backup leakage, replay attempts, tampered packets, and dummy-vault threat-model limitations.
+- Performance tests using realistic nationwide data and low-end supported hardware; report cold start, search latency, memory, battery, APK/download size, and offline package size.
+
+A feature is **accepted** only when its requirement has an implementation reference, a passing test/evidence record, and documented platform/data limitations. A passing documentation review or successful old build is not proof that the current source revision is buildable or that every feature works.
+
+## 13. Release gate
+
+Do not declare PH-ResQ ready for public release until all of the following are true:
+
+1. Architecture and supported Android/API range are recorded.
+2. Feature traceability and acceptance matrix cover every retained requirement.
+3. Current source revision builds reproducibly and automated checks pass.
+4. Critical SOS, consent, persistence, encryption, permissions, and recovery flows pass on physical devices.
+5. BLE/Wi-Fi mesh behavior is validated on supported device combinations, or unsupported combinations are explicitly disclosed.
+6. Nationwide directory/map source coverage, licensing, package size, and freshness are evidenced.
+7. Privacy policy, consent, data minimization, and data-sharing behavior are reviewed.
+8. Known limitations, emergency-service fallback, and residual risks are documented.
+9. Release artifact, version, checksums, test reports, and rollback/recovery plan are recorded.
+
+## 14. Document authority, dependencies, and required companion documents
+
+### Authority and conflict-resolution order
+
+1. **`MASTER_PLAN.md` is the product-scope and end-to-end requirement authority.** It defines the user-facing outcomes, retained features, non-negotiable constraints, and release gates.
+2. **`WORK_RULES.md` governs how changes are made and verified.** It cannot silently narrow product scope.
+3. **`ARCHITECTURE_DECISIONS.md` records approved technical decisions and trade-offs.** An ADR may define a platform-specific implementation or fallback, but it must preserve the feature goal wherever feasible and must not silently delete a requirement.
+4. **`features_update.md` and `FEATURE_TRACEABILITY.md` enumerate requirements.** The feature inventory is the human-readable scope index; traceability is the feature-by-feature status/evidence ledger. All 34 IDs must remain represented.
+5. **Phase 1–6 documents and domain specifications** (`SOS_STATE_MACHINE.md`, `DATABASE_SPEC.md`, `SECURITY_MODEL.md`, `MESH_PROTOCOL.md`, `DATA_SOURCES_AND_RISKS.md`) define implementation contracts and safety invariants within the master scope.
+6. **`TEST_ACCEPTANCE_MATRIX.md` and `TEST_AND_ACCEPTANCE_PLAN.md` define test cases and acceptance evidence.** A requirement is not accepted merely because its implementation exists or compiles.
+7. **`IMPLEMENTATION_ROADMAP.md` orders work; it does not redefine scope.** `IMPLEMENTATION_STATUS.md` and the release checklist record evidence snapshots and open gates. `README.md` summarizes the project without stronger claims than these records. `PATCH_NOTES.md` records collection changes.
+
+When documents conflict, do not choose whichever statement is more convenient: preserve the user-facing requirement, inspect current code/tests and platform constraints, update the stale documents together, and record any necessary trade-off in an ADR. A device lacking a capability must trigger an explicit permission/setup/fallback or a clear unsupported-state message; it is not a reason to erase the feature from the plan. Mark the limitation and its test evidence.
+
+### Dependency flow
+
+`MASTER_PLAN.md` → `WORK_RULES.md` + `features_update.md` → architecture decisions and Phase 1–6/domain specifications → `FEATURE_TRACEABILITY.md` → `TEST_ACCEPTANCE_MATRIX.md` + `TEST_AND_ACCEPTANCE_PLAN.md` → `IMPLEMENTATION_ROADMAP.md` → implementation status/release checklist. This is a dependency map, not permission to skip a lower-level specification. Any change to a requirement must propagate to its dependent design, test, and status records in the same documentation change.
+
+### Required companion documents
+
+Maintain these documents alongside this master plan and keep them mutually consistent:
+
+- `README.md` — project status, scope, and truthful setup/validation instructions.
+- `WORK_RULES.md` — implementation safeguards, branch/backup/diff discipline, and verification rules.
+- `features_update.md` — complete feature inventory; no silent removals.
+- `PHASE_1_INIT_CONSENT.md` through `PHASE_6_CONCURRENCY_CHAOS.md` — phase specifications revised to match the Android-first architecture and acceptance criteria.
+- `ARCHITECTURE_DECISIONS.md` — recorded framework, storage, security, data, and platform decisions.
+- `FEATURE_TRACEABILITY.md` — requirement → component → test → evidence mapping.
+- `TEST_ACCEPTANCE_MATRIX.md` — test cases, preconditions, expected results, execution status, and evidence.
+- `DATA_SOURCES_AND_RISKS.md` — authoritative datasets, licensing, freshness, coverage, and limitations.
+- `SOS_STATE_MACHINE.md` — legal SOS transitions, recovery and truthful delivery semantics.
+- `DATABASE_SPEC.md` — SQLite schema, migration invariants, sensitive fields and import behavior.
+- `SECURITY_MODEL.md` — assets, trust boundaries, controls, threat assumptions and residual risk.
+- `MESH_PROTOCOL.md` — packet format, authentication prerequisites, forwarding and delivery semantics.
+- `TEST_AND_ACCEPTANCE_PLAN.md` — P0/P1 test strategy and stop-ship criteria.
+- `IMPLEMENTATION_ROADMAP.md` — ordered implementation gates and exit evidence.
+- `PATCH_NOTES.md` — architecture collection index and revision notes.
+
+**Status rule:** Planning, implementation, tested, and release-ready are separate states. Mark each honestly and link evidence for every claimed completion.

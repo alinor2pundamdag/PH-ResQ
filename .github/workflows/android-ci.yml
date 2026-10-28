@@ -1,0 +1,62 @@
+name: Android CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: android-ci-${{ github.event.pull_request.head.ref || github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Configure Android SDK environment
+        run: |
+          echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> "$GITHUB_ENV"
+          echo "/usr/local/lib/android/sdk/platform-tools" >> "$GITHUB_PATH"
+      - name: Verify preinstalled Android platform and build tools
+        run: |
+          test -d "$ANDROID_HOME/platforms/android-35"
+          test -d "$ANDROID_HOME/build-tools/35.0.0"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - name: Verify, lint, test, and build
+        env:
+          SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: gradle --no-daemon lintDebug testDebugUnitTest assembleDebug assembleRelease
+      - name: Write build evidence
+        if: success()
+        env:
+          SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          mkdir -p build/evidence
+          CHECKED_OUT_COMMIT="$(git rev-parse HEAD)"
+          test "$CHECKED_OUT_COMMIT" = "$SOURCE_COMMIT"
+          printf 'source_commit=%s\nchecked_out_commit=%s\nrun_id=%s\nrun_attempt=%s\nrelease_variant=unsigned\n' "$SOURCE_COMMIT" "$CHECKED_OUT_COMMIT" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > build/evidence/BUILD_METADATA.txt
+          find app/build/outputs/apk -type f -name '*.apk' -print0 | xargs -0 sha256sum > build/evidence/SHA256SUMS
+          test -s build/evidence/SHA256SUMS
+      - name: Upload APKs and build evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ph-resq-apk-builds
+          path: |
+            app/build/outputs/apk/**/*.apk
+            build/evidence/*
+          if-no-files-found: error
+          retention-days: 14

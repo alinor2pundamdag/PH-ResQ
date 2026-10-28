@@ -1,71 +1,52 @@
-# PH-ResQ Vanguard 2026: Phase 4 - BLE Mesh & Wi-Fi Direct Sensor Integration
+# Phase 4 — BLE, Wi-Fi Direct & Offline Emergency Mesh
+
+**Status:** BLE discovery and version-1 envelope/durable queue primitives exist. Authenticated peer-key establishment, BLE payload transport, Wi-Fi Direct transfer, multi-hop forwarding, interoperability, and battery acceptance remain unimplemented or unverified.
 
 ## Objective
-Implement offline-first peer-to-peer mesh connectivity using Bluetooth Low Energy (BLE) RSSI trilateration and Wi-Fi Direct socket tunneling, protected by a strict 15-second battery-saver duty-cycle throttling algorithm.
+Preserve peer discovery and local emergency transfer during network outages while protecting privacy and preventing duplicate, stale, replayed, or malformed messages.
 
----
+## 1. Platform implementation
+Use Android BLE and Wi-Fi Direct APIs through the selected native architecture. Runtime permissions, Bluetooth/Wi-Fi state, lifecycle, device restrictions, and background execution must be handled explicitly. A permission function that always returns true, log-only scanning, or send function that always reports success is not an implementation.
 
-## Step 1: BLE RSSI Distance & Trilateration Engine
-Create `src/mesh/BLEMeshEngine.ts` to scan, estimate distance, and broadcast emergency SOS packets:
+## 2. Packet envelope
+Before implementing routing, define a versioned envelope with:
+- protocol version and message type;
+- stable per-message ID and creation timestamp;
+- rotating sender pseudonym (not a permanent device identifier);
+- TTL and hop limit;
+- payload type and strict maximum size;
+- authenticated integrity tag/signature as appropriate;
+- acknowledgement/correlation ID where applicable.
 
-```typescript
-export interface PeerDevice {
-  deviceAddress: string;
-  rssi: number;
-  estimatedDistanceMeters: number;
-  lastSeen: number;
-}
+Do not place precise GPS coordinates, contact lists, or medical data in unauthenticated BLE advertisements. Exchange sensitive payloads only after an authenticated connection and appropriate user consent.
 
-export class BLEMeshEngine {
-  private scanInterval: number = 15000; // 15-second battery-saver throttling
-  private isScanning: boolean = permsCheck();
+## 3. Delivery and routing semantics
+- Define direct-send and forwarding behavior, peer eligibility, queue limits, and expiry.
+- Acknowledge receipt only at the layer actually confirmed; distinguish received, validated, stored, forwarded, and delivered states.
+- Use bounded retries with exponential/backoff policy and deduplication by message ID.
+- Enforce TTL/hop limit, replay resistance, malformed-packet rejection, rate limits, and maximum payload size.
+- Handle clock drift and rolling-token rotation without making message expiry or authentication unreliable.
+- Never report “delivered” merely because a socket write returned success.
 
-  // Log-Distance Path Loss Model for distance estimation
-  public static estimateDistance(rssi: number, measuredPower: number = -59, n: number = 2.0): number {
-    if (rssi === 0) return -1.0; // Unknown distance
-    const ratio = (measuredPower - rssi) / (10 * n);
-    return Math.pow(10, ratio);
-  }
+## 4. BLE proximity and RSSI
+RSSI is an approximate radio-strength measurement, not an exact distance sensor. Walls, orientation, antenna variation, interference, and device differences change results. Display a rough estimate/uncertainty or “unknown”; do not claim exact meters.
 
-  public startDutyCycleScanning(onPeerDiscovered: (peer: PeerDevice) => void): void {
-    setInterval(() => {
-      this.executeScanCycle(onPeerDiscovered);
-    }, this.scanInterval);
-  }
+Trilateration is conditional on enough known reference positions, suitable geometry, and acceptable measurement error. Without these conditions, do not compute or display a precise peer position.
 
-  private executeScanCycle(callback: (peer: PeerDevice) => void): void {
-    // Native BLE scan execution wrapper
-    console.log('Executing 15-second throttled BLE mesh scan cycle...');
-  }
-}
+## 5. Wi-Fi Direct and payload transfer
+Use an authenticated handshake, bounded payload transfer, integrity verification, timeout, and partial-transfer recovery. Voice notes and Medical ID data must remain protected and size-limited. Test connection setup, transfer interruption, peer departure, duplicate delivery, and incompatible devices.
 
-function permsCheck(): boolean {
-  return true;
-}
-```
+## 6. Battery-saver policy
+Preserve the requested 15-second scan window as a configurable duty-cycle policy. Android may defer or constrain background work, so do not promise exact scheduling. Measure battery usage and stop scanning when disabled, permission is revoked, or no longer needed.
 
----
+## Current implementation boundary
+`BleDiscoveryManager`, `MeshEnvelopeCodec`, and `DurableMeshQueue` provide discovery/codec/queue primitives only. Do not claim that an SOS packet is transmitted between devices or delivered end-to-end until an authenticated transport and physical multi-device tests exist. See `MESH_PROTOCOL.md`.
 
-## Step 2: Wi-Fi Direct Socket Tunneling Protocol
-Create `src/mesh/WiFiDirectTunnel.ts` for direct device-to-device bulk data transfer (voice notes, medical IDs):
+## Acceptance criteria
+- Physical-device tests demonstrate actual discovery and authenticated transfer.
+- Permission denial and disabled radios report unavailable, never fake success.
+- Duplicate, replayed, expired, malformed, and oversized packets are safely rejected/deduplicated.
+- TTL/hop limit, acknowledgement, retry/backoff, and delivery states are tested.
+- Battery measurements and supported-device matrix are recorded.
 
-```typescript
-export class WiFiDirectTunnel {
-  private port: number = 8888;
-
-  public async openServerSocket(onDataReceived: (data: ArrayBuffer) => void): Promise<void> {
-    console.log(`Binding Wi-Fi Direct server socket on port ${this.port}...`);
-  }
-
-  public async sendEmergencyPacket(peerIp: string, packetData: ArrayBuffer): Promise<boolean> {
-    try {
-      // Establish TCP/UDP socket link over Wi-Fi Direct
-      console.log(`Sending emergency packet to peer IP: ${peerIp}`);
-      return true;
-    } catch (e) {
-      console.error('Failed to tunnel packet over Wi-Fi Direct', e);
-      return false;
-    }
-  }
-}
-```
+Related: `TEST_ACCEPTANCE_MATRIX.md` T-014 through T-018.

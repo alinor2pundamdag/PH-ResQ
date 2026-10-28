@@ -1,29 +1,66 @@
-# PH-ResQ Vanguard 2026: Official Operational Rules & Work Protocol (`WORK_RULES.md`)
+# PH-ResQ Vanguard 2026 — Work Rules
 
-This document serves as the absolute, non-negotiable operational charter governing all interactions, code generation, architectural planning, and repository management for **PH-ResQ Vanguard 2026**.
+These rules govern architecture documentation and implementation. The repository contains Android source and partial utility/UI implementations, but many features remain partial and require current-head CI, physical-device, data-source, security, and accessibility evidence.
 
----
+## 1. Scope preservation and change control
 
-## 🛑 1. Rule of Zero Unsolicited Modifications (Strict Repository Lock)
-- **Absolute Restriction:** The AI assistant is **strictly prohibited** from creating, updating, modifying, committing, or pushing any files or code changes to the GitHub repository without an explicit, direct, and unambiguous command from the repository owner (Alinor). 
+- Preserve every requirement in `FEATURE_TRACEABILITY.md`. Do not silently delete, weaken, or replace a feature.
+- If a requirement conflicts with Android platform behavior, security, licensing, or another requirement, document the conflict and a technically feasible alternative in `ARCHITECTURE_DECISIONS.md`; preserve the user-facing goal wherever feasible. A capability/permission/device limitation requires graceful degradation or a documented unsupported state and acceptance test—not silent feature removal.
+- Document authority is defined in Section 14 of `MASTER_PLAN.md`: master plan = scope authority; work rules = change/verification process; ADRs = approved technical trade-offs; feature inventory/traceability = retained scope and status; phase/domain docs = implementation contracts; test docs = acceptance; roadmap = sequencing; status/README/patch notes = evidence summary/history. No lower-level document may silently narrow the master scope.
+- The repository owner has explicitly authorized the current documentation correction on branch `docs/architecture-correction-2026-10-27`. This authorization does not imply permission to merge directly to `main`, deploy, or release.
+- For future destructive or scope-changing work, explain impact before acting. Use a branch, inspect diffs, and keep recoverable history.
 
-## 🔍 2. The "Double-Audit" & Zero-Crash Policy
-- **Emergency-Grade Stability:** Zero-crash, zero-bug, and zero-failure standards are mandatory. All logic must undergo rigorous double-checking to eliminate null pointers, memory leaks, and UI overflows.
-- **Graceful Degradation:** All sensor, GPS, and storage operations must include airtight fallback mechanisms to prevent app freezing during crises.
+## 2. Truthful status and verification
 
-## 📡 3. Advanced P2P Proximity & Mesh Architecture Rules
-- **BLE RSSI & Trilateration:** Must use low-power Bluetooth beaconing and RSSI distance estimation with multi-peer trilateration.
-- **Wi-Fi Direct & Geohash:** High-speed peer handshakes and local IndexedDB Geohash spatial indexes must operate entirely offline without server dependencies.
-- **Rolling Cryptographic Tokens:** Device IDs must rotate periodically using AES-GCM encryption to maintain absolute privacy under **RA 10173**.
-- **Battery Protection Guard:** BLE and Wi-Fi Direct scanning loops must enforce an automatic **15-second timeout and background throttling** to conserve device battery during prolonged zero-peer states.
+- Never describe a planned feature as implemented or tested without code/test evidence.
+- Do not claim “zero bugs,” “zero crashes,” “100% guaranteed,” “absolute security,” “un-bypassable,” or “zero indication.” Use measurable criteria and record residual risk.
+- Validate the latest revision, not an older successful build.
+- Every completion claim must link to the relevant code, command/test output, commit SHA, and device/environment where applicable.
+- A skipped or unexecuted test is not a pass.
 
-## 🔒 4. Security, Consent, Duress & Privacy Protocols
-- **Non-Bypassable Persistent Consent Loop:** First launch presents mandatory policy acceptance. Declining triggers a warning, forces an exit to the device home screen, sets a `DECLINED` flag, and blocks dashboard access indefinitely until accepted, without blocking active reading.
-- **Duress PIN Silent Recovery Protocol:** Entering a secondary panic passcode silently opens a clean dummy vault during coercion. The app **never** displays errors or warnings confirming a fake PIN was entered, guaranteeing absolute physical protection.
-- **Stealth Audio Mute Mode:** Supports instant silencing of audible sirens and alarms for high-risk security threats (hostage/break-in) while transmitting silent GPS coordinates.
-- **Offline Family QR Code Card:** Dynamically generates secure offline QR codes from encrypted local Medical ID vaults for instant scanning by emergency responders.
+## 3. Android-first architecture
 
-## 📦 5. Storage, Persistence & Legal Framework
-- **Strict Storage Budget:** ~100MB to ~150MB total installed footprint (APK ~30MB, Directory JSON ~15MB, MBTiles vector maps ~100MB).
-- **6-Layer Persistence:** Active Mode, Contact Vault, GPS Fallback, Crisis SOS State, Search History, and Map Tiles.
-- **Legal Compliance:** Apache License 2.0, RA 10173 (Data Privacy Act), and RA 10639 (Free Mobile Disaster Alerts Act).
+- Use Android APIs for permissions, lifecycle, location, SMS, notifications, foreground services, BLE, Wi-Fi Direct, and Keystore.
+- Browser-only APIs (`window`, `localStorage`, IndexedDB, DOM canvas) must not be presented as native Android implementations.
+- Initial UI/build baseline is Kotlin + Jetpack Compose, minSdk 26, compileSdk/targetSdk 35, Java 17; unit tests and debug/release assemble passed on the baseline SHA recorded in IMPLEMENTATION_STATUS.md. Re-run CI on every candidate; database completeness, native services, data and supported-device matrix remain open.
+- Follow Android permission, foreground-service, notification, and background-execution rules for the chosen target SDK.
+
+## 4. Security and privacy
+
+- Minimize collection, storage, broadcast, logging, and sharing of personal data.
+- Encrypt sensitive vault data with authenticated encryption and a documented key lifecycle. Never reuse an AES-GCM nonce with the same key.
+- Prefer Android Keystore-backed keys where feasible; document fallback, StrongBox availability, backup, reinstall, recovery, rotation, and PIN rate limiting.
+- Never place secrets, precise location, medical details, or contact data in logs or unauthenticated BLE advertisements.
+- A duress PIN is not guaranteed to be undetectable or to protect a user from physical harm. Do not promise absolute safety.
+- A QR code is readable by any camera that can scan it; include only user-selected fields and explain disclosure.
+
+## 5. SOS and data integrity
+
+- Persist important SOS transitions before attempting external communication.
+- Distinguish queued, sending, handed off/sent, delivered (only with confirmation), acknowledged, cancelled, and failed states.
+- Use bounded retries, backoff, stable event IDs, and deduplication where supported. Do not guarantee carrier delivery.
+- SHA-256 requires a trusted expected digest/manifest. A hash alone does not repair altered data.
+- Persist critical state at transition boundaries; a low-battery callback below 5% is best effort, not the only save mechanism.
+
+## 6. BLE/Wi-Fi Direct and spatial data
+
+- Do not use placeholder permission checks, log-only scanning, or methods that always return success as implementations.
+- Specify protocol version, authentication, message ID, TTL/hop limit, acknowledgements, retries, deduplication, replay protection, payload limits, and malformed-packet behavior.
+- Treat RSSI distance as approximate and document uncertainty. Trilateration needs known reference points and suitable geometry.
+- Benchmark the actual spatial query/index on realistic data and target devices; do not promise sub-10ms nationwide queries without evidence.
+
+## 7. Data sources and compliance
+
+- Verify authoritative source, license, attribution, retrieval date, version, update cadence, coverage, and package size before making nationwide claims.
+- Clearly label missing, stale, or unavailable data.
+- Cell Broadcast is controlled by Android/device/carrier/government systems. Do not claim that an ordinary app intercepts every broadcast.
+- Only display verified helpline numbers and identify jurisdiction/source.
+
+## 8. Testing and release
+
+- Maintain `FEATURE_TRACEABILITY.md`, `TEST_ACCEPTANCE_MATRIX.md`, `TEST_AND_ACCEPTANCE_PLAN.md`, `DATA_SOURCES_AND_RISKS.md`, `SOS_STATE_MACHINE.md`, `DATABASE_SPEC.md`, `SECURITY_MODEL.md`, and `MESH_PROTOCOL.md` in sync with code.
+- The core Architecture Collection is the 11-file set listed in `PATCH_NOTES.md`; companion phase files and audit ledgers remain in scope and must not be deleted to force the set to exactly eleven files.
+- For conflicting statements, preserve the feature goal and update the outdated document; record technical impossibility or accepted trade-offs in `ARCHITECTURE_DECISIONS.md`. Never use an older status statement to override newer verified code or test evidence.
+- Test denied permissions, no internet, no signal/SIM, stale GPS, process death, reboot, storage exhaustion, corrupt data, interrupted migrations, duplicate/out-of-order packets, and device incompatibilities.
+- Release requires reproducible build evidence, current-revision test reports, physical-device validation for critical paths, source/license audits, and documented residual risks.
+- Never merge or release solely because the documentation is polished.
