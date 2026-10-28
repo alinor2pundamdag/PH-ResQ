@@ -58,6 +58,7 @@ The current app includes versioned consent and privacy notice; encrypted emergen
 - [FEATURE_TRACEABILITY.md](FEATURE_TRACEABILITY.md) — feature-to-test traceability
 - [OFFLINE_DATA_IMPORT.md](OFFLINE_DATA_IMPORT.md) — JSON formats and safe import limitations
 - [TEST_ACCEPTANCE_MATRIX.md](TEST_ACCEPTANCE_MATRIX.md) — measurable acceptance tests
+- [SINGLE_PASS_DEVICE_ACCEPTANCE.md](SINGLE_PASS_DEVICE_ACCEPTANCE.md) — one consolidated physical-device test session and report template
 - [DATA_SOURCES_AND_RISKS.md](DATA_SOURCES_AND_RISKS.md) — data provenance, licensing, and risk register
 - [PRIVACY_NOTICE.md](PRIVACY_NOTICE.md) — current-build data handling and safety notice; legal review still required
 - [PHASE_1_INIT_CONSENT.md](PHASE_1_INIT_CONSENT.md) through [PHASE_6_CONCURRENCY_CHAOS.md](PHASE_6_CONCURRENCY_CHAOS.md) — phased specifications
