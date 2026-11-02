@@ -14,6 +14,8 @@ Preserve the requested:
 
 Implement visuals using the selected Android UI framework or a documented native rendering component. Earlier DOM/canvas examples are conceptual only and must not be used as proof of native implementation.
 
+The user supplied a circular PH-ResQ emblem as the required launcher-icon design. The deliverable is the circular emblem only, with transparent exterior and no photograph background. The generated PNG is a review asset; it must be checked at launcher sizes, integrated into Android mipmap/adaptive-icon resources, and verified on a physical launcher before the icon requirement is accepted.
+
 ## 2. Safety and usability rules
 - Never place animation over SOS controls, consent actions, or status/error messages.
 - Stop or reduce animation when backgrounded, low on battery, or when reduced-motion is enabled.
