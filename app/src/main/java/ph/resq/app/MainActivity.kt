@@ -40,6 +40,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -133,24 +135,45 @@ private fun ResQRoot() {
 
 @Composable
 private fun ConsentScreen(onAccept: () -> Unit, onDecline: () -> Unit) {
-    Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center) {
-        Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(12.dp))
-        Text("Paunawa sa privacy at kaligtasan", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(8.dp))
-        Text("Ang emergency contacts ay naka-encrypt sa device. Babasahin lang ang huling lokasyon kapag nagbigay ka ng location permission. Gagamitin lang ang microphone kapag pinili mong mag-record ng voice note; magsisimula lang ang BLE discovery kapag pinindot mo ang scan button.")
-        Spacer(Modifier.height(8.dp))
-        Text("Kapag naghanda ka ng SOS, bubuksan ang messaging app para ma-review at ikaw ang magpadala. Hindi kayang kumpirmahin ng app na natanggap o nabasa ang SMS. Walang remote family sync sa build na ito.")
-        Spacer(Modifier.height(8.dp))
-        Text("Maagang build ito: wala pang verified nationwide barangay directory, offline map package, Wi-Fi Direct/mesh transport, kumpletong PIN vault/recovery, o physical-device validation. Huwag itong ituring na validated emergency service.")
-        Spacer(Modifier.height(8.dp))
-        Text("Ang pagpapatuloy ay nangangahulugang tinanggap mo ang paunawang ito para sa version " + ConsentStore.CURRENT_POLICY_VERSION + ".")
-        Spacer(Modifier.height(20.dp))
-        Button(onClick = onAccept, modifier = Modifier.fillMaxWidth()) { Text("Nauunawaan ko at magpatuloy") }
-        Button(onClick = onDecline, modifier = Modifier.fillMaxWidth()) { Text("Hindi ako pumapayag — lumabas") }
+    // The scrollable notice and fixed actions are siblings: neither choice can scroll off-screen.
+    Column(
+        modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.weight(1f, fill = true).fillMaxWidth().verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+            Text("Privacy at safety notice", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text("Basahin ang paunawang ito bago magpatuloy. Maaari kang mag-scroll sa buong nilalaman; mananatiling nakikita sa ibaba ang Accept at Decline.")
+            Text("ANO ANG NAIIMBAK SA DEVICE", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("Ang emergency contact numbers at ilang sensitibong SOS/location field ay iniimbak nang naka-encrypt gamit ang Android Keystore. Ang SOS event history, search history, hotline bookmarks at family check-ins ay lokal na nakaimbak sa app database. Walang remote family sync sa build na ito.")
+            Text("LOCATION", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("Hindi ito tuloy-tuloy na location tracking. Hihingi lamang ang app ng location permission kapag gumamit ka ng location feature. Maaaring luma o hindi available ang last-known location; suriin ang timestamp at huwag ipagpalagay na live o eksakto ito.")
+            Text("MICROPHONE AT VOICE NOTES", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("Gagamitin lamang ang microphone kapag ikaw ang nagsimula ng voice-note recording at nagbigay ng permission. Ang note ay naka-encrypt habang nakaimbak. Kapag ibinahagi mo ito sa ibang app, gagawa ang PH-ResQ ng temporary decrypted copy para maipasa; ang recipient app at recipient ay nasa iyong pagpili.")
+            Text("BLUETOOTH / NEARBY DEVICES", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("Magsisimula lamang ang BLE discovery kapag pinindot mo ang scan at ibinigay ang kinakailangang permission. Sa build na ito, advertisement discovery lamang ito; hindi pa ito aktuwal na SOS mesh transmission.")
+            Text("SOS AT COMMUNICATIONS", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("Ang SOS action ay magbubukas ng messaging app na may draft. Ikaw ang magre-review at magpapadala. Ang pagbukas ng messaging app ay hindi patunay na naipadala, natanggap, nabasa, o nasagot ang mensahe. Ang hotline action ay maaari ring mabigo dahil sa SIM, signal, network o availability ng serbisyo.")
+            Text("LIMITASYON NG BUILD", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("Early test build ito. Wala pang verified nationwide barangay directory at licensed offline map package; hindi pa kumpleto ang Wi-Fi Direct/radio mesh, remote sync, data export/recovery at lahat ng device validation. Huwag itong ituring na validated emergency-response service at huwag itong gawing tanging paraan ng paghingi ng tulong.")
+            Text("IYONG PAGPILI", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("Ang Accept ay nagtatala na nabasa at tinanggap mo ang privacy at safety notice na ito para sa policy version " + ConsentStore.CURRENT_POLICY_VERSION + ". Maaari kang tumanggi at lumabas sa app. Ang pagtanggi ay hindi magbibigay ng access sa main screen.")
+            Spacer(Modifier.height(8.dp))
+        }
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Kailangan ang iyong pagpili upang magpatuloy.", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                Button(onClick = onAccept, modifier = Modifier.fillMaxWidth()) { Text("ACCEPT — Nauunawaan ko at magpatuloy") }
+                androidx.compose.material3.OutlinedButton(onClick = onDecline, modifier = Modifier.fillMaxWidth()) {
+                    Text("DECLINE — Hindi ako pumapayag, lumabas")
+                }
+            }
+        }
     }
 }
-
 @Composable
 private fun HomeScreen(onToggleHighContrast: () -> Unit) {
     val context = LocalContext.current
