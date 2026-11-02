@@ -48,7 +48,10 @@ jobs:
           CHECKED_OUT_COMMIT="$(git rev-parse HEAD)"
           test "$CHECKED_OUT_COMMIT" = "$SOURCE_COMMIT"
           printf 'source_commit=%s\nchecked_out_commit=%s\nrun_id=%s\nrun_attempt=%s\nrelease_variant=unsigned\n' "$SOURCE_COMMIT" "$CHECKED_OUT_COMMIT" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > build/evidence/BUILD_METADATA.txt
-          find app/build/outputs/apk -type f -name '*.apk' -print0 | xargs -0 sha256sum > build/evidence/SHA256SUMS
+          mkdir -p build/distributions
+          cp app/build/outputs/apk/debug/app-debug.apk build/distributions/PH-ResQ-debug.apk
+          cp app/build/outputs/apk/release/app-release-unsigned.apk build/distributions/PH-ResQ-release-unsigned.apk
+          sha256sum build/distributions/*.apk > build/evidence/SHA256SUMS
           test -s build/evidence/SHA256SUMS
       - name: Upload APKs and build evidence
         if: success()
@@ -56,7 +59,7 @@ jobs:
         with:
           name: ph-resq-apk-builds
           path: |
-            app/build/outputs/apk/**/*.apk
+            build/distributions/*.apk
             build/evidence/*
           if-no-files-found: error
           retention-days: 14

@@ -4,9 +4,10 @@ Current decision: **NO-GO for production release.** Controlled APK testing is al
 
 ## Build and engineering
 - [x] Historical baseline commit `408e2aaaea09df70400c92038b405c5d5a47d337` passed unit tests and debug/release assemble ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40451629467)); this is not evidence for the current candidate.
-- [x] Latest PR-head workflow [41378995667](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41378995667) completed successfully for `99457bdc4d07214be1bf3e4fbb581cd64c8fc061`.
-- [x] CI step verified `BUILD_METADATA.txt` source/checkout SHAs match that exact commit.
-- [x] Debug/release APKs and checksum evidence uploaded in artifact `ph-resq-apk-builds` (ID `13112418255`, expires 2026-11-16); archive digest `9ba182f9a8bad038d454af74c54ca89a36388ef569e6f26a71e4525cce3576cf`.
+- [x] Latest validated PR-head workflow [41380309779](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41380309779) completed successfully for `cfef2855f69c5605ee1d3bcaf4175d3fbfcbf429`.
+- [x] CI verified `BUILD_METADATA.txt` source/checkout SHAs match that exact commit.
+- [x] Debug/release APKs and checksum evidence uploaded in artifact `ph-resq-apk-builds` (ID `13112892154`, expires 2026-11-16); archive digest `90f3b6b948be5120192f56ab67a619477632f0fa8ef5272b0736dc1db9010ef5`.
+- [ ] Re-run after canonical artifact-name alignment and use only that final successful run for the one-session device test.
 - [ ] Release APK signing configured and verified; current release variant is unsigned.
 - [ ] Release variant builds reproducibly from a clean checkout with documented local build instructions.
 - [ ] Dependency versions, SDK levels, and release notes are reviewed.

@@ -1,6 +1,6 @@
 # PH-ResQ Test & Acceptance Matrix
 
-**Latest current-head CI evidence:** PR #1 head `99457bdc4d07214be1bf3e4fbb581cd64c8fc061` passed [run 41378995667](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41378995667): `lintDebug`, `testDebugUnitTest`, `assembleDebug`, `assembleRelease`, exact-SHA verification, and APK/evidence upload. Artifact `ph-resq-apk-builds` ID `13112418255` is available until 2026-11-16 (archive SHA-256 `9ba182f9a8bad038d454af74c54ca89a36388ef569e6f26a71e4525cce3576cf`). CI success is not feature acceptance. The full acceptance matrix has not passed: unexecuted tests remain open.
+**Latest validated CI evidence before artifact-name alignment:** PR #1 head `cfef2855f69c5605ee1d3bcaf4175d3fbfcbf429` passed [run 41380309779](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41380309779): `lintDebug`, `testDebugUnitTest`, `assembleDebug`, `assembleRelease`, exact-SHA verification, and APK/evidence upload. Artifact `ph-resq-apk-builds` ID `13112892154` is available until 2026-11-16 (archive SHA-256 `90f3b6b948be5120192f56ab67a619477632f0fa8ef5272b0736dc1db9010ef5`). A CI-only naming alignment follows; use the next successful exact-head artifact for the consolidated device session. CI success is not feature acceptance. The full acceptance matrix has not passed: physical-device and data/security tests remain open.
 **Rule:** Record repository commit SHA, build variant, device/API, test result, logs/screenshots, and tester for each executed case.
 
 | Test ID | Scenario | Expected result | Evidence required | Gate |

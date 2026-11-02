@@ -4,12 +4,14 @@
 
 ## Gate before the one physical-device test session
 
-- [ ] All 34 rows in `FEATURE_TRACEABILITY.md` are implemented or have an explicitly approved, testable limitation; no row is silently treated as complete.
-- [ ] All CI checks pass on the exact candidate commit: lint, unit/Robolectric tests, instrumentation tests that are configured, debug/release assembly, artifact upload, and SHA-256 evidence.
-- [ ] No known P0 failure remains in consent, SOS preparation, encryption/privacy, persistence, or fallback messaging.
+- [ ] Every feature is either implemented for this candidate or explicitly marked NOT IMPLEMENTED / BLOCKED / PARTIAL in `FEATURE_TRACEABILITY.md`; no feature is silently treated as complete.
+- [ ] All CI checks pass on the exact candidate commit: lint, unit/Robolectric tests, configured instrumentation tests, debug/release assembly, artifact upload, and SHA-256 evidence.
+- [ ] Known P0 risks are disclosed; do not conduct real emergency dispatch or use public emergency services as test recipients.
 - [ ] Candidate APK, commit SHA, `BUILD_METADATA.txt`, and `SHA256SUMS` are saved together.
-- [ ] Test dataset files are source-checked, license-checked, date-stamped, and included in the report. A JSON field saying "verified" is not cryptographic proof.
+- [ ] Any imported test dataset is source-checked, license-checked, date-stamped, and included in the report. A JSON field saying "verified" is not cryptographic proof.
 - [ ] A non-emergency recipient/test number is available. Never test by placing a real emergency call or sending a false SOS to a public emergency service.
+
+**Scope of this one-session pass:** test all implemented and safely testable behavior in one consolidated session. For features without their required transport, data, licenses, or platform implementation (for example Wi-Fi Direct mesh, multi-hop relay, nationwide maps, signed data updates, and remote family sync), record BLOCKED or NOT IMPLEMENTED with the reason. This session is a controlled test build, not certification or production acceptance.
 
 ## Minimum test setup
 

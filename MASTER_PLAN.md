@@ -28,7 +28,6 @@ All requirements in this document remain in scope unless an explicit architectur
 - Artifact filenames: `PH-ResQ-debug.apk` and `PH-ResQ-release-unsigned.apk`; a signed production APK may be named `PH-ResQ.apk` only after signing and release authorization.
 - Android `@string/app_name` is the single source of truth for the installer and launcher label. Store/download metadata must use the same exact public name.
 
-- The intended visual identity includes
 - The intended visual identity includes a clean emergency-first interface, neon/glass styling used without compromising legibility, and a Philippine-flag color-looping title (yellow, blue, red, white) with an optional flag-waving background.
 - Animation must respect Android reduced-motion/accessibility settings, avoid obscuring emergency controls, and stop or reduce work when the app is backgrounded or battery constrained.
 - Emergency actions must remain immediately discoverable. Decorative effects must never delay SOS initiation or block interaction.
