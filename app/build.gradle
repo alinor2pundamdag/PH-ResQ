@@ -1,0 +1,24 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'org.phresq.app'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'org.phresq.app'
+        minSdk 23
+        targetSdk 35
+        versionCode 1
+        versionName '0.1.0'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+// Artifact basename for downloads; the installed launcher name comes from app_name.
+android.applicationVariants.all { variant ->
+    variant.outputs.all { output ->
+        output.outputFileName = "PH-ResQ-${variant.name}.apk"
+    }
+}

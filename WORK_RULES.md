@@ -1,29 +1,14 @@
-# PH-ResQ Vanguard 2026: Official Operational Rules & Work Protocol (`WORK_RULES.md`)
+# PH-ResQ: work and safety rules
 
-This document serves as the absolute, non-negotiable operational charter governing all interactions, code generation, architectural planning, and repository management for **PH-ResQ Vanguard 2026**.
+## Repository changes
+Do not create, edit, commit or push repository files without explicit authorization from the owner. Audit-only requests are read-only. Keep changes reviewable and report what was tested and what remains unverified.
 
----
-
-## 🛑 1. Rule of Zero Unsolicited Modifications (Strict Repository Lock)
-- **Absolute Restriction:** The AI assistant is **strictly prohibited** from creating, updating, modifying, committing, or pushing any files or code changes to the GitHub repository without an explicit, direct, and unambiguous command from the repository owner (Alinor). 
-
-## 🔍 2. The "Double-Audit" & Zero-Crash Policy
-- **Emergency-Grade Stability:** Zero-crash, zero-bug, and zero-failure standards are mandatory. All logic must undergo rigorous double-checking to eliminate null pointers, memory leaks, and UI overflows.
-- **Graceful Degradation:** All sensor, GPS, and storage operations must include airtight fallback mechanisms to prevent app freezing during crises.
-
-## 📡 3. Advanced P2P Proximity & Mesh Architecture Rules
-- **BLE RSSI & Trilateration:** Must use low-power Bluetooth beaconing and RSSI distance estimation with multi-peer trilateration.
-- **Wi-Fi Direct & Geohash:** High-speed peer handshakes and local IndexedDB Geohash spatial indexes must operate entirely offline without server dependencies.
-- **Rolling Cryptographic Tokens:** Device IDs must rotate periodically using AES-GCM encryption to maintain absolute privacy under **RA 10173**.
-- **Battery Protection Guard:** BLE and Wi-Fi Direct scanning loops must enforce an automatic **15-second timeout and background throttling** to conserve device battery during prolonged zero-peer states.
-
-## 🔒 4. Security, Consent, Duress & Privacy Protocols
-- **Non-Bypassable Persistent Consent Loop:** First launch presents mandatory policy acceptance. Declining triggers a warning, forces an exit to the device home screen, sets a `DECLINED` flag, and blocks dashboard access indefinitely until accepted, without blocking active reading.
-- **Duress PIN Silent Recovery Protocol:** Entering a secondary panic passcode silently opens a clean dummy vault during coercion. The app **never** displays errors or warnings confirming a fake PIN was entered, guaranteeing absolute physical protection.
-- **Stealth Audio Mute Mode:** Supports instant silencing of audible sirens and alarms for high-risk security threats (hostage/break-in) while transmitting silent GPS coordinates.
-- **Offline Family QR Code Card:** Dynamically generates secure offline QR codes from encrypted local Medical ID vaults for instant scanning by emergency responders.
-
-## 📦 5. Storage, Persistence & Legal Framework
-- **Strict Storage Budget:** ~100MB to ~150MB total installed footprint (APK ~30MB, Directory JSON ~15MB, MBTiles vector maps ~100MB).
-- **6-Layer Persistence:** Active Mode, Contact Vault, GPS Fallback, Crisis SOS State, Search History, and Map Tiles.
-- **Legal Compliance:** Apache License 2.0, RA 10173 (Data Privacy Act), and RA 10639 (Free Mobile Disaster Alerts Act).
+## Safety and evidence
+- Never claim zero bugs, guaranteed rescue, guaranteed SMS delivery, exact BLE distance or legal compliance without evidence. Test graceful failure for denied permissions, unavailable GPS, dead battery, no cell coverage, corrupt storage and stale data.
+- Treat this repository as a proposal until a working app and repeatable device tests exist. Do not ship illustrative snippets as production code.
+- Preserve access to essential emergency information where possible without unnecessary consent. Obtain separate, specific consent for sensitive processing; offer withdrawal and deletion flows. Review privacy and emergency-access decisions with Philippine legal/privacy specialists.
+- Never imply Apache 2.0 acceptance is required to use an app: the license governs distribution of repository contents, not an end-user privacy agreement.
+- Minimize sensitive data; encrypt at rest with platform-managed keys where appropriate, authenticate peer traffic, specify retention/deletion, and avoid plaintext medical data in QR codes without explicit informed consent.
+- Use explicit user confirmation for sending SOS and for any change to alarm volume. No stealth transmission or duress-triggered dispatch until safety, legal and false-trigger risks are reviewed.
+- Validate hotline and evacuation data against authoritative sources, date each record and display stale/unverified status. Do not silently redirect calls to unverified numbers.
+- Prefer a simple dependable emergency path over animation or experimental mesh networking; respect reduced-motion settings and battery limits.

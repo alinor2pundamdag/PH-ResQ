@@ -1,69 +1,10 @@
-# PH-ResQ Vanguard 2026: Phase 6 - Concurrency, Memory Management & Chaos Testing
+# Phase 6: reliability and release verification
 
-## Objective
-Establish deterministic concurrency controls (Mutex locks and atomic database transactions), prevent memory leaks on low-end Android RAM profiles, and execute extreme edge-case chaos engineering simulations for a 100% Zero-Crash Guarantee.
+**Specification only; no test suite or concurrency code exists here.**
 
----
+1. Specify state transitions for SOS, queueing, cancellation and retries. Use transactional storage operations; a UI mutex alone does not make database writes atomic. Test re-entrancy, cancellation, timeouts and process death.
+2. Dispose timers, listeners, location updates and radio sessions on lifecycle transitions. Measure memory/battery on low-end devices rather than claiming zero leaks.
+3. Inject failures: absent GPS, no SIM/signal, stale location, revoked permissions, broken storage, corrupted dataset, low battery, background termination, concurrent SOS taps and clock drift. Provide visible failure and manual fallback.
+4. Automate unit/integration/device checks and document reproducible builds. Run hands-on accessibility, security/privacy and emergency workflow reviews before release.
 
-## Step 1: Mutex Lock & Atomic Concurrency Manager
-Create `src/core/ConcurrencyLock.ts` to prevent race conditions during simultaneous database writes and BLE transmissions:
-
-```typescript
-export class MutexLock {
-  private locked: boolean = false;
-  private waitQueue: (() => void)[] = [];
-
-  public async acquire(): Promise<void> {
-    if (!this.locked) {
-      this.locked = true;
-      return;
-    }
-    return new Promise<void>((resolve) => {
-      this.waitQueue.push(resolve);
-    });
-  }
-
-  public release(): void {
-    if (this.waitQueue.length > 0) {
-      const nextResolve = this.waitQueue.shift()!;
-      nextResolve();
-    } else {
-      this.locked = false;
-    }
-  }
-}
-```
-
----
-
-## Step 2: Memory Leak Prevention & Garbage Collection Hooks
-Create `src/core/LifecycleManager.ts` to ensure strict resource disposal across background services:
-
-```typescript
-export interface IDisposable {
-  dispose(): void;
-}
-
-export class LifecycleManager {
-  private static disposables: Set<IDisposable> = new Set();
-
-  public static register(disposable: IDisposable): void {
-    this.disposables.add(disposable);
-  }
-
-  public static unregister(disposable: IDisposable): void {
-    this.disposables.delete(disposable);
-  }
-
-  public static teardownAll(): void {
-    for (const item of this.disposables) {
-      try {
-        item.dispose();
-      } catch (e) {
-        console.error('Error during resource disposal:', e);
-      }
-    }
-    this.disposables.clear();
-  }
-}
-```
+**Acceptance gate:** recorded test matrix, measured crash/failure rates, outstanding risks and an explicit go/no-go review. No 'zero-crash' guarantee.
