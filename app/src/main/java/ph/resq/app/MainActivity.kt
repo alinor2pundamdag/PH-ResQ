@@ -121,13 +121,19 @@ private fun ResQRoot() {
                         consentStore.setAccepted(true)
                         consentAccepted = true
                     },
-                    onDecline = { (context as? Activity)?.finish() }
+                    onDecline = { consentStore.setAccepted(false); (context as? Activity)?.finish() }
                 )
             } else {
-                HomeScreen(onToggleHighContrast = {
-                    highContrast = !highContrast
-                    appPrefs.edit().putBoolean("high_contrast", highContrast).apply()
-                })
+                HomeScreen(
+                    onToggleHighContrast = {
+                        highContrast = !highContrast
+                        appPrefs.edit().putBoolean("high_contrast", highContrast).apply()
+                    },
+                    onReviewPrivacy = {
+                        consentStore.setAccepted(false)
+                        consentAccepted = false
+                    }
+                )
             }
         }
     }
@@ -175,7 +181,7 @@ private fun ConsentScreen(onAccept: () -> Unit, onDecline: () -> Unit) {
     }
 }
 @Composable
-private fun HomeScreen(onToggleHighContrast: () -> Unit) {
+private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> Unit) {
     val context = LocalContext.current
     var medicalName by remember { mutableStateOf("") }
     var medicalBloodType by remember { mutableStateOf("") }
@@ -540,6 +546,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit) {
         Text("Emergency-first • offline-aware • early build")
         Button(onClick = onToggleHighContrast, modifier = Modifier.fillMaxWidth()) {
             Text("HIGH CONTRAST: " + if (MaterialTheme.colorScheme.background == Color.Black) "ON — tap to disable" else "OFF — tap to enable")
+        }
+        Button(onClick = onReviewPrivacy, modifier = Modifier.fillMaxWidth()) {
+            Text("REVIEW PRIVACY NOTICE / WITHDRAW CONSENT")
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

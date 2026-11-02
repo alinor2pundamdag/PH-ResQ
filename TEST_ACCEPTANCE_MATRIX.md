@@ -77,7 +77,7 @@ This map ensures every retained requirement has at least one planned acceptance 
 | F-025 | T-021 | Source and freshness metadata must be visible. |
 | F-026 | T-034 | No live LGU feed is implied by local JSON import. |
 | F-027 | T-035 | Cell Broadcast remains an OS/carrier/government capability. |
-| F-028 | T-001, T-002, T-003 | Consent/privacy review is separate from unit-test success. |
+| F-028 | T-001, T-002, T-003, T-043, T-044 | Consent/privacy review is separate from unit-test success; scrolling and fixed actions require UI/device evidence. |
 | F-029 | T-008, T-010, T-025, T-028 | Chaos testing must include interrupted operations and recovery. |
 | F-030 | T-023 | Animation must respect reduce-motion and never block emergency controls. |
 | F-031 | T-014, T-038 | Scan-window compliance and battery measurement are separate assertions. |

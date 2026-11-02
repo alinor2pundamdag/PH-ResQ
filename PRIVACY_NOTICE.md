@@ -3,7 +3,7 @@
 **Notice version:** 2026-11-02-v2  
 **Status:** Early-build notice; requires legal/privacy review before public release.
 
-This notice is shown on first launch and whenever the policy version changes. The user must explicitly Accept to enter the main screen. Declining exits the activity. The notice content scrolls independently while Accept and Decline remain in a fixed, always-visible action area. Acceptance is persisted with the exact policy version and timestamp.
+This notice is shown on first launch and whenever the policy version changes. The user must explicitly Accept to enter the main screen. Declining exits the activity and clears acceptance. The notice content scrolls independently while Accept and Decline remain in a fixed action area. Acceptance is persisted with the exact policy version and timestamp. The main screen provides a review/withdraw control; withdrawing clears acceptance and returns to this gate. Withdrawing consent does not itself delete previously stored app data.
 
 ## What this build stores
 
