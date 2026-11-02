@@ -34,9 +34,3 @@ jobs:
             done
             exit 1
           }
-      - name: Upload installable debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: PH-ResQ-debug-apk
-          path: app/build/outputs/apk/debug/PH-ResQ-debug.apk
-          if-no-files-found: error

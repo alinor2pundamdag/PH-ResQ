@@ -1,7 +1,7 @@
 # PH-ResQ Vanguard 2026 🇵🇭
 
 > **Status: concept and implementation plan only. NOT an operational emergency app.**
-> This repository now has an experimental Android source project, but a CI-built debug APK (not device-tested), no emergency directory, maps, automated tests, or verified hotline data. **Do not rely on it to request help.** For a real emergency, use available official local emergency channels.
+> This repository now has an experimental Android source project, but a CI-built debug APK from an earlier source revision (not device-tested), no emergency directory, maps, automated tests, or verified hotline data. **Do not rely on it to request help.** For a real emergency, use available official local emergency channels.
 
 PH-ResQ is a proposed offline-first mobile emergency aid for the Philippines. The Android source implements only a small **unverified prototype**: a consent choice, a blue/red dashboard inspired by the owner-provided infographic, offline general guidance, a locally saved incident note, manual 911 dialer launcher, one locally saved contact, optional last-known location display, and a review-before-send SMS composer. Unsupported tiles explicitly say they are unavailable rather than showing fabricated live alerts. It does not itself place calls or send SMS. The plan documents describe *intended* additional behavior, not shipped functionality. Offline maps and saved guidance may work without internet **once implemented and downloaded**; SMS/calls require a working cellular network, and device-to-device messaging requires compatible nearby devices, permissions, and working radios. No delivery is guaranteed.
 
@@ -27,3 +27,7 @@ Install JDK 17, Android SDK platform 35 and Gradle 8.9+ with access to Google Ma
 4. Add repeatable unit, integration, device and offline/low-battery tests, plus privacy/security review. Do not advertise or deploy as a safety tool until independently tested.
 
 See the phase documents for specific acceptance criteria. Proposed budgets, administrative counts, response times and accuracy targets must be measured against dated sources before publication.
+
+## Public data refresh (source code; not in earlier downloadable APK)
+
+The Android source now includes a best-effort Android JobScheduler refresh (network required, approximately every six hours, OS may defer it) for USGS public all-day earthquake observations filtered to Philippine coordinates. It saves the last successful observation summary locally and displays its retrieval timestamp; offline/failed fetch retains the old cache. It is **not** PHIVOLCS data, a weather warning, or guaranteed emergency notification. No general website scraper or unverified hotline auto-overwrite exists. The earlier CI APK artifact does **not** include these unbuilt source changes.

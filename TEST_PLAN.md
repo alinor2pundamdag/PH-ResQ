@@ -10,3 +10,5 @@ Run only on a spare test device with a test contact number. Never send a false e
 6. Save an incident note, restart and confirm persistence, then delete it. In Settings delete local data and confirm first-launch screen returns; verify contact and note are cleared. Toggle airplane mode and battery saver; repeat, observing app never claims successful message delivery or live GPS. Test large font, TalkBack, rotation, process kill and relaunch.
 
 **Release blocker:** this checklist is not evidence of passing tests. The project lacks validated nationwide data, maps, encrypted vault, actual mesh transport, verified weather feeds, integration tests and independent safety review.
+
+7. With consent granted, connect and refresh USGS observations; verify source/time labels. Disconnect and refresh: old cache remains labeled with its original timestamp. Delete local data: cache and scheduled refresh are removed. Do not interpret observations as PHIVOLCS warnings.

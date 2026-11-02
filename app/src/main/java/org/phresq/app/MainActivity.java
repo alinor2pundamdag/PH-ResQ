@@ -41,7 +41,7 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         vault = new LocalVault(this);
-        if (getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean("privacy_v1", false)) showDashboard();
+        if (getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean("privacy_v1", false)) { FeedJob.schedule(this); showDashboard(); }
         else showPrivacy();
     }
 
@@ -73,7 +73,7 @@ public final class MainActivity extends Activity {
         info(root, "Kapag tinanggap, mase-save sa device ang privacy choice at maaari mong burahin ito sa Settings. Hihingin nang hiwalay ang location permission kapag ginamit mo ang location button.");
         button(root, "Tanggapin at magpatuloy", () -> {
             boolean saved = getSharedPreferences(PREFS, MODE_PRIVATE).edit().putBoolean("privacy_v1", true).commit();
-            if (saved) showDashboard();
+            if (saved) { FeedJob.schedule(this); showDashboard(); }
             else Toast.makeText(this, "Hindi na-save ang pagpili. Subukan muli.", Toast.LENGTH_LONG).show();
         });
         button(root, "Tumanggi — basahin ang gabay", this::showGuidance);
@@ -82,6 +82,8 @@ public final class MainActivity extends Activity {
     private void showDashboard() {
         LinearLayout root = page("🇵🇭 PH-ResQ", "Be ready. Be safe. Be resilient. · ANDROID");
         card(root, "⚠  WALANG LIVE DISASTER ALERT", "Hindi nakakonekta sa opisyal na weather o hazard feed. Huwag umasa rito para sa babala.", Color.rgb(170, 36, 36), null);
+        card(root, "EARTHQUAKE OBSERVATIONS", EarthquakeFeed.cached(this), NAVY, null);
+        button(root, "I-refresh ang USGS observations", () -> EarthquakeFeed.refresh(this, result -> { Toast.makeText(this, result, Toast.LENGTH_LONG).show(); showDashboard(); }));
         title(root, "Mga kasangkapan", 21);
         LinearLayout row1 = row(root);
         tile(row1, "SOS\nEmergency", Color.rgb(213, 35, 45), this::showHome);
@@ -139,7 +141,7 @@ public final class MainActivity extends Activity {
         card(root, "LINDOL", "Drop, Cover, Hold On. Lumayo sa salamin at bumabagsak na bagay. Pagkatapos ng pagyanig, lumabas nang maingat at bantayan ang aftershocks.", NAVY, null);
         card(root, "MEDICAL EMERGENCY", "Tumawag sa lokal na emergency service. Ibigay ang lokasyon at sintomas. Sundin ang instruksyon ng trained responder; huwag umasa sa app bilang medikal na payo.", BLUE, null);
         button(root, "Balik sa privacy screen / dashboard", () -> {
-            if (getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean("privacy_v1", false)) showDashboard();
+            if (getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean("privacy_v1", false)) { FeedJob.schedule(this); showDashboard(); }
             else showPrivacy();
         });
     }
@@ -179,7 +181,8 @@ public final class MainActivity extends Activity {
                 .setPositiveButton("Burahin", (d, which) -> {
                     boolean ok = vault.clear();
                     if (ok) ok = getSharedPreferences(PREFS, MODE_PRIVATE).edit().clear().commit();
-                    if (ok) { lastLocation = null; showPrivacy(); }
+                    if (ok) ok = EarthquakeFeed.clear(this);
+                    if (ok) { FeedJob.cancel(this); lastLocation = null; showPrivacy(); }
                     else Toast.makeText(this, "Hindi nabura ang data; subukan muli.", Toast.LENGTH_LONG).show();
                 }).show());
         button(root, "Bumalik sa dashboard", this::showDashboard);
