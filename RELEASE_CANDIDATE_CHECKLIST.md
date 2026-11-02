@@ -4,9 +4,9 @@ Current decision: **NO-GO for production release.** Controlled APK testing is al
 
 ## Build and engineering
 - [x] Historical baseline commit `408e2aaaea09df70400c92038b405c5d5a47d337` passed unit tests and debug/release assemble ([run](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40451629467)); this is not evidence for the current candidate.
-- [x] Latest PR-head workflow [41375749076](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41375749076) completed successfully for `4e66534f6681bd7decdc116e1df856001e4f7b5a`.
+- [x] Latest PR-head workflow [41378995667](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41378995667) completed successfully for `99457bdc4d07214be1bf3e4fbb581cd64c8fc061`.
 - [x] CI step verified `BUILD_METADATA.txt` source/checkout SHAs match that exact commit.
-- [x] Debug/release APKs and checksum evidence uploaded in artifact `ph-resq-apk-builds` (ID `13110844046`, expires 2026-11-16); archive digest `32a1d212d31ac0360a18b1c7a24e08740df670fc4658e8624bdd7c3dd3baba27`.
+- [x] Debug/release APKs and checksum evidence uploaded in artifact `ph-resq-apk-builds` (ID `13112418255`, expires 2026-11-16); archive digest `9ba182f9a8bad038d454af74c54ca89a36388ef569e6f26a71e4525cce3576cf`.
 - [ ] Release APK signing configured and verified; current release variant is unsigned.
 - [ ] Release variant builds reproducibly from a clean checkout with documented local build instructions.
 - [ ] Dependency versions, SDK levels, and release notes are reviewed.

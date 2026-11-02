@@ -2,7 +2,15 @@
 
 **Collection revision:** 2026-11-02  
 **Status:** Architecture collection consistency correction on the existing feature branch; PR #1 remains open and unmerged.
-**Latest verified PR head before this documentation-only correction:** `4e66534f6681bd7decdc116e1df856001e4f7b5a` passed CI run [41375749076](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41375749076). Any new commit created by this correction requires its own CI result before it is build-validated.
+**Latest verified PR head before this documentation-only correction:** `99457bdc4d07214be1bf3e4fbb581cd64c8fc061` passed CI run [41378995667](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41378995667). Any new commit created by this correction requires its own CI result before it is build-validated.
+
+## 2026-11-02 — Revalidate latest Android candidate
+
+- Latest PR #1 head `99457bdc4d07214be1bf3e4fbb581cd64c8fc061` passed CI run [41378995667](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41378995667).
+- CI executed `lintDebug`, `testDebugUnitTest`, `assembleDebug`, and `assembleRelease`; logs report `BUILD SUCCESSFUL in 4m 7s`.
+- Exact source/checkout SHA verification and APK checksum/build-evidence generation succeeded.
+- Artifact `ph-resq-apk-builds` ID `13112418255` was uploaded; archive SHA-256 is `9ba182f9a8bad038d454af74c54ca89a36388ef569e6f26a71e4525cce3576cf`, expires 2026-11-16. Release APK remains unsigned.
+- This is build/test evidence only. Physical-device, nationwide data, map renderer/licensing, Wi-Fi Direct, operational mesh, delivery, recovery, and accessibility acceptance remain open.
 
 ## 2026-11-02 — Architecture collection consistency correction
 
