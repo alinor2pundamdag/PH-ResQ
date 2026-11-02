@@ -44,6 +44,8 @@ The current app includes versioned consent and privacy notice; encrypted emergen
 
 ## Documentation map
 
+- [ARCHITECTURE_COLLECTION.md](ARCHITECTURE_COLLECTION.md) — consolidated index and architecture source-of-truth hierarchy
+- [SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md) — component diagram, SOS/data/mesh flows, trust boundaries and failure behavior
 - [MASTER_PLAN.md](MASTER_PLAN.md) — master scope, architecture, and release gate
 - [WORK_RULES.md](WORK_RULES.md) — repository and implementation safeguards
 - [features_update.md](features_update.md) — retained feature inventory and status rules
