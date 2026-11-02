@@ -1,18 +1,18 @@
 package ph.resq.app.core
 
 import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class ConsentStoreTest {
-    private fun context(): Context = ApplicationProvider.getApplicationContext()
+    private fun context(): Context = RuntimeEnvironment.getApplication()
 
     @Test fun acceptanceIsVersionedAndPersistsAcrossStoreInstances() {
         val context = context()
