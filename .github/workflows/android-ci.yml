@@ -16,13 +16,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Check Android SDK
+      - name: Configure preinstalled Android SDK
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          command -v sdkmanager
-          sdkmanager --list_installed | head -50
-      - name: Install Android SDK
-        run: yes | sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+          echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> "$GITHUB_ENV"
+          test -d /usr/local/lib/android/sdk/platforms/android-35
+          test -d /usr/local/lib/android/sdk/build-tools/35.0.0
       - name: Install Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
