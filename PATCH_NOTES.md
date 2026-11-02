@@ -1,8 +1,15 @@
 # PH-ResQ Architecture Collection — Patch Notes
 
-**Collection revision:** 2026-10-28  
-**Status:** Documentation consistency pass in progress on the existing feature branch; not merged to `main`.
-**Reviewed baseline:** PR #1 head `343f2f0b76c8de5fed7cc1f03b4a38de32098d43` passed current-head CI run [40628394485](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40628394485). Any subsequent commit—including this collection correction—requires its own CI result before that newer revision is build-validated.
+**Collection revision:** 2026-11-02  
+**Status:** Architecture collection consistency correction on the existing feature branch; PR #1 remains open and unmerged.
+**Latest verified PR head before this documentation-only correction:** `4e66534f6681bd7decdc116e1df856001e4f7b5a` passed CI run [41375749076](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41375749076). Any new commit created by this correction requires its own CI result before it is build-validated.
+
+## 2026-11-02 — Architecture collection consistency correction
+
+- Reconciled the implementation status, release checklist, and acceptance matrix with the actual open PR head and latest successful current-head CI run.
+- Removed superseded commit/run/artifact references from current-status sections; preserved the rule that older successful runs do not validate newer commits.
+- Removed a duplicate acceptance-matrix rule and advanced the collection revision to 1.1.
+- Confirmed PR #1 remains open/unmerged and the release APK remains unsigned; this documentation update does not authorize merge or release.
 
 ## 2026-11-02 — Canonical application naming
 

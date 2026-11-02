@@ -1,6 +1,6 @@
 # PH-ResQ Architecture Collection
 
-**Collection version:** 1.0  
+**Collection version:** 1.1  
 **Project:** PH-ResQ Vanguard 2026  
 **Platform baseline:** Native Android — Kotlin, Jetpack Compose, Android lifecycle APIs  
 **Status:** Consolidated architecture reference for a partially implemented project. This collection is not a declaration of feature completion, emergency-service certification, nationwide data coverage, or release readiness.  
@@ -93,7 +93,7 @@ A successful compile does not prove radio interoperability, SMS delivery, nation
 
 ## Current implementation boundary (2026-11-02)
 
-The repository contains a native Android scaffold and partial implementations including consent/privacy UI, SOS preparation and messaging-app handoff, local persistence, selected encrypted fields and PIN vault, location helpers, voice-note handling, local directory/advisory/evacuation caches and bounded JSON import, map-tile cache metadata, BLE discovery, mesh packet/queue primitives, and a visible SOS handoff status service. The latest PR-head commit `15d3456b47bd5afbcc926c0a6aa2da3ff40ef60f` passed CI run [41373968292](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41373968292), including lint, unit tests, debug/release assembly and exact-SHA artifact evidence; this is not physical-device acceptance. The supplied PH-ResQ circular emblem has been rendered as a transparent launcher-icon image for review; repository integration and device launcher verification remain pending.
+The repository contains a native Android scaffold and partial implementations including consent/privacy UI, SOS preparation and messaging-app handoff, local persistence, selected encrypted fields and PIN vault, location helpers, voice-note handling, local directory/advisory/evacuation caches and bounded JSON import, map-tile cache metadata, BLE discovery, mesh packet/queue primitives, and a visible SOS handoff status service. The latest PR-head commit `4e66534f6681bd7decdc116e1df856001e4f7b5a` passed CI run [41375749076](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41375749076), including lint, unit tests, debug/release assembly and exact-SHA artifact evidence; this is not physical-device acceptance. The supplied PH-ResQ circular emblem has been rendered as a transparent launcher-icon image for review; repository integration and device launcher verification remain pending.
 
 The following remain incomplete or unverified: complete six-area persistence/recovery, nationwide authoritative directory, licensed offline map package and renderer, live PAGASA/LGU ingestion, signed dataset manifest/update/rollback, SMS delivery receipt, authenticated peer-key establishment, BLE payload transport, Wi-Fi Direct, multi-hop mesh, remote family sync, duress vault, full accessibility/security/legal review, and physical-device acceptance.
 
