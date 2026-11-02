@@ -1,6 +1,6 @@
 # PH-ResQ Vanguard 2026: proposed architecture
 
-**Planning document, not a functional product.** An unbuilt native Android source now exists in `app/` with a privacy screen, dashboard, offline general guidance, local incident note, manual dialer/SMS composer, one local contact and last-known location display. No verified nationwide dataset, automated test suite, built APK or deployed service is present. The items below are requirements and research questions, not completed features.
+**Planning document, not a functional product.** An unbuilt native Android source now exists in `app/` with a privacy screen, dashboard, offline general guidance, local incident note, manual dialer/SMS composer, one local contact and last-known location display. A debug APK was built by CI from commit `65f89b8` (run `41445922041`), but it has not been installed or device-tested. No verified nationwide dataset, automated test suite or deployed service is present. The items below are requirements and research questions, not completed features.
 
 ## 1. Scope and emergency baseline
 Build an offline-first Android aid with stored emergency guidance, user-managed emergency contacts, a clearly labeled SOS action and a vetted local hotline directory. Offline content must not imply that cellular SMS/calls or nearby-device delivery work during a network outage. Show delivery status as *attempted*, *sent by device*, or *unknown*; never conflate these with receipt or rescue. Always show a manual fallback and location age/accuracy. Support users without GPS or with denied permissions.
