@@ -40,7 +40,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -142,7 +142,7 @@ private fun ResQRoot() {
 private fun ConsentScreen(onAccept: () -> Unit, onDecline: () -> Unit) {
     // The scrollable notice and fixed actions are siblings: neither choice can scroll off-screen.
     Column(
-        modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp, vertical = 12.dp),
+        modifier = Modifier.fillMaxSize().safeContentPadding().padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Column(
@@ -529,7 +529,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     )
     val visibleWave = if (reduceMotion) 0f else wave
     val visibleColorPhase = if (reduceMotion) 0f else colorPhase
-    Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(Modifier.fillMaxSize().safeContentPadding().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(
             Modifier.fillMaxWidth().height(8.dp).graphicsLayer(rotationZ = visibleWave)
                 .background(Brush.horizontalGradient(listOf(Color.Blue, Color.Red, Color.White, Color.Yellow, Color.White, Color.Red, Color.Blue)))
