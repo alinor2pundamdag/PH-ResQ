@@ -1,102 +1,24 @@
-# PH-ResQ Vanguard 2026: Phase 1 - Environment Setup & Non-Bypassable Consent Architecture
+# PH-ResQ Phase 1 — Android Foundation and Consent
 
-## Objective
-Establish the absolute foundational environment, project structure, dependencies, and the mathematically locked non-bypassable persistent consent state machine for **PH-ResQ Vanguard 2026**. This guide provides step-by-step instructions from zero to a fully compiled, secure base architecture.
+## Runtime
+Native Android Kotlin + Jetpack Compose. Consent is enforced by `ConsentStore` before the main screen is composed.
 
----
+## First-launch consent contract
+- Display the current policy notice on first launch and whenever `CURRENT_POLICY_VERSION` changes.
+- Store the exact policy version and accepted timestamp only after the user explicitly taps Accept.
+- Decline must not grant access to the main screen; it exits the current activity.
+- The notice body must be vertically scrollable independently from its action area.
+- Accept and Decline controls remain visible and reachable on short screens, landscape, gesture navigation, display cutouts, and large text settings.
+- Do not require the user to scroll to the bottom before the controls appear; do not hide either choice behind the scroll container.
+- Use safe drawing insets so content and touch targets do not overlap status/navigation bars or cutouts.
+- Changing the notice content materially requires a policy-version bump, which invalidates older acceptance and presents the updated notice again.
 
-## Step 1: Project Initialization & Directory Structure
-Create a clean, production-grade directory layout optimized for local-first execution on mobile environments (Termux / AndroidIDE / React Native / Native Android):
+## Current implementation
+The consent screen uses a weighted vertical-scroll body and a fixed action card with Accept and Decline buttons outside the scroll container. It applies `safeContentPadding` so system bars, display cutouts, and gesture-safe regions are respected. The current policy is `2026-11-02-v2`. Decline exits; acceptance is synchronously committed before the main screen is shown.
 
-```text
-PH-ResQ/
-├── android/
-│   ├── app/
-│   │   ├── src/main/java/org/sayangqoemeet/phresq/
-│   │   │   ├── core/
-│   │   │   ├── security/
-│   │   │   ├── mesh/
-│   │   │   └── database/
-│   │   └── AndroidManifest.xml
-├── src/
-│   ├── components/
-│   │   ├── header/
-│   │   └── consent/
-│   ├── state/
-│   │   └── ConsentStateMachine.ts
-│   ├── database/
-│   │   └── BarangaysRTree.ts
-│   ├── mesh/
-│   │   └── BLEMeshEngine.ts
-│   └── security/
-│       └── AESVault.ts
-├── MASTER_PLAN.md
-└── WORK_RULES.md
-```
-
----
-
-## Step 2: Implementing the Non-Bypassable Consent State Machine (FSM)
-To comply with Data Privacy regulations and open-source licensing frameworks, every user must explicitly accept terms on first launch. If declined, the app must persistently block dashboard access and force-exit.
-
-Create `src/state/ConsentStateMachine.ts`:
-
-```typescript
-export enum ConsentState {
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
-  DECLINED = 'DECLINED'
-}
-
-export class ConsentStateMachine {
-  private currentState: ConsentState;
-  private storageKey = 'ph_resq_consent_status';
-
-  constructor() {
-    this.currentState = this.loadPersistentState();
-  }
-
-  private loadPersistentState(): ConsentState {
-    try {
-      const saved = localStorage.getItem(this.storageKey);
-      if (saved === ConsentState.ACCEPTED || saved === ConsentState.DECLINED) {
-        return saved;
-      }
-    } catch (e) {
-      // Fallback for secure local storage failure
-    }
-    return ConsentState.PENDING;
-  }
-
-  public getState(): ConsentState {
-    return this.currentState;
-  }
-
-  public acceptConsent(): void {
-    this.currentState = ConsentState.ACCEPTED;
-    localStorage.setItem(this.storageKey, ConsentState.ACCEPTED);
-  }
-
-  public declineConsent(): void {
-    this.currentState = ConsentState.DECLINED;
-    localStorage.setItem(this.storageKey, ConsentState.DECLINED);
-    this.forceExitApp();
-  }
-
-  private forceExitApp(): void {
-    // Trigger non-bypassable termination / return to home screen
-    if (typeof window !== 'undefined' && window.close) {
-      window.close();
-    }
-  }
-
-  public canAccessDashboard(): boolean {
-    return this.currentState === ConsentState.ACCEPTED;
-  }
-}
-```
-
----
-
-## Step 3: Required Permissions & Core Service Setup
-Ensure all required permissions for offline emergency broadcasting, BLE scanning, location fallbacks, and foreground services are configured in your build system.
+## Required validation
+- ConsentStore tests: no acceptance by default, version mismatch, persistence, and revoke/decline.
+- UI acceptance on compact phone, large font/display size, landscape, 3-button navigation, gesture navigation, and display cutout.
+- TalkBack announces title, notice sections, and both actions in logical order.
+- Accept is not triggered by scroll or accidental touch; decline never reaches the main screen.
+- Reinstall/clear-data behavior is documented; do not claim consent survives app data removal.
