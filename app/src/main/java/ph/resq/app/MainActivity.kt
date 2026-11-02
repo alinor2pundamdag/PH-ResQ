@@ -173,7 +173,7 @@ private fun ConsentScreen(onAccept: () -> Unit, onDecline: () -> Unit) {
                 Text("Kailangan ang iyong pagpili upang magpatuloy.", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                 Button(onClick = onAccept, modifier = Modifier.fillMaxWidth()) { Text("ACCEPT — Nauunawaan ko at magpatuloy") }
                 androidx.compose.material3.OutlinedButton(onClick = onDecline, modifier = Modifier.fillMaxWidth()) {
-                    Text("DECLINE — Hindi ako pumapayag, lumabas")
+                    Text("DECLINE — Withdraw consent and exit")
                 }
             }
         }
@@ -547,7 +547,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             Text("HIGH CONTRAST: " + if (MaterialTheme.colorScheme.background == Color.Black) "ON — tap to disable" else "OFF — tap to enable")
         }
         Button(onClick = onReviewPrivacy, modifier = Modifier.fillMaxWidth()) {
-            Text("REVIEW PRIVACY NOTICE / WITHDRAW CONSENT")
+            Text("REVIEW PRIVACY NOTICE")
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
