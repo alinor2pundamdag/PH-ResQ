@@ -20,9 +20,15 @@ All requirements in this document remain in scope unless an explicit architectur
 - **Accessibility and low-end-device support:** High contrast, readable text, large touch targets, TalkBack labels, reduced-motion support, efficient background work, and battery-aware polling.
 - **Traceability:** Every feature must map to requirements, implementation components, tests, evidence, and residual risks.
 
-## 2. Visual identity and primary experience
+## 2. Canonical application identity, visual identity, and primary experience
 
-- Product name: **PH-ResQ Vanguard 2026**; primary in-app title: **PH-ResQ**.
+- Exact application name at every lifecycle stage (store listing before download, downloaded APK filename, Android installer prompt, installed launcher label, and in-app title): **PH-ResQ**. Keep exact spelling, capitalization, and hyphen.
+- **Vanguard 2026** is a brand/campaign descriptor only; it must never replace or extend the canonical application name in store title, downloaded artifact name, installer label, launcher label, or in-app title.
+- Release application ID remains `ph.resq.app`; debug may retain its `.debug` suffix for side-by-side testing. These technical identifiers do not change the displayed name.
+- Artifact filenames: `PH-ResQ-debug.apk` and `PH-ResQ-release-unsigned.apk`; a signed production APK may be named `PH-ResQ.apk` only after signing and release authorization.
+- Android `@string/app_name` is the single source of truth for the installer and launcher label. Store/download metadata must use the same exact public name.
+
+- The intended visual identity includes
 - The intended visual identity includes a clean emergency-first interface, neon/glass styling used without compromising legibility, and a Philippine-flag color-looping title (yellow, blue, red, white) with an optional flag-waving background.
 - Animation must respect Android reduced-motion/accessibility settings, avoid obscuring emergency controls, and stop or reduce work when the app is backgrounded or battery constrained.
 - Emergency actions must remain immediately discoverable. Decorative effects must never delay SOS initiation or block interaction.

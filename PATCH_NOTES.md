@@ -4,6 +4,14 @@
 **Status:** Documentation consistency pass in progress on the existing feature branch; not merged to `main`.
 **Reviewed baseline:** PR #1 head `343f2f0b76c8de5fed7cc1f03b4a38de32098d43` passed current-head CI run [40628394485](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/40628394485). Any subsequent commit—including this collection correction—requires its own CI result before that newer revision is build-validated.
 
+## 2026-11-02 — Canonical application naming
+
+- Standardized the public application name to exactly `PH-ResQ` from pre-download listing through downloaded APK, Android installer, installed launcher, and in-app title.
+- `Vanguard 2026` is retained only as a brand descriptor, not part of the application name.
+- Added `@string/app_name` as the Android label source of truth and stable artifact names `PH-ResQ-debug.apk` and `PH-ResQ-release-unsigned.apk`.
+- Kept release application ID `ph.resq.app`; the existing debug suffix remains a technical side-by-side install identifier.
+- Current-head CI must verify the generated artifact filenames and manifest label before this naming change is accepted.
+
 ## Purpose
 
 This patch restores the missing standalone architecture documents in the 11-document collection and aligns them with the current source tree and existing traceability/audit documents. It does not remove features, claim full acceptance, or authorize merge/release.

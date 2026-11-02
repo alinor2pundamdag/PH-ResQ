@@ -28,6 +28,19 @@ android {
     kotlinOptions { jvmTarget = "17" }
     testOptions { unitTests.isIncludeAndroidResources = true }
 }
+
+// Keep the downloadable artifact name stable and recognizable at every release stage.
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        val artifactName = when (variant.buildType) {
+            "release" -> "PH-ResQ-release-unsigned.apk"
+            else -> "PH-ResQ-${variant.buildType ?: "debug"}.apk"
+        }
+        variant.outputs.forEach { output ->
+            output.outputFileName.set(artifactName)
+        }
+    }
+}
 dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.12.01")
     implementation(composeBom)

@@ -1,12 +1,18 @@
-# PH-ResQ Vanguard 2026 🇵🇭
+# PH-ResQ 🇵🇭
+
+> Brand descriptor: **Vanguard 2026** (not part of the application name).
 
 > **Android-first, offline-first emergency assistance project for the Philippines.**
 
 **Build/validation rule:** Treat an APK as build-validated only when the latest completed successful [PR #1 workflow](https://github.com/alinor2pundamdag/PH-ResQ/pull/1) has a `head_sha` matching the intended commit and its artifact includes `BUILD_METADATA.txt` and `SHA256SUMS`. The workflow checks out and verifies the exact source commit. CI success is not physical-device or emergency-service validation. Nationwide data/maps, radio mesh transport, external delivery confirmation, security recovery, and physical-device acceptance remain outstanding.
 
+## Application name consistency
+
+The public application name is exactly **PH-ResQ** before download, in the downloaded APK filename, in the Android install confirmation, after installation in the launcher, and inside the app. `Vanguard 2026` is only a brand descriptor. Release package ID: `ph.resq.app`. APK names: `PH-ResQ-debug.apk` and `PH-ResQ-release-unsigned.apk`.
+
 ## Layunin
 
-Nilalayon ng PH-ResQ Vanguard 2026 na magbigay ng offline-capable emergency directory, SOS workflow, location sharing, family check-in, offline maps, and disaster-resilience tools. Ang lahat ng capability ay kailangang mapatunayan sa source code, automated tests, physical-device tests, at verified data sources bago sabihing gumagana o release-ready.
+Nilalayon ng PH-ResQ na magbigay ng offline-capable emergency directory, SOS workflow, location sharing, family check-in, offline maps, and disaster-resilience tools. Ang lahat ng capability ay kailangang mapatunayan sa source code, automated tests, physical-device tests, at verified data sources bago sabihing gumagana o release-ready.
 
 ## Retained feature scope
 

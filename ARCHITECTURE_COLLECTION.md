@@ -10,6 +10,16 @@
 
 This index joins the PH-ResQ architecture documents into one navigable source of truth. It explains how the Android client, local data, SOS workflow, privacy/security controls, offline datasets, and future peer-to-peer transports fit together. Existing detailed documents remain authoritative for their own domains.
 
+## Canonical application identity and naming (required)
+
+- **Exact public application name at every lifecycle stage:** `PH-ResQ`.
+- Use `PH-ResQ` as the app/store listing title before download, the downloaded APK's visible filename prefix, the Android package-installer application label, and the installed launcher/application label. Keep the spelling, capitalization, and hyphen identical; do not rename it to a different title between stages.
+- **Brand descriptor only:** `Vanguard 2026` may appear as a campaign/tagline or collection descriptor, but it is not part of the application name and must not replace `PH-ResQ` in the store title, APK name, installer label, or launcher label.
+- **Android package identity:** `ph.resq.app` remains the release `applicationId`; the debug build may use its existing `.debug` suffix for side-by-side testing. Package IDs are technical identifiers, not the displayed application name.
+- **Artifact filenames:** debug `PH-ResQ-debug.apk`; unsigned release candidate `PH-ResQ-release-unsigned.apk`. A future signed production artifact must use `PH-ResQ.apk` only after signing and release authorization.
+- **Single source of truth:** Android's `@string/app_name` is `PH-ResQ`; store metadata, download page, QR/link landing page, release notes, and support materials must copy this exact canonical name. Any branding change requires an explicit user-approved naming decision and a coordinated update.
+- **Acceptance check:** inspect the generated APK filenames and manifest application label for both debug and release variants; install each on Android and verify the package installer and launcher show exactly `PH-ResQ`.
+
 ## Architecture at a glance
 
 1. **Presentation:** Jetpack Compose screens, accessible emergency actions, explicit consent, status/error/stale-data states.
