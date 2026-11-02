@@ -14,7 +14,7 @@ Native Android Kotlin + Jetpack Compose. Consent is enforced by `ConsentStore` b
 - Changing the notice content materially requires a policy-version bump, which invalidates older acceptance and presents the updated notice again.
 
 ## Current implementation
-The consent screen uses a weighted vertical-scroll body and a fixed action card with Accept and Decline buttons outside the scroll container. It applies `safeDrawingPadding`. The current policy is `2026-11-02-v2`. Decline exits; acceptance is synchronously committed before the main screen is shown.
+The consent screen uses a weighted vertical-scroll body and a fixed action card with Accept and Decline buttons outside the scroll container. It applies `safeContentPadding` so system bars, display cutouts, and gesture-safe regions are respected. The current policy is `2026-11-02-v2`. Decline exits; acceptance is synchronously committed before the main screen is shown.
 
 ## Required validation
 - ConsentStore tests: no acceptance by default, version mismatch, persistence, and revoke/decline.

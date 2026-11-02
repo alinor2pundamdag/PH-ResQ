@@ -1,11 +1,13 @@
 # PH-ResQ Test & Acceptance Matrix
 
-**Latest validated CI evidence before artifact-name alignment:** PR #1 head `cfef2855f69c5605ee1d3bcaf4175d3fbfcbf429` passed [run 41380309779](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41380309779): `lintDebug`, `testDebugUnitTest`, `assembleDebug`, `assembleRelease`, exact-SHA verification, and APK/evidence upload. Artifact `ph-resq-apk-builds` ID `13116156450` is available until 2026-11-16 (archive SHA-256 `e267809d68bcc341ba0dc41aaad4068b7ea1ad0b30d01c893b5a9b09a3061231`). The consent UI candidate SHA `232f4093bf8d8c8ba11398b8ce67d6ccb6e3561f` still requires its own exact-head CI artifact. A CI-only naming alignment follows; use the next successful exact-head artifact for the consolidated device session. CI success is not feature acceptance. The full acceptance matrix has not passed: physical-device and data/security tests remain open.
+**Latest validated CI evidence:** commit `9160f2e591aff3dac2482f6686a82c04e6db5e5a` passed [run 41394643354](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41394643354): `lintDebug`, `testDebugUnitTest`, `assembleDebug`, `assembleRelease`, exact-SHA verification, and APK/evidence upload. Artifact `ph-resq-apk-builds` ID `13119091250` is available until 2026-11-16 (archive SHA-256 `7798511da2c800100f46226cac32a6f968a34716fa1a2397a2fbb0b98cf54eba`). This candidate includes the consent layout fix. CI success is not feature acceptance. Physical-device, accessibility, and data/security tests remain open.
 **Rule:** Record repository commit SHA, build variant, device/API, test result, logs/screenshots, and tester for each executed case.
 
 | Test ID | Scenario | Expected result | Evidence required | Gate |
 |---|---|---|---|---|
 | T-001 | First launch, no consent stored | Consent policy appears before protected features | UI test + persisted state | P0 |
+| T-001A | Compact-screen consent layout | Accept/Decline remain visible while the notice body scrolls independently | Robolectric Compose UI test at 320×480 dp | P0 |
+| T-001B | Consent action isolation | Only the tapped Accept or Decline callback fires | Robolectric Compose UI tests | P0 |
 | T-002 | User declines consent and relaunches | Protected navigation remains blocked; app does not claim OS force-stop | UI/lifecycle test | P0 |
 | T-003 | User accepts consent then process is killed | Versioned consent remains stored; valid navigation resumes | Instrumented lifecycle test | P0 |
 | T-004 | Hold SOS for less than 2 seconds | No dispatch; clear countdown/cancel feedback | UI timing test | P0 |
