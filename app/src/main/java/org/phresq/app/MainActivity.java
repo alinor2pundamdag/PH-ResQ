@@ -84,24 +84,16 @@ public final class MainActivity extends Activity {
         card(root, "⚠  WALANG LIVE DISASTER ALERT", "Hindi nakakonekta sa opisyal na weather o hazard feed. Huwag umasa rito para sa babala.", Color.rgb(170, 36, 36), null);
         title(root, "Mga kasangkapan", 21);
         LinearLayout row1 = row(root);
-        tile(row1, "SOS
-Emergency", Color.rgb(213, 35, 45), this::showHome);
-        tile(row1, "Report
-Incident", Color.rgb(18, 106, 207), this::showIncident);
-        tile(row1, "View
-Map", Color.rgb(43, 148, 66), this::showMap);
+        tile(row1, "SOS\nEmergency", Color.rgb(213, 35, 45), this::showHome);
+        tile(row1, "Report\nIncident", Color.rgb(18, 106, 207), this::showIncident);
+        tile(row1, "View\nMap", Color.rgb(43, 148, 66), this::showMap);
         LinearLayout row2 = row(root);
-        tile(row2, "Hazard
-Guide", Color.rgb(224, 128, 22), this::showGuidance);
-        tile(row2, "Evacuation
-Centers", Color.rgb(101, 58, 181), () -> unavailable("Walang verified offline evacuation-center dataset o real-time capacity."));
-        tile(row2, "Community
-Chat", Color.rgb(13, 148, 169), () -> unavailable("Walang chat o mesh transport sa bersyong ito."));
+        tile(row2, "Hazard\nGuide", Color.rgb(224, 128, 22), this::showGuidance);
+        tile(row2, "Evacuation\nCenters", Color.rgb(101, 58, 181), () -> unavailable("Walang verified offline evacuation-center dataset o real-time capacity."));
+        tile(row2, "Community\nChat", Color.rgb(13, 148, 169), () -> unavailable("Walang chat o mesh transport sa bersyong ito."));
         LinearLayout row3 = row(root);
-        tile(row3, "Emergency
-Contacts", Color.rgb(47, 154, 53), this::showHome);
-        tile(row3, "Weather
-Update", Color.rgb(24, 110, 205), () -> unavailable("Walang live PAGASA feed. Tingnan ang opisyal na source kapag may internet."));
+        tile(row3, "Emergency\nContacts", Color.rgb(47, 154, 53), this::showHome);
+        tile(row3, "Weather\nUpdate", Color.rgb(24, 110, 205), () -> unavailable("Walang live PAGASA feed. Tingnan ang opisyal na source kapag may internet."));
         tile(row3, "Settings", Color.rgb(99, 55, 177), this::showSettings);
         info(root, "Prototype only · Walang automated dispatch, live data, offline maps o rescue guarantee.");
     }
