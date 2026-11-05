@@ -1,0 +1,3 @@
+-keep class com.phresq.vanguard.** { *; }
+-keepclassmembers class * extends androidx.room.RoomDatabase { *; }
+-dontwarn android.security.keystore.**
