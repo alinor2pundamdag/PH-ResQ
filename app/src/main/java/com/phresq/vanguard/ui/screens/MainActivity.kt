@@ -1,5 +1,6 @@
 package com.phresq.vanguard.ui.screens
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,25 +16,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.phresq.vanguard.data.mesh.BleMeshManager
 import com.phresq.vanguard.data.spatial.SpatialEngine
-
-sealed class OnboardingState {
-    object PendingConsent : OnboardingState()
-    object DeclinedLocked : OnboardingState()
-    object Initialized : OnboardingState()
-}
+import com.phresq.vanguard.ui.components.PhilippineFlagWaveHeader
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var bleMeshManager: BleMeshManager
     private val spatialEngine = SpatialEngine()
 
+    companion object {
+        private const val PREF_NAME = "ph_resq_preferences"
+        private const val KEY_CONSENT_ACCEPTED = "consent_accepted"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bleMeshManager = BleMeshManager(applicationContext)
 
+        val sharedPrefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
         setContent {
-            var onboardingState by remember { mutableStateOf<OnboardingState>(OnboardingState.PendingConsent) }
+            var consentAccepted by remember {
+                mutableStateOf(sharedPrefs.getBoolean(KEY_CONSENT_ACCEPTED, false))
+            }
+            var declinedLocked by remember { mutableStateOf(false) }
             var sosActive by remember { mutableStateOf(false) }
+            val scope = rememberCoroutineScope()
 
             MaterialTheme(
                 colorScheme = darkColorScheme(
@@ -47,13 +55,16 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    when (onboardingState) {
-                        is OnboardingState.PendingConsent -> ConsentScreen(
-                            onAccept = { onboardingState = OnboardingState.Initialized },
-                            onDecline = { onboardingState = OnboardingState.DeclinedLocked }
+                    when {
+                        declinedLocked -> HardLockoutScreen()
+                        !consentAccepted -> ConsentScreen(
+                            onAccept = {
+                                sharedPrefs.edit().putBoolean(KEY_CONSENT_ACCEPTED, true).apply()
+                                consentAccepted = true
+                            },
+                            onDecline = { declinedLocked = true }
                         )
-                        is OnboardingState.DeclinedLocked -> HardLockoutScreen()
-                        is OnboardingState.Initialized -> DashboardScreen(
+                        else -> DashboardScreen(
                             sosActive = sosActive,
                             onToggleSos = { sosActive = !sosActive }
                         )
@@ -78,6 +89,8 @@ fun ConsentScreen(onAccept: () -> Unit, onDecline: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        PhilippineFlagWaveHeader()
+        Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "PH-RESQ VANGUARD 2026",
             fontSize = 24.sp,
@@ -136,7 +149,8 @@ fun DashboardScreen(sosActive: Boolean, onToggleSos: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Spacer(modifier = Modifier.height(32.dp))
+            PhilippineFlagWaveHeader()
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = if (sosActive) "🚨 SOS BROADCASTING ACTIVE" else "🟢 P2P MESH STANDBY",
                 fontSize = 20.sp,

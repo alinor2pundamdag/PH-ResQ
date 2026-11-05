@@ -1,21 +1,24 @@
 package com.phresq.vanguard.data.security
 
+import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.util.Log
 import java.security.KeyStore
+import java.security.MessageDigest
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
-import java.security.MessageDigest
 
-class SecureVaultManager {
+class SecureVaultManager(private val context: Context) {
 
     companion object {
         private const val KEY_ALIAS = "PHResQ_StrongBox_MasterKey"
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
         private const val TAG_LENGTH_BIT = 128
+        private const val TAG = "SecureVaultManager"
     }
 
     init {
@@ -26,17 +29,39 @@ class SecureVaultManager {
         val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
         if (!keyStore.containsAlias(KEY_ALIAS)) {
             val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
-            val parameterSpec = KeyGenParameterSpec.Builder(
-                KEY_ALIAS,
-                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-            )
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .setKeySize(256)
-                .setIsStrongBoxBacked(true)
-                .build()
-            keyGenerator.init(parameterSpec)
-            keyGenerator.generateKey()
+            
+            // Try StrongBox first; gracefully fallback to TEE KeyStore if hardware StrongBox is unavailable
+            var strongBoxBacked = true
+            try {
+                val parameterSpec = KeyGenParameterSpec.Builder(
+                    KEY_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+                )
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setKeySize(256)
+                    .setIsStrongBoxBacked(true)
+                    .build()
+                keyGenerator.init(parameterSpec)
+                keyGenerator.generateKey()
+            } catch (e: Exception) {
+                Log.w(TAG, "StrongBox TEE unavailable, falling back to standard hardware Keystore: ${e.localizedMessage}")
+                strongBoxBacked = false
+            }
+
+            if (!strongBoxBacked) {
+                val fallbackSpec = KeyGenParameterSpec.Builder(
+                    KEY_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+                )
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setKeySize(256)
+                    .setIsStrongBoxBacked(false)
+                    .build()
+                keyGenerator.init(fallbackSpec)
+                keyGenerator.generateKey()
+            }
         }
     }
 
