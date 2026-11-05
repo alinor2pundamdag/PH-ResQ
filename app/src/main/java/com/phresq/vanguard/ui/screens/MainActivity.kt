@@ -1,9 +1,14 @@
 package com.phresq.vanguard.ui.screens
 
+import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -14,15 +19,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.phresq.vanguard.data.mesh.BleMeshManager
+import androidx.core.content.ContextCompat
+import com.phresq.vanguard.data.mesh.MeshForegroundService
 import com.phresq.vanguard.data.spatial.SpatialEngine
 import com.phresq.vanguard.ui.components.PhilippineFlagWaveHeader
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var bleMeshManager: BleMeshManager
     private val spatialEngine = SpatialEngine()
+
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.entries.all { it.value }
+        if (allGranted) {
+            startMeshForegroundService()
+        }
+    }
 
     companion object {
         private const val PREF_NAME = "ph_resq_preferences"
@@ -31,7 +44,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        bleMeshManager = BleMeshManager(applicationContext)
 
         val sharedPrefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 
@@ -41,7 +53,6 @@ class MainActivity : ComponentActivity() {
             }
             var declinedLocked by remember { mutableStateOf(false) }
             var sosActive by remember { mutableStateOf(false) }
-            val scope = rememberCoroutineScope()
 
             MaterialTheme(
                 colorScheme = darkColorScheme(
@@ -61,6 +72,7 @@ class MainActivity : ComponentActivity() {
                             onAccept = {
                                 sharedPrefs.edit().putBoolean(KEY_CONSENT_ACCEPTED, true).apply()
                                 consentAccepted = true
+                                checkAndRequestPermissions()
                             },
                             onDecline = { declinedLocked = true }
                         )
@@ -74,9 +86,38 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        bleMeshManager.stopMesh()
+    private fun checkAndRequestPermissions() {
+        val permissions = mutableListOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions.add(Manifest.permission.BLUETOOTH_SCAN)
+            permissions.add(Manifest.permission.BLUETOOTH_ADVERTISE)
+            permissions.add(Manifest.permission.BLUETOOTH_CONNECT)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        val notGranted = permissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (notGranted.isNotEmpty()) {
+            permissionLauncher.launch(notGranted.toTypedArray())
+        } else {
+            startMeshForegroundService()
+        }
+    }
+
+    private fun startMeshForegroundService() {
+        val intent = Intent(this, MeshForegroundService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
     }
 }
 
