@@ -12,7 +12,7 @@ concurrency:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,18 +27,52 @@ jobs:
         run: |
           echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> "$GITHUB_ENV"
           echo "/usr/local/lib/android/sdk/platform-tools" >> "$GITHUB_PATH"
-      - name: Verify preinstalled Android platform and build tools
+      - name: Install and verify Android 16 SDK
         run: |
-          test -d "$ANDROID_HOME/platforms/android-35"
-          test -d "$ANDROID_HOME/build-tools/35.0.0"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          fi
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
+          test -d "$ANDROID_HOME/platforms/android-36"
+          test -d "$ANDROID_HOME/build-tools/36.0.0"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.9"
-      - name: Verify, lint, test, and build
-        env:
-          SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: gradle --no-daemon lintDebug testDebugUnitTest assembleDebug assembleRelease
+          gradle-version: "8.11.1"
+      - name: Run Android lint
+        run: gradle lintDebug --console=plain
+      - name: Run unit tests
+        run: gradle testDebugUnitTest --console=plain --stacktrace
+      - name: Assemble debug APK
+        run: gradle assembleDebug --console=plain
+      - name: Assemble release APK
+        run: gradle assembleRelease --console=plain
+      - name: Assemble Play Store App Bundle
+        run: gradle bundleRelease --console=plain
+      - name: Verify 16 KB APK and native-library alignment
+        run: |
+          APK="app/build/outputs/apk/release/app-release-unsigned.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 -v 4 "$APK"
+          mkdir -p build/native-check
+          unzip -q "$APK" 'lib/*/*.so' -d build/native-check
+          found=0
+          for so in build/native-check/lib/arm64-v8a/*.so build/native-check/lib/x86_64/*.so; do
+            [ -f "$so" ] || continue
+            found=1
+            segments="$(readelf -lW "$so" | awk '$1 == "LOAD" { print $NF }')"
+            test -n "$segments"
+            for alignment in $segments; do
+              alignment_bytes=$((alignment))
+              if [ "$alignment_bytes" -lt 16384 ]; then
+                echo "UNALIGNED 16 KB ELF LOAD segment: $so ($alignment)"
+                exit 1
+              fi
+            done
+          done
+          test "$found" -eq 1
       - name: Write build evidence
         if: success()
         env:
@@ -47,19 +81,20 @@ jobs:
           mkdir -p build/evidence
           CHECKED_OUT_COMMIT="$(git rev-parse HEAD)"
           test "$CHECKED_OUT_COMMIT" = "$SOURCE_COMMIT"
-          printf 'source_commit=%s\nchecked_out_commit=%s\nrun_id=%s\nrun_attempt=%s\nrelease_variant=unsigned\n' "$SOURCE_COMMIT" "$CHECKED_OUT_COMMIT" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > build/evidence/BUILD_METADATA.txt
+          printf 'source_commit=%s\nchecked_out_commit=%s\nrun_id=%s\nrun_attempt=%s\nrelease_apk=unsigned\nrelease_aab=unsigned\n' "$SOURCE_COMMIT" "$CHECKED_OUT_COMMIT" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > build/evidence/BUILD_METADATA.txt
           mkdir -p build/distributions
           cp app/build/outputs/apk/debug/app-debug.apk build/distributions/PH-ResQ-debug.apk
           cp app/build/outputs/apk/release/app-release-unsigned.apk build/distributions/PH-ResQ-release-unsigned.apk
-          sha256sum build/distributions/*.apk > build/evidence/SHA256SUMS
+          cp app/build/outputs/bundle/release/app-release.aab build/distributions/PH-ResQ-release.aab
+          sha256sum build/distributions/* > build/evidence/SHA256SUMS
           test -s build/evidence/SHA256SUMS
-      - name: Upload APKs and build evidence
+      - name: Upload APK, AAB and build evidence
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: ph-resq-apk-builds
+          name: ph-resq-release-builds
           path: |
-            build/distributions/*.apk
+            build/distributions/*
             build/evidence/*
           if-no-files-found: error
           retention-days: 14

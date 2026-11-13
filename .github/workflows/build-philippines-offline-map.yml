@@ -1,0 +1,81 @@
+name: Publish Philippines Nationwide Offline Map
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ai/ph-resq-national-data-offline-maps
+    paths:
+      - .github/workflows/build-philippines-offline-map.yml
+  schedule:
+    - cron: "30 2 1 * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ph-resq-nationwide-map
+  cancel-in-progress: true
+
+jobs:
+  publish-philippines-map:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout map release configuration
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Download official Mapsforge v5 Philippines map
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          MAP_URL="https://download.mapsforge.org/maps/v5/asia/philippines.map"
+          curl -fL --retry 4 --retry-all-errors "$MAP_URL" -o release/philippines.map
+          size="$(stat -c%s release/philippines.map)"
+          test "$size" -gt 100000000
+          last_modified="$(curl -fsSI "$MAP_URL" | awk 'BEGIN{IGNORECASE=1} /^Last-Modified:/{sub(/\r$/,""); sub(/^[^:]*:[[:space:]]*/,""); print; exit}')"
+          sha256sum release/philippines.map > release/philippines.map.sha256
+          cat > release/map-metadata.json <<EOF
+          {
+            "name": "PH-ResQ Philippines nationwide offline basemap",
+            "source": "Official Mapsforge v5 Asia prebuilt Philippines map",
+            "source_url": "$MAP_URL",
+            "source_last_modified": "${last_modified:-unknown}",
+            "downloaded_at_utc": "$(date -u +%FT%TZ)",
+            "size_bytes": $size,
+            "format": "Mapsforge v5 .map",
+            "attribution": "© OpenStreetMap contributors",
+            "license": "Open Database License (ODbL)",
+            "coverage": "Philippines country extract",
+            "verification": "Downloaded over HTTPS from the official Mapsforge server; PH-ResQ SHA-256 is computed for app-side download integrity."
+          }
+          EOF
+          du -h release/philippines.map
+          cat release/philippines.map.sha256
+          cat release/map-metadata.json
+
+      - name: Publish replaceable offline map release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: offline-map-latest
+          name: PH-ResQ Nationwide Offline Map
+          target_commitish: ${{ github.sha }}
+          body: |
+            Official Mapsforge v5 Philippines country map.
+            Map data © OpenStreetMap contributors, ODbL.
+            This is a basemap, not an authoritative source for barangay boundaries, emergency contacts, or evacuation-centre status.
+          files: |
+            release/philippines.map
+            release/philippines.map.sha256
+            release/map-metadata.json
+          overwrite_files: true
+          draft: false
+          prerelease: false

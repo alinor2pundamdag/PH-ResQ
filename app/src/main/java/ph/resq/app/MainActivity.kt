@@ -1,5 +1,6 @@
 package ph.resq.app
 
+import androidx.activity.compose.BackHandler
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.location.LocationManager
@@ -8,6 +9,7 @@ import android.graphics.Bitmap
 import android.content.ClipData
 import androidx.core.content.FileProvider
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.core.app.NotificationManagerCompat
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
@@ -27,6 +29,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.animation.core.Animatable
@@ -37,12 +40,15 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,6 +61,20 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -68,10 +88,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
@@ -84,6 +107,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import ph.resq.app.core.ContactList
 import ph.resq.app.core.MedicalIdQr
+import ph.resq.app.core.MedicalIdStore
+import ph.resq.app.core.MedicalIdProfile
 import ph.resq.app.core.LastKnownLocation
 import ph.resq.app.core.FreshLocationProvider
 import ph.resq.app.core.LocalVault
@@ -106,6 +131,9 @@ import ph.resq.app.core.DeviceCapabilityProfile
 import ph.resq.app.core.CapabilityState
 import ph.resq.app.core.SettingsRepository
 import ph.resq.app.core.FeaturePolicyCoordinator
+import ph.resq.app.ui.NationalDataPanel
+import ph.resq.app.ui.NationwideOfflineMapPanel
+import ph.resq.app.ui.OfflineMapPanel
 import ph.resq.app.core.FeatureAvailability
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -116,6 +144,13 @@ import java.io.File
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
+        }
         setContent { ResQRoot() }
     }
 }
@@ -139,7 +174,16 @@ private fun ResQRoot() {
         surface = Color(0xFF101D2E), onSurface = Color.White,
         error = Color(0xFFFF6B6B), onError = Color.Black
     )
-    MaterialTheme(colorScheme = colors) {
+    MaterialTheme(
+        colorScheme = colors,
+        shapes = Shapes(
+            extraSmall = RoundedCornerShape(8.dp),
+            small = RoundedCornerShape(14.dp),
+            medium = RoundedCornerShape(20.dp),
+            large = RoundedCornerShape(28.dp),
+            extraLarge = RoundedCornerShape(32.dp)
+        )
+    ) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             if (!consentAccepted) {
                 ConsentScreen(
@@ -151,6 +195,7 @@ private fun ResQRoot() {
                 )
             } else {
                 HomeScreen(
+                    highContrast = highContrast,
                     onToggleHighContrast = {
                         highContrast = !highContrast
                         settings.setHighContrast(highContrast)
@@ -165,8 +210,16 @@ private fun ResQRoot() {
     }
 }
 
+private enum class HomeSection(val label: String, val icon: ImageVector) {
+    EMERGENCY("Emergency", Icons.Filled.Warning),
+    DIRECTORY("Directory", Icons.Filled.Map),
+    PEOPLE("People", Icons.Filled.People),
+    DEVICE("Device", Icons.Filled.Devices),
+    SETTINGS("Settings", Icons.Filled.Settings)
+}
+
 @Composable
-private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> Unit) {
+private fun HomeScreen(highContrast: Boolean, onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> Unit) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -196,11 +249,18 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
         onDispose { runCatching { context.unregisterReceiver(receiver) } }
     }
-    var medicalName by remember { mutableStateOf("") }
-    var medicalBloodType by remember { mutableStateOf("") }
-    var medicalAllergies by remember { mutableStateOf("") }
-    var medicalMedications by remember { mutableStateOf("") }
-    var medicalEmergencyContact by remember { mutableStateOf("") }
+    val medicalIdStore = remember { MedicalIdStore(context) }
+    val loadedMedicalId = remember { runCatching { medicalIdStore.load() }.getOrNull() }
+    var medicalProfileUnreadable by remember { mutableStateOf(medicalIdStore.hasStoredProfile() && loadedMedicalId == null) }
+    var medicalProfileStored by remember { mutableStateOf(medicalIdStore.hasStoredProfile()) }
+    var medicalProfileSaved by remember { mutableStateOf(loadedMedicalId != null) }
+    var medicalStoreStatus by remember { mutableStateOf(when { loadedMedicalId != null -> "Encrypted Medical ID restored from this device."; medicalProfileUnreadable -> "Encrypted profile exists but cannot be decrypted. Delete only if you accept permanent loss."; else -> "No saved Medical ID on this device." }) }
+    var confirmMedicalIdDelete by remember { mutableStateOf(false) }
+    var medicalName by remember { mutableStateOf(loadedMedicalId?.name.orEmpty()) }
+    var medicalBloodType by remember { mutableStateOf(loadedMedicalId?.bloodType.orEmpty()) }
+    var medicalAllergies by remember { mutableStateOf(loadedMedicalId?.allergies.orEmpty()) }
+    var medicalMedications by remember { mutableStateOf(loadedMedicalId?.medications.orEmpty()) }
+    var medicalEmergencyContact by remember { mutableStateOf(loadedMedicalId?.emergencyContact.orEmpty()) }
     var medicalQrBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var medicalQrStatus by remember { mutableStateOf("Walang QR na ginawa.") }
     val settings = remember { SettingsRepository(context) }
@@ -284,6 +344,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
     }
     var checkIn by remember { mutableStateOf(runCatching { database.latestFamilyCheckin() }.getOrNull() ?: prefs.getString("checkin", "Hindi pa naitala") ?: "Hindi pa naitala") }
+    var showCheckInShareDialog by remember { mutableStateOf(false) }
+    val checkInRecipients = remember(contactsRaw) { ContactList.parse(contactsRaw) }
     var hotlineQuery by remember { mutableStateOf("") }
     var recentSearches by remember { mutableStateOf(runCatching { database.recentSearches() }.getOrDefault(emptyList())) }
     var savedBookmarks by remember { mutableStateOf(runCatching { database.bookmarks() }.getOrDefault(emptyList())) }
@@ -294,15 +356,32 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     var directoryMetadata by remember { mutableStateOf(runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()) }
     var advisoryItems by remember { mutableStateOf(runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList())) }
     var evacuationItems by remember { mutableStateOf(emptyList<Pair<ph.resq.app.core.EvacuationCenter, Boolean>>()) }
-    var offlineImportStatus by remember { mutableStateOf("Walang offline dataset na na-import sa session na ito.") }
+    var offlineImportStatus by remember { mutableStateOf("Pumili ng JSON dataset mula sa source na iyong na-verify.") }
+    var offlineImporting by remember { mutableStateOf(false) }
+    var offlineSearching by remember { mutableStateOf(false) }
+    val uiScope = rememberCoroutineScope()
     val offlineImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
-            offlineImportStatus = runCatching { OfflineDatasetImporter.importDataset(context, uri, offlineDataRepository, hazardDataRepository) }
-                .getOrElse { "Import failed: " + (it.message ?: "invalid dataset") }
-            directoryMetadata = runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()
-            directoryResults = runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList())
-            evacuationItems = runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList())
-            advisoryItems = runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList())
+            uiScope.launch {
+                offlineImporting = true
+                offlineImportStatus = "Importing and validating offline dataset…"
+                try {
+                    val result = withContext(Dispatchers.IO) {
+                        runCatching { OfflineDatasetImporter.importDataset(context, uri, offlineDataRepository, hazardDataRepository) }
+                    }
+                    if (result.isSuccess) {
+                        offlineImportStatus = result.getOrThrow()
+                        directoryMetadata = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.datasetMetadata() }.getOrNull() }
+                        directoryResults = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList()) }
+                        evacuationItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList()) }
+                        advisoryItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList()) }
+                    } else {
+                        offlineImportStatus = "Import failed: " + (result.exceptionOrNull()?.message ?: "invalid dataset")
+                    }
+                } finally {
+                    offlineImporting = false
+                }
+            }
         }
     }
     val voiceRecorder = remember { EncryptedVoiceNoteRecorder.cleanupStaleRawFiles(context); EncryptedVoiceNoteRecorder() }
@@ -600,23 +679,29 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     val visibleColorPhase = animationValues.second
     BoxWithConstraints(Modifier.fillMaxSize().safeContentPadding()) {
     val availableWidth = maxWidth
+    var selectedSection by rememberSaveable { mutableStateOf(HomeSection.EMERGENCY) }
+    BackHandler(enabled = selectedSection != HomeSection.EMERGENCY) {
+        selectedSection = HomeSection.EMERGENCY
+    }
     val adaptiveContentWidth = if (availableWidth >= 900.dp) 820.dp else 720.dp
     val adaptiveLayoutLabel = when { availableWidth >= 900.dp -> "EXPANDED TABLET"; availableWidth >= 600.dp -> "MEDIUM"; else -> "COMPACT PHONE" }
-    Column(Modifier.fillMaxWidth().widthIn(max = adaptiveContentWidth).align(Alignment.TopCenter).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(Modifier.fillMaxWidth().widthIn(max = adaptiveContentWidth).align(Alignment.TopCenter).padding(start = if (availableWidth >= 600.dp) 88.dp else 0.dp).animateContentSize().verticalScroll(rememberScrollState()).padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 104.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(
             Modifier.fillMaxWidth().height(8.dp).graphicsLayer(rotationZ = visibleWave)
                 .background(Brush.horizontalGradient(listOf(Color.Blue, Color.Red, Color.White, Color.Yellow, Color.White, Color.Red, Color.Blue)))
         )
-        Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = Color(red = visibleColorPhase, green = 0f, blue = 1f - visibleColorPhase))
-        Card(Modifier.fillMaxWidth()) {
+        Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = if (highContrast) MaterialTheme.colorScheme.primary else Color(red = visibleColorPhase, green = 0f, blue = 1f - visibleColorPhase))
+        if (selectedSection == HomeSection.EMERGENCY) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Emergency cell broadcasts", style = MaterialTheme.typography.titleLarge)
                 Text("Ang government/carrier emergency alerts ay pinamamahalaan ng Android at mobile network. Hindi inaangking binabasa o hinaharang ng PH-ResQ ang lahat ng cell broadcasts.")
                 Text("Suriin ang Emergency alerts / Wireless emergency alerts sa system settings ng device at panatilihing naka-enable ang mga alertong naaangkop sa iyong lugar.")
             }
         }
-        Text("Emergency-first • offline-aware • early build")
-        Card(Modifier.fillMaxWidth()) {
+        }
+        Text("OFFLINE-FIRST • EMERGENCY TOOLS • BETA")
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("SOS", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Text("Pindutin at hawakan nang 2 segundo upang ihanda ang SMS. Bubuksan ang messaging app; kailangan mong i-review at ipadala.")
@@ -666,6 +751,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 OutlinedTextField(value = messageNote, onValueChange = { messageNote = it.take(240) }, label = { Text("Optional na mensahe") }, modifier = Modifier.fillMaxWidth())
             }
         }
+        if (selectedSection == HomeSection.SETTINGS) {
         Button(onClick = onToggleHighContrast, modifier = Modifier.fillMaxWidth()) {
             Text("HIGH CONTRAST: " + if (MaterialTheme.colorScheme.background == Color.Black) "ON — tap to disable" else "OFF — tap to enable")
         }
@@ -678,7 +764,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         Button(onClick = onReviewPrivacy, modifier = Modifier.fillMaxWidth()) {
             Text("REVIEW PRIVACY NOTICE")
         }
-        Card(Modifier.fillMaxWidth()) {
+        }
+        if (selectedSection == HomeSection.DEVICE) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("DEVICE COMPATIBILITY", style = MaterialTheme.typography.titleLarge)
                 Text("${capabilityProfile.manufacturer} ${capabilityProfile.model} • Android ${capabilityProfile.androidRelease} (API ${capabilityProfile.sdkInt})")
@@ -719,10 +807,12 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }
             }
         }
-        Card(Modifier.fillMaxWidth()) {
+        }
+        if (selectedSection == HomeSection.DIRECTORY) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Offline national emergency contacts", style = MaterialTheme.typography.titleLarge)
-                Text("Source: Philippine Government Emergency Hotlines portal; reviewed 2026-10-27. Ang 911 ang national emergency hotline.")
+                Text("Includes the official eHotlines national directory and selected LGU public numbers from Pasig, Marinduque, Lapuyan, Quezon and Laguna. Every entry keeps its source and review status; these numbers have not been phone-verified. 911 remains the national emergency hotline.")
                 OutlinedTextField(value = hotlineQuery, onValueChange = { hotlineQuery = it.take(80) }, label = { Text("Search agency or number") }, modifier = Modifier.fillMaxWidth())
                 Button(onClick = {
                     runCatching {
@@ -785,7 +875,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Text("Kailangan ng network/phone service. Ang pag-open ng dialer o SMS app ay hindi patunay ng koneksyon, delivery, o pagsagot.")
             }
         }
-        Card(Modifier.fillMaxWidth()) {
+        }
+        if (selectedSection == HomeSection.PEOPLE) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Emergency contacts", style = MaterialTheme.typography.titleLarge)
                 Text("Ilagay ang hanggang 10 numero. Nasa device lang ang listahan.")
@@ -869,7 +961,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Text(if (pinVaultEnabled) "PIN-derived AES-GCM. Walang PIN recovery o duress mode; pagkawala ng PIN ay maaaring permanenteng mawala ang contacts." else "Default: Android Keystore AES-GCM. Optional PIN vault adds a PIN-derived encryption layer.")
             }
         }
-        Card(Modifier.fillMaxWidth()) {
+        }
+        if (selectedSection == HomeSection.DEVICE) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Last-known location", style = MaterialTheme.typography.titleLarge)
                 Text(locationLine)
@@ -889,7 +983,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }) { Text("Request permission and read last-known location") }
             }
         }
-        Card(Modifier.fillMaxWidth()) {
+        }
+        if (selectedSection == HomeSection.DEVICE) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Nearby BLE devices", style = MaterialTheme.typography.titleLarge)
                 Text("15-second low-power discovery window. This only detects nearby BLE advertisements; it does not send SOS packets or implement multi-hop mesh.")
@@ -905,7 +1001,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 blePeers.take(10).forEach { peer -> Text(peer.label + " • RSSI " + peer.rssi + " dBm (approximate proximity only)") }
             }
         }
-        Card(Modifier.fillMaxWidth()) {
+        }
+        if (selectedSection == HomeSection.PEOPLE) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Voice note", style = MaterialTheme.typography.titleLarge)
                 Text("Hanggang 10 segundo; naka-encrypt sa local app storage. Ang share action ay magde-decrypt sa temporary cache at magbubukas ng system chooser; pumili ng app/recipient at kumpirmahin ang pagpapadala. Hindi ito auto-send at walang delivery confirmation.")
@@ -949,11 +1047,39 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }
             }
         }
-        Card(Modifier.fillMaxWidth()) {
+        }
+        if (selectedSection == HomeSection.PEOPLE) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Ligtas Ako check-in", style = MaterialTheme.typography.titleLarge)
                 Text("Local status lamang; wala pang network relay o family delivery.")
                 Text("Status: " + checkIn)
+                Button(enabled = checkInRecipients.isNotEmpty() && checkIn != "Hindi pa naitala", onClick = { showCheckInShareDialog = true }, modifier = Modifier.fillMaxWidth()) { Text("SHARE CHECK-IN VIA SMS") }
+                if (showCheckInShareDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showCheckInShareDialog = false },
+                        title = { Text("Choose an emergency contact") },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Choose a recipient. Your SMS app opens with a draft; review and send it yourself. PH-ResQ cannot confirm delivery.")
+                                checkInRecipients.forEach { recipient ->
+                                    Button(onClick = {
+                                        val message = "PH-ResQ safety check-in: $checkIn. Please reply to confirm. This message was prepared by PH-ResQ; delivery is not confirmed."
+                                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                            data = Uri.parse("smsto:$recipient")
+                                            putExtra("sms_body", message)
+                                        }
+                                        val opened = runCatching { context.startActivity(intent) }
+                                        if (opened.isSuccess) Toast.makeText(context, "SMS composer opened. Review and send manually.", Toast.LENGTH_LONG).show()
+                                        else Toast.makeText(context, "No SMS app is available on this device.", Toast.LENGTH_LONG).show()
+                                        showCheckInShareDialog = false
+                                    }, modifier = Modifier.fillMaxWidth()) { Text(recipient) }
+                                }
+                            }
+                        },
+                        confirmButton = { Button(onClick = { showCheckInShareDialog = false }) { Text("CLOSE") } }
+                    )
+                }
                 Text("Pending encrypted local outbox items: " + pendingQueueCount + " • walang network sync/ack sa build na ito.")
                 Button(onClick = {
                     val nextStatus = "Naitala locally • " + System.currentTimeMillis()
@@ -970,15 +1096,58 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }) { Text("Save check-in locally") }
             }
         }
-        Card(Modifier.fillMaxWidth()) {
+        }
+        if (selectedSection == HomeSection.PEOPLE) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Offline Medical ID QR", style = MaterialTheme.typography.titleLarge)
-                Text("Gumawa lamang ng QR kapag pinili mong ibahagi ang impormasyon. Hindi naka-encrypt ang QR: maaaring mabasa ng sinumang makakita o kumuha ng larawan nito. Huwag ilagay ang impormasyong ayaw mong ibunyag.")
-                OutlinedTextField(value = medicalName, onValueChange = { medicalName = it.take(80); medicalQrBitmap = null }, label = { Text("Pangalan (required)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = medicalBloodType, onValueChange = { medicalBloodType = it.take(20); medicalQrBitmap = null }, label = { Text("Blood type (optional)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = medicalAllergies, onValueChange = { medicalAllergies = it.take(160); medicalQrBitmap = null }, label = { Text("Allergies (optional)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = medicalMedications, onValueChange = { medicalMedications = it.take(160); medicalQrBitmap = null }, label = { Text("Medications (optional)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = medicalEmergencyContact, onValueChange = { medicalEmergencyContact = it.take(40); medicalQrBitmap = null }, label = { Text("Emergency contact (optional)") }, modifier = Modifier.fillMaxWidth())
+                Text("The profile is encrypted locally with Android Keystore and is not uploaded or synced. A generated QR is plaintext and can be read by anyone who sees or photographs it. Share only fields you intentionally disclose.")
+                OutlinedTextField(value = medicalName, onValueChange = { medicalName = it.take(80); medicalQrBitmap = null; medicalProfileSaved = false; medicalStoreStatus = "Unsaved Medical ID edits." }, label = { Text("Pangalan (required)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalBloodType, onValueChange = { medicalBloodType = it.take(20); medicalQrBitmap = null; medicalProfileSaved = false; medicalStoreStatus = "Unsaved Medical ID edits." }, label = { Text("Blood type (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalAllergies, onValueChange = { medicalAllergies = it.take(160); medicalQrBitmap = null; medicalProfileSaved = false; medicalStoreStatus = "Unsaved Medical ID edits." }, label = { Text("Allergies (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalMedications, onValueChange = { medicalMedications = it.take(160); medicalQrBitmap = null; medicalProfileSaved = false; medicalStoreStatus = "Unsaved Medical ID edits." }, label = { Text("Medications (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalEmergencyContact, onValueChange = { medicalEmergencyContact = it.take(40); medicalQrBitmap = null; medicalProfileSaved = false; medicalStoreStatus = "Unsaved Medical ID edits." }, label = { Text("Emergency contact (optional)") }, modifier = Modifier.fillMaxWidth())
+                Text(medicalStoreStatus, style = MaterialTheme.typography.bodySmall)
+                Button(
+                    enabled = medicalName.isNotBlank() && !medicalProfileUnreadable,
+                    onClick = {
+                        val result = runCatching {
+                            medicalIdStore.save(MedicalIdProfile(medicalName, medicalBloodType, medicalAllergies, medicalMedications, medicalEmergencyContact))
+                        }
+                        if (result.isSuccess) {
+                            medicalProfileStored = true
+                            medicalProfileSaved = true
+                            medicalStoreStatus = "Medical ID saved encrypted on this device."
+                        } else {
+                            medicalStoreStatus = "Save failed: " + (result.exceptionOrNull()?.message ?: "storage error")
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text(if (medicalProfileSaved) "SAVE ENCRYPTED MEDICAL ID" else "SAVE CHANGES ENCRYPTED") }
+                Button(onClick = { confirmMedicalIdDelete = true }, enabled = medicalProfileStored, modifier = Modifier.fillMaxWidth()) { Text("DELETE SAVED MEDICAL ID") }
+                if (confirmMedicalIdDelete) {
+                    AlertDialog(
+                        onDismissRequest = { confirmMedicalIdDelete = false },
+                        title = { Text("Delete saved Medical ID?") },
+                        text = { Text("This permanently removes the encrypted local profile. QR screenshots or copies already shared cannot be recalled.") },
+                        confirmButton = {
+                            Button(onClick = {
+                                val result = runCatching { medicalIdStore.clear() }
+                                if (result.isSuccess) {
+                                    medicalProfileStored = false
+                                    medicalProfileUnreadable = false
+                                    medicalProfileSaved = false
+                                    medicalName = ""; medicalBloodType = ""; medicalAllergies = ""; medicalMedications = ""; medicalEmergencyContact = ""
+                                    medicalQrBitmap = null
+                                    medicalStoreStatus = "Saved Medical ID deleted from this device."
+                                    medicalQrStatus = "Walang QR na ginawa."
+                                } else medicalStoreStatus = "Delete failed: " + (result.exceptionOrNull()?.message ?: "storage error")
+                                confirmMedicalIdDelete = false
+                            }) { Text("DELETE") }
+                        },
+                        dismissButton = { Button(onClick = { confirmMedicalIdDelete = false }) { Text("CANCEL") } }
+                    )
+                }
                 Text(medicalQrStatus)
                 Button(onClick = {
                     try {
@@ -995,76 +1164,145 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }
             }
         }
-        Card(Modifier.fillMaxWidth()) {
+        }
+        if (selectedSection == HomeSection.DEVICE) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Low-battery snapshot", style = MaterialTheme.typography.titleLarge)
                 Text(batterySnapshot)
                 Text("Best-effort: naitatala kapag bukas ang app at nakatanggap ito ng battery broadcast; hindi ito kapalit ng OS-level guaranteed callback.")
             }
         }
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Offline directory and local hazard cache", style = MaterialTheme.typography.titleLarge)
-        Text("Hinahanap lamang nito ang data na na-import na sa device. Walang live PAGASA/LGU feed at hindi ito nangangahulugang kumpleto ang nationwide coverage.")
-        Text("Ang JSON metadata ay hindi digital signature. I-import lamang ang file matapos mong beripikahin ang opisyal na source, lisensya at petsa; walang live download na ginagawa.")
-        Button(onClick = { offlineImportLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("IMPORT OFFLINE JSON") }
-        Text(offlineImportStatus)
-        OutlinedTextField(value = offlineQuery, onValueChange = { offlineQuery = it.take(120) }, label = { Text("Barangay, lugar, agency o evacuation center") }, modifier = Modifier.fillMaxWidth())
-        Button(onClick = {
-            val location = LastKnownLocation.read(context)
-            if (location == null) {
-                Toast.makeText(context, "Walang huling lokasyon. I-enable ang location permission at kumuha muna ng fix.", Toast.LENGTH_LONG).show()
-            } else {
-                directoryResults = runCatching {
-                    offlineDataRepository.searchNearby(location.latitude, location.longitude, radiusKm = 25.0, limit = 100).map { it.record }
-                }.getOrDefault(emptyList())
-                if (directoryResults.isEmpty()) Toast.makeText(context, "Walang imported directory record na may coordinates sa loob ng 25 km.", Toast.LENGTH_LONG).show()
-            }
-        }, modifier = Modifier.fillMaxWidth()) { Text("SEARCH NEAR LAST-KNOWN LOCATION (25 KM)") }
-        Text("Gumagamit lamang ito ng huling kilalang lokasyon; maaaring luma ang fix. Hindi ito nagsisimula ng bagong GPS request.")
-        Button(onClick = {
-            directoryResults = runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList())
-            directoryMetadata = runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()
-            evacuationItems = runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList())
-            advisoryItems = runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList())
-            if (directoryResults.isEmpty() && evacuationItems.isEmpty() && advisoryItems.isEmpty()) {
-                Toast.makeText(context, "Walang local directory/advisory data na available. Hindi nag-download ng data.", Toast.LENGTH_LONG).show()
-            }
-        }, modifier = Modifier.fillMaxWidth()) { Text("SEARCH SAVED OFFLINE DATA") }
-        directoryMetadata?.let { meta ->
-            Text("Directory dataset: ${meta["version"] ?: "unknown"} • records: ${meta["recordCount"] ?: "unknown"}")
-            Text("Source: ${meta["sourceUrl"] ?: "unknown"} • license: ${meta["license"] ?: "unknown"}")
-            Text("Source-reported verification time: ${meta["verifiedAt"] ?: "unknown"} • imported at: ${meta["importedAt"] ?: "unknown"}")
-        } ?: Text("Walang imported directory dataset. Mag-import lamang ng data mula sa beripikadong source at may malinaw na lisensya.")
-        directoryResults.take(30).forEach { record ->
-            Text(record.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            Text(record.category + (record.phone?.let { " • $it" } ?: ""))
-            if (record.latitude != null && record.longitude != null) Text("Coordinates: ${record.latitude}, ${record.longitude}")
         }
-        Text("Evacuation centers (local cache)", style = MaterialTheme.typography.titleMedium)
-        if (evacuationItems.isEmpty()) Text("Walang matching imported evacuation-center records.")
-        evacuationItems.take(30).forEach { (center, stale) ->
-            Text(center.name + if (stale) " • STALE / VERIFY LOCALLY" else " • status: ${center.status}", style = MaterialTheme.typography.titleMedium)
-            Text(center.address)
-            Text("Source: ${center.sourceUrl} • verified: ${center.verifiedAt}")
-        }
-        Text("Cached advisories", style = MaterialTheme.typography.titleMedium)
-        if (advisoryItems.isEmpty()) Text("Walang cached advisories. Walang live feed request na ginawa.")
-        advisoryItems.take(10).forEach { (item, stale) ->
-            Text(item.title + if (stale) " • STALE / EXPIRED" else " • ${item.severity}", style = MaterialTheme.typography.titleMedium)
-            Text(item.body)
-            Text("Source: ${item.sourceUrl} • published: ${item.publishedAt} • expires: ${item.expiresAt}")
-        }
-
-        Text("Directory, maps, mesh and vault", style = MaterialTheme.typography.titleLarge)
-                Text("Hindi pa kumpleto: walang verified nationwide data package o offline map renderer, BLE/Wi-Fi emergency transport, o remote sync. Ang PIN vault ay integrated ngunit wala pang recovery/backup o duress mode.")
+        if (selectedSection == HomeSection.DIRECTORY) {
+            PremiumCard {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    NationwideOfflineMapPanel(modifier = Modifier.fillMaxWidth())
+                    OfflineMapPanel(database = database, modifier = Modifier.fillMaxWidth())
+                    NationalDataPanel(database = database, modifier = Modifier.fillMaxWidth())
+                    Text("Offline directory and local hazard cache", style = MaterialTheme.typography.titleLarge)
+                    Text("Hinahanap lamang nito ang data na na-import na sa device. Walang live PAGASA/LGU feed at hindi ito nangangahulugang kumpleto ang nationwide coverage.")
+                    Text("Ang JSON metadata ay hindi digital signature. I-import lamang ang file matapos mong beripikahin ang opisyal na source, lisensya at petsa; walang live download na ginagawa.")
+                    Button(enabled = !offlineImporting, onClick = { offlineImportLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(if (offlineImporting) "IMPORTING — PLEASE WAIT" else "IMPORT OFFLINE JSON")
+                    }
+                    if (offlineImporting) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    Text(offlineImportStatus)
+                    OutlinedTextField(value = offlineQuery, onValueChange = { offlineQuery = it.take(120) }, label = { Text("Barangay, lugar, agency o evacuation center") }, modifier = Modifier.fillMaxWidth())
+                    Button(enabled = !offlineSearching && !offlineImporting, onClick = {
+                        uiScope.launch {
+                            offlineSearching = true
+                            try {
+                                val result = withContext(Dispatchers.IO) {
+                                    val location = LastKnownLocation.read(context)
+                                    if (location == null) null else offlineDataRepository.searchNearby(location.latitude, location.longitude, radiusKm = 25.0, limit = 100).map { it.record }
+                                }
+                                if (result == null) Toast.makeText(context, "Walang huling lokasyon. I-enable ang location permission at kumuha muna ng fix.", Toast.LENGTH_LONG).show()
+                                else {
+                                    directoryResults = result
+                                    if (result.isEmpty()) Toast.makeText(context, "Walang imported directory record na may coordinates sa loob ng 25 km.", Toast.LENGTH_LONG).show()
+                                }
+                            } finally { offlineSearching = false }
+                        }
+                    }, modifier = Modifier.fillMaxWidth()) { Text("SEARCH NEAR LAST-KNOWN LOCATION (25 KM)") }
+                    Text("Gumagamit lamang ito ng huling kilalang lokasyon; maaaring luma ang fix. Hindi ito nagsisimula ng bagong GPS request.")
+                    Button(enabled = !offlineSearching && !offlineImporting, onClick = {
+                        uiScope.launch {
+                            offlineSearching = true
+                            try {
+                                directoryResults = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList()) }
+                                directoryMetadata = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.datasetMetadata() }.getOrNull() }
+                                evacuationItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList()) }
+                                advisoryItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList()) }
+                                if (directoryResults.isEmpty() && evacuationItems.isEmpty() && advisoryItems.isEmpty()) {
+                                    Toast.makeText(context, "Walang local directory/advisory data na available. Hindi nag-download ng data.", Toast.LENGTH_LONG).show()
+                                }
+                            } finally { offlineSearching = false }
+                        }
+                    }, modifier = Modifier.fillMaxWidth()) { Text(if (offlineSearching) "SEARCHING…" else "SEARCH SAVED OFFLINE DATA") }
+                    if (offlineSearching) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    directoryMetadata?.let { meta ->
+                        Text("Directory dataset: ${meta["version"] ?: "unknown"} • records: ${meta["recordCount"] ?: "unknown"}")
+                        Text("Source: ${meta["sourceUrl"] ?: "unknown"} • license: ${meta["license"] ?: "unknown"}")
+                        Text("Source-reported verification time: ${meta["verifiedAt"] ?: "unknown"} • imported at: ${meta["importedAt"] ?: "unknown"}")
+                    } ?: Text("Walang imported directory dataset. Mag-import lamang ng data mula sa beripikadong source at may malinaw na lisensya.")
+                    directoryResults.take(30).forEach { record ->
+                        Text(record.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        Text(record.category + (record.phone?.let { " • $it" } ?: ""))
+                        if (record.latitude != null && record.longitude != null) Text("Coordinates: ${record.latitude}, ${record.longitude}")
+                    }
+                    Text("Evacuation centers (local cache)", style = MaterialTheme.typography.titleMedium)
+                    if (evacuationItems.isEmpty()) Text("Walang matching imported evacuation-center records.")
+                    evacuationItems.take(30).forEach { (center, stale) ->
+                        Text(center.name + if (stale) " • STALE / VERIFY LOCALLY" else " • status: ${center.status}", style = MaterialTheme.typography.titleMedium)
+                        Text(center.address)
+                        Text("Source: ${center.sourceUrl} • verified: ${center.verifiedAt}")
+                    }
+                    Text("Cached advisories", style = MaterialTheme.typography.titleMedium)
+                    if (advisoryItems.isEmpty()) Text("Walang cached advisories. Walang live feed request na ginawa.")
+                    advisoryItems.take(10).forEach { (item, stale) ->
+                        Text(item.title + if (stale) " • STALE / EXPIRED" else " • ${item.severity}", style = MaterialTheme.typography.titleMedium)
+                        Text(item.body)
+                        Text("Source: ${item.sourceUrl} • published: ${item.publishedAt} • expires: ${item.expiresAt}")
+                    }
+                    Text("Directory, maps, mesh and vault", style = MaterialTheme.typography.titleLarge)
+                    Text("The nationwide offline map is downloaded and checksum-verified before use. BLE currently discovers nearby devices only—no emergency payload transport or Wi-Fi Direct mesh is implemented. Family check-in is locally queued, not remotely delivered. PIN-vault recovery and duress mode remain in progress.")
+                }
             }
         }
         Text("Ang SMS handoff ay hindi patunay ng delivery. Sa agarang panganib, gamitin ang available na opisyal na emergency channel.")
     }
+    if (availableWidth >= 600.dp) {
+        NavigationRail(modifier = Modifier.align(Alignment.CenterStart).padding(vertical = 16.dp)) {
+            HomeSection.values().forEach { section ->
+                NavigationRailItem(
+                    selected = selectedSection == section,
+                    onClick = { selectedSection = section },
+                    icon = { Icon(imageVector = section.icon, contentDescription = section.label) },
+                    label = { Text(section.label) },
+                    alwaysShowLabel = false
+                )
+            }
+        }
+    } else {
+        NavigationBar(modifier = Modifier.align(Alignment.BottomCenter)) {
+            HomeSection.values().forEach { section ->
+                NavigationBarItem(
+                    selected = selectedSection == section,
+                    onClick = { selectedSection = section },
+                    icon = { Icon(imageVector = section.icon, contentDescription = section.label) },
+                    label = { Text(section.label) },
+                    alwaysShowLabel = true
+                )
+            }
+        }
+    }
+    FloatingActionButton(
+        onClick = { showAccessibleSosConfirm = true },
+        modifier = Modifier.align(Alignment.BottomEnd).padding(
+            end = 24.dp,
+            bottom = if (availableWidth >= 600.dp) 24.dp else 92.dp
+        ),
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
+    ) { Text("SOS", fontWeight = FontWeight.Bold) }
     }
 }
 
+@Composable
+private fun PremiumCard(content: @Composable ColumnScope.() -> Unit) {
+    val shape = RoundedCornerShape(26.dp)
+    Card(
+        modifier = Modifier.fillMaxWidth().border(
+            width = 1.dp,
+            brush = Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.secondary)),
+            shape = shape
+        ),
+        shape = shape,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) { content() }
+}
 private fun vibrate(context: Context) {
     try {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

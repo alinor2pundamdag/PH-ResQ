@@ -6,8 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.test.performScrollTo
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -40,11 +39,12 @@ class ConsentScreenTest {
         accept.assertIsDisplayed()
         decline.assertIsDisplayed()
 
-        repeat(6) {
-            composeRule.onNodeWithTag("consent-notice-scroll").performTouchInput { swipeUp() }
-        }
-
-        composeRule.onNodeWithText("LIMITASYON NG BUILD").assertIsDisplayed()
+        val coverageHeading = composeRule.onNodeWithText("DATA COVERAGE AT LIMITASYON")
+        coverageHeading.performScrollTo()
+        coverageHeading.assertIsDisplayed()
+        val linkageDisclosure = composeRule.onNodeWithText("Sa 48 barangay-contact records, 48 ang may PSGC barangay link. Sa 429 evacuation records, 423 ang may PSGC barangay link at 6 ang hindi pa ma-link nang ligtas. Ang PSGC link ay address/name matching lamang—hindi ito eksaktong coordinates o patunay na bukas ang pasilidad.")
+        linkageDisclosure.performScrollTo()
+        linkageDisclosure.assertIsDisplayed()
         accept.assertIsDisplayed()
         decline.assertIsDisplayed()
         assertFalse(accepted)
