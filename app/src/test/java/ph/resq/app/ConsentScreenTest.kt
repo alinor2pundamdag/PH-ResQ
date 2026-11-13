@@ -40,11 +40,11 @@ class ConsentScreenTest {
         accept.assertIsDisplayed()
         decline.assertIsDisplayed()
 
-        repeat(6) {
+        repeat(20) {
             composeRule.onNodeWithTag("consent-notice-scroll").performTouchInput { swipeUp() }
         }
 
-        composeRule.onNodeWithText("LIMITASYON NG BUILD").assertIsDisplayed()
+        composeRule.onNodeWithText("DATA COVERAGE AT LIMITASYON").assertIsDisplayed()
         accept.assertIsDisplayed()
         decline.assertIsDisplayed()
         assertFalse(accepted)
