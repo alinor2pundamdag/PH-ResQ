@@ -332,50 +332,60 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
 
 
     /**
-     * Reconcile an interrupted external SMS handoff without retrying it.
-     * SENDING is ambiguous after process death: Android may have opened the messaging composer
-     * before the app was killed. Preserve the original encrypted snapshot and require user review.
+     * Reconcile every event whose latest durable state was interrupted by process death.
+     * QUEUED is known not to have launched the external app; SENDING is ambiguous because
+     * the composer may already have opened. Neither state is automatically resent.
      */
-    fun reconcileInterruptedSosHandoff(): String? {
+    fun reconcileInterruptedSosHandoffs(): Int {
         val db = writableDatabase
-        var recoveredEventId: String? = null
+        var recoveredCount = 0
         db.beginTransaction()
         try {
-            val interrupted = db.rawQuery(
-                "SELECT event_id, state, draft_ciphertext, recipients_ciphertext, location_ciphertext FROM sos_events ORDER BY id DESC LIMIT 1",
-                null
+            val interrupted = mutableListOf<Array<Any?>>()
+            db.rawQuery(
+                """
+                SELECT e.event_id, e.state, e.draft_ciphertext, e.recipients_ciphertext, e.location_ciphertext
+                FROM sos_events e
+                WHERE e.id = (
+                    SELECT MAX(latest.id) FROM sos_events latest WHERE latest.event_id = e.event_id
+                )
+                AND e.state IN (?, ?)
+                ORDER BY e.id ASC
+                """.trimIndent(),
+                arrayOf(SosState.QUEUED.name, SosState.SENDING.name)
             ).use { cursor ->
-                if (!cursor.moveToFirst() || cursor.getString(1) != SosState.SENDING.name) {
-                    null
-                } else {
-                    arrayOf(
-                        cursor.getString(0),
-                        cursor.getString(2),
-                        cursor.getString(3),
-                        cursor.getString(4)
-                    )
+                while (cursor.moveToNext()) {
+                    interrupted.add(arrayOf(
+                        cursor.getString(0), cursor.getString(1),
+                        if (cursor.isNull(2)) null else cursor.getString(2),
+                        if (cursor.isNull(3)) null else cursor.getString(3),
+                        if (cursor.isNull(4)) null else cursor.getString(4)
+                    ))
                 }
             }
-            if (interrupted != null) {
-                val eventId = interrupted[0] as String
-                check(SosStateMachine.canTransition(SosState.SENDING, SosState.HANDOFF_UNCONFIRMED))
+            interrupted.forEach { row ->
+                val previous = SosState.valueOf(row[1] as String)
+                val recovered = if (previous == SosState.QUEUED) SosState.INTERRUPTED_NOT_SENT else SosState.HANDOFF_UNCONFIRMED
+                check(SosStateMachine.canTransition(previous, recovered))
                 val values = ContentValues().apply {
-                    put("event_id", eventId)
-                    put("state", SosState.HANDOFF_UNCONFIRMED.name)
+                    put("event_id", row[0] as String)
+                    put("state", recovered.name)
                     put("created_at", System.currentTimeMillis())
-                    if (interrupted[1] == null) putNull("draft_ciphertext") else put("draft_ciphertext", interrupted[1] as String)
-                    if (interrupted[2] == null) putNull("recipients_ciphertext") else put("recipients_ciphertext", interrupted[2] as String)
-                    if (interrupted[3] == null) putNull("location_ciphertext") else put("location_ciphertext", interrupted[3] as String)
+                    if (row[2] == null) putNull("draft_ciphertext") else put("draft_ciphertext", row[2] as String)
+                    if (row[3] == null) putNull("recipients_ciphertext") else put("recipients_ciphertext", row[3] as String)
+                    if (row[4] == null) putNull("location_ciphertext") else put("location_ciphertext", row[4] as String)
                 }
                 db.insertOrThrow("sos_events", null, values)
+                recoveredCount++
+            }
+            if (recoveredCount > 0) {
                 db.execSQL("DELETE FROM sos_events WHERE id NOT IN (SELECT id FROM sos_events ORDER BY id DESC LIMIT 200)")
-                recoveredEventId = eventId
             }
             db.setTransactionSuccessful()
         } finally {
             db.endTransaction()
         }
-        return recoveredEventId
+        return recoveredCount
     }
 
     fun latestSosState(): SosState? {

@@ -137,6 +137,29 @@ class ResQDatabaseTest {
     }
 
     @Test
+    fun startupReconciliationHandlesEveryInterruptedEventWithoutResending() {
+        val queued = database.recordSosEvent(SosState.QUEUED, "queued draft", "+639171111111", "queued location")
+        val sending = database.recordSosEvent(SosState.QUEUED, "sending draft", "+639172222222", "sending location")
+        database.recordSosEvent(SosState.SENDING, "sending draft", "+639172222222", "sending location", sending)
+
+        assertEquals(2, database.reconcileInterruptedSosHandoffs())
+        assertEquals(SosState.INTERRUPTED_NOT_SENT, database.latestSosEventSnapshot(queued)?.state)
+        assertEquals(SosState.HANDOFF_UNCONFIRMED, database.latestSosEventSnapshot(sending)?.state)
+        assertEquals("queued draft", database.latestSosEventSnapshot(queued)?.draft)
+        assertEquals("sending draft", database.latestSosEventSnapshot(sending)?.draft)
+        assertEquals(0, database.reconcileInterruptedSosHandoffs())
+    }
+
+    @Test
+    fun handedOffEventIsNotChangedByStartupReconciliation() {
+        val eventId = database.recordSosEvent(SosState.QUEUED, "draft", "+639171234567", "location")
+        database.recordSosEvent(SosState.SENDING, "draft", "+639171234567", "location", eventId)
+        database.recordSosEvent(SosState.HANDED_OFF, "draft", "+639171234567", "location", eventId)
+        assertEquals(0, database.reconcileInterruptedSosHandoffs())
+        assertEquals(SosState.HANDED_OFF, database.latestSosEventSnapshot(eventId)?.state)
+    }
+
+    @Test
     fun databaseRejectsUnverifiedDeliveryAndAcknowledgementTransitions() {
         val eventId = database.recordSosEvent(SosState.QUEUED, "SOS draft", "+639171234567", "last known")
         database.recordSosEvent(SosState.SENDING, "SOS draft", "+639171234567", "last known", eventId)

@@ -204,6 +204,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     var pinVaultPin by remember { mutableStateOf("") }
     var pinVaultStatus by remember { mutableStateOf(if (pinVaultEnabled) "Vault locked. I-unlock bago gumamit ng saved contacts." else "Optional PIN vault is disabled.") }
     val database = remember { ResQDatabase(context) }
+    // Recover interrupted SOS events without reopening or repeating an external SMS handoff.
+    remember(database) { runCatching { database.reconcileInterruptedSosHandoffs() }.getOrNull() }
     val freshLocationProvider = remember { FreshLocationProvider(context) }
     var freshLocationStatus by remember { mutableStateOf("Hindi pa humihingi ng fresh location.") }
     var batterySnapshot by remember { mutableStateOf(runCatching { database.getAppState("low_battery_snapshot") }.getOrNull() ?: "Wala pang low-battery snapshot.") }
