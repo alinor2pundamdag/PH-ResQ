@@ -38,23 +38,34 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
    .let { if(it=="pasong putik") "pasong putik proper" else it }
  }
  private fun resolveBarangayPsgc(label:String):String? {
-  val matches=Regex("(?=(Barangay\\s+([^,]+),\\s+([^,]+)))",RegexOption.IGNORE_CASE).findAll(label)
+  // Addresses may include "Barangay X, City/Municipality, Province". Use the
+  // province when supplied; without it, never choose arbitrarily among duplicate
+  // city/barangay names elsewhere in the Philippines.
+  val matches=Regex("Barangay\\s+([^,]+),\\s*([^,]+)(?:,\\s*([^,]+))?",RegexOption.IGNORE_CASE).findAll(label)
   for(match in matches){
-   val barangay=normalizeLabel(match.groupValues[2])
-   val rawCity=match.groupValues[3].trim()
+   val barangay=normalizeLabel(match.groupValues[1])
+   val rawCity=match.groupValues[2].trim()
+   val rawProvince=match.groupValues.getOrNull(3)?.trim().orEmpty()
    val baseCity=rawCity.replace(Regex("^(City|Municipality) of\\s+",RegexOption.IGNORE_CASE),"")
     .replace(Regex("\\s+(City|Municipality)$",RegexOption.IGNORE_CASE),"").trim()
    val cityVariants=listOf(rawCity,baseCity,"City of $baseCity","$baseCity City","Municipality of $baseCity").distinct()
    val normalizedCities=cityVariants.map(::normalizeLabel).toSet()
    val placeholders=cityVariants.joinToString(","){"?"}
-   val candidates=database.readableDatabase.rawQuery("SELECT psgc_code,city_municipality,barangay FROM barangay_reference WHERE city_municipality IN ($placeholders)",cityVariants.toTypedArray())
+   val candidates=database.readableDatabase.rawQuery(
+    "SELECT psgc_code,province,city_municipality,barangay FROM barangay_reference WHERE city_municipality IN ($placeholders)",
+    cityVariants.toTypedArray()
+   )
+   val matchedCodes=linkedSetOf<String>()
    candidates.use { c ->
     while(c.moveToNext()){
-     val stored=normalizeLabel(c.getString(1))
-     val storedBarangay=normalizeLabel(c.getString(2))
-     if(storedBarangay==barangay && stored in normalizedCities) return c.getString(0)
+     val storedProvince=normalizeLabel(c.getString(1))
+     val storedCity=normalizeLabel(c.getString(2))
+     val storedBarangay=normalizeLabel(c.getString(3))
+     val provinceMatches=rawProvince.isBlank()||storedProvince==normalizeLabel(rawProvince)
+     if(provinceMatches&&storedBarangay==barangay&&storedCity in normalizedCities)matchedCodes.add(c.getString(0))
     }
    }
+   if(matchedCodes.size==1)return matchedCodes.first()
   }
   return null
  }

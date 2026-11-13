@@ -34,6 +34,23 @@ class NationalDatasetImporterTest{
   context.deleteDatabase("ph_resq_local.db")
  }
 
+ @Test fun ambiguousBarangayNamesAreNotLinkedWithoutProvinceContext(){
+  assertEquals(42_010,NationalDatasetImporter.importBundledBarangays(context,repository))
+  val ambiguous=PublicEmergencyContact(
+   "ambiguous-burgos-poblacion",null,"BARANGAY","BARANGAY_HALL","Barangay Poblacion, Burgos",
+   "911","https://example.gov.ph/ambiguous","Synthetic ambiguity test",ContactVerification.NEEDS_REVIEW
+  )
+  repository.addPublicContact(ambiguous)
+  assertNull(repository.searchContacts("ambiguous-burgos-poblacion",1).single().psgcCode)
+
+  val explicit=ambiguous.copy(
+   id="explicit-ilocos-norte-burgos-poblacion",
+   officeName="Barangay Poblacion, Burgos, Ilocos Norte"
+  )
+  repository.addPublicContact(explicit)
+  assertEquals("0102806011",repository.searchContacts("explicit-ilocos-norte-burgos-poblacion",1).single().psgcCode)
+ }
+
  @Test fun publicContactAndEvacuationImportsRollbackAllRowsWhenAnyRecordIsInvalid(){
   val validContact=PublicEmergencyContact("valid-contact",null,"NATIONAL","OTHER","Test hotline","911","https://example.gov.ph/hotline","Test official source",ContactVerification.OFFICIAL_GOVERNMENT_SOURCE,null,0L)
   val invalidContact=validContact.copy(id="invalid-contact",phone="not-a-phone")
