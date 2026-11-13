@@ -34,6 +34,18 @@ class NationalDatasetImporterTest{
   context.deleteDatabase("ph_resq_local.db")
  }
 
+ @Test fun publicContactAndEvacuationImportsRollbackAllRowsWhenAnyRecordIsInvalid(){
+  val validContact=PublicEmergencyContact("valid-contact",null,"NATIONAL","OTHER","Test hotline","911","https://example.gov.ph/hotline","Test official source",ContactVerification.OFFICIAL_GOVERNMENT_SOURCE,null,0L)
+  val invalidContact=validContact.copy(id="invalid-contact",phone="not-a-phone")
+  assertTrue(runCatching{repository.addPublicContacts(listOf(validContact,invalidContact))}.isFailure)
+  assertTrue(repository.searchContacts("",10).isEmpty())
+
+  val validCenter=NationalEvacuationCenter("valid-center",null,"Test Center","Test address",null,null,null,null,"UNKNOWN","UNKNOWN","https://example.gov.ph/center","Test official source",ContactVerification.OFFICIAL_GOVERNMENT_SOURCE)
+  val invalidCenter=validCenter.copy(id="invalid-center",psgcCode="not-a-psgc")
+  assertTrue(runCatching{repository.addEvacuationCenters(listOf(validCenter,invalidCenter))}.isFailure)
+  assertTrue(repository.searchEvacuationCenters("",10).isEmpty())
+ }
+
  @Test fun bundledNationalReferenceAndEmergencySeedsInstallWithHonestUnknownStates(){
   assertEquals(42_010,NationalDatasetImporter.importBundledBarangays(context,repository))
   val coverageAfterPsgc=repository.coverage()
@@ -43,12 +55,19 @@ class NationalDatasetImporterTest{
   assertEquals("1001322005",corrected.psgcCode)
   assertEquals("Lambagan",corrected.barangay)
 
-  assertEquals(102,NationalDatasetImporter.importBundledPublicContacts(context,repository))
+  assertEquals(192,NationalDatasetImporter.importBundledPublicContacts(context,repository))
   assertTrue(repository.searchContacts("911",10).any{it.phone=="911"})
   assertTrue(repository.searchContacts("122",10).any{it.phone=="122"})
-  val contactRows=repository.searchContacts("",200)
-  assertEquals(102,contactRows.size)
+  assertTrue(repository.searchContacts("117",10).any{it.phone=="117"})
+  assertTrue(repository.searchContacts("143",10).any{it.phone=="143"})
+  assertTrue(repository.searchContacts("136",10).any{it.phone=="136"})
+  assertTrue(repository.searchContacts("Quezon",100).any{it.officeName=="Quezon Provincial DRRMO"})
+  val contactRows=repository.searchContacts("",250)
+  assertEquals(192,contactRows.size)
   assertTrue(contactRows.all{it.expiresAt==0L})
+  assertTrue(contactRows.any{it.sourceUrl=="https://ehotlines.e.gov.ph/" && it.verification==ContactVerification.OFFICIAL_GOVERNMENT_SOURCE})
+  assertTrue(contactRows.any{it.sourceUrl=="https://quezon.gov.ph/quezon-province-emergency-hotlines/" && it.scope=="CITY_MUNICIPALITY"})
+  assertEquals(0,repository.coverage().verifiedContacts)
   assertTrue(repository.coverage().contactBarangays>0)
 
   assertEquals(429,NationalDatasetImporter.importBundledEvacuationCenters(context,repository))
