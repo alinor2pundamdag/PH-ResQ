@@ -51,4 +51,11 @@ class FeaturePolicyCoordinatorTest {
         assertEquals("user_confirmed_resolver_check", messaging.effectiveMode)
         assertTrue(messaging.reason.contains("SIM, carrier service and delivery are not guaranteed"))
     }
+
+    @Test fun backgroundRestrictionNeverPromisesPersistentBackgroundDelivery() {
+        val policies = FeaturePolicyCoordinator.evaluate(profile(mapOf("background_execution" to CapabilityState.RESTRICTED_BY_SYSTEM)))
+        val background = policies.first { it.featureId == "background_execution" }
+        assertEquals(FeatureAvailability.DEGRADED, background.availability)
+        assertTrue(background.reason.contains("may be delayed or stopped"))
+    }
 }

@@ -2,6 +2,7 @@ package ph.resq.app.core
 
 import android.Manifest
 import android.bluetooth.BluetoothManager
+import android.app.ActivityManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -123,6 +124,15 @@ data class DeviceCapabilityProfile(
                 cap("keystore", CapabilityState.AVAILABLE, "ANDROID_KEYSTORE_PROVIDER_AVAILABLE")
             } else cap("keystore", CapabilityState.ERROR, "ANDROID_KEYSTORE_PROVIDER_UNAVAILABLE")
 
+            val backgroundRestricted = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && runCatching {
+                (app.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.isBackgroundRestricted == true
+            }.getOrDefault(false)
+            val backgroundExecution = if (backgroundRestricted) {
+                cap("background_execution", CapabilityState.RESTRICTED_BY_SYSTEM, "BACKGROUND_EXECUTION_RESTRICTED_BY_SYSTEM")
+            } else {
+                cap("background_execution", CapabilityState.AVAILABLE, "NO_BACKGROUND_RESTRICTION_REPORTED")
+            }
+
             val storage = runCatching { StatFs(app.filesDir.absolutePath).availableBytes }.getOrDefault(0L)
             val powerSave = runCatching {
                 (app.getSystemService(Context.POWER_SERVICE) as? PowerManager)?.isPowerSaveMode ?: false
@@ -136,7 +146,7 @@ data class DeviceCapabilityProfile(
                 supportedAbis = Build.SUPPORTED_ABIS.toList(),
                 availableStorageBytes = storage,
                 batterySaverEnabled = powerSave,
-                capabilities = listOf(telephony, ble, wifiDirect, location, microphone, notifications, keystore)
+                capabilities = listOf(telephony, ble, wifiDirect, location, microphone, notifications, keystore, backgroundExecution)
                     .associateBy { it.id }
             )
         }

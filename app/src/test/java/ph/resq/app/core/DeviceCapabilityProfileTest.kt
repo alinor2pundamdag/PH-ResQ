@@ -30,7 +30,7 @@ class DeviceCapabilityProfileTest {
     @Test fun missingOptionalCapabilitiesAreExplicitRatherThanSuccessful() {
         val profile = DeviceCapabilityProfile.detect(RuntimeEnvironment.getApplication())
         assertTrue(profile.capabilities.keys.containsAll(
-            listOf("telephony", "ble", "wifi_direct", "location", "microphone", "notifications", "keystore")
+            listOf("telephony", "ble", "wifi_direct", "location", "microphone", "notifications", "keystore", "background_execution")
         ))
         assertEquals(CapabilityState.ERROR, profile.capability("not_registered").state)
     }

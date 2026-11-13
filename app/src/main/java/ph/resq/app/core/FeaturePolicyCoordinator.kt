@@ -71,6 +71,12 @@ object FeaturePolicyCoordinator {
                 FeatureAvailability.BLOCKED,
                 "not_implemented_local_queue_only",
                 if (wifi.state == CapabilityState.AVAILABLE) "Hardware feature detected, but Wi-Fi Direct transfer is not implemented." else "Wi-Fi Direct is unavailable on this device and transfer is not implemented."
+            ),
+            EffectiveFeaturePolicy(
+                "background_execution",
+                if (state("background_execution").state == CapabilityState.RESTRICTED_BY_SYSTEM) FeatureAvailability.DEGRADED else FeatureAvailability.READY,
+                if (state("background_execution").state == CapabilityState.RESTRICTED_BY_SYSTEM) "user_visible_foreground_work_only" else "platform_managed_background_limits",
+                if (state("background_execution").state == CapabilityState.RESTRICTED_BY_SYSTEM) "Android reports background execution restrictions; deferred work may be delayed or stopped." else "Background execution remains subject to Android and OEM battery policies; no delivery guarantee is implied."
             )
         )
     }

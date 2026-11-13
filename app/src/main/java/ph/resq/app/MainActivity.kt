@@ -155,6 +155,7 @@ private fun ResQRoot() {
 @Composable
 private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> Unit) {
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var capabilityProfile by remember { mutableStateOf(DeviceCapabilityProfile.detect(context)) }
     DisposableEffect(lifecycleOwner, context) {
@@ -567,12 +568,13 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("DEVICE COMPATIBILITY", style = MaterialTheme.typography.titleLarge)
                 Text("${capabilityProfile.manufacturer} ${capabilityProfile.model} • Android ${capabilityProfile.androidRelease} (API ${capabilityProfile.sdkInt})")
+                Text("Adaptive layout: " + when { maxWidth >= 900.dp -> "EXPANDED TABLET"; maxWidth >= 600.dp -> "MEDIUM"; else -> "COMPACT PHONE" } + " • Display ${configuration.screenWidthDp}×${configuration.screenHeightDp} dp • Font scale ${configuration.fontScale}")
                 Text("Available storage: ${capabilityProfile.availableStorageBytes / (1024L * 1024L)} MB • Battery saver: ${if (capabilityProfile.batterySaverEnabled) "ON" else "OFF"}")
                 listOf(
                     "telephony" to "Phone / SIM capability", "location" to "Location permission",
                     "ble" to "Bluetooth LE", "wifi_direct" to "Wi-Fi Direct feature (transport not implemented)",
                     "microphone" to "Microphone", "notifications" to "Notifications",
-                    "keystore" to "Android Keystore"
+                    "keystore" to "Android Keystore", "background_execution" to "Background execution policy"
                 ).forEach { (id, label) ->
                     val capability = capabilityProfile.capability(id)
                     val stateLabel = when (capability.state) {
