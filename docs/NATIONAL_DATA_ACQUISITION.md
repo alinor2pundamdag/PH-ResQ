@@ -20,12 +20,12 @@ A PSGC row proves administrative identity only. It does not prove a public phone
 Evacuation records retain facility name/type, PSGC, address, coordinates/capacity when supplied, operational status, source URL/title, verification state/date. Missing values remain null. A completed project is not automatically an open, usable center.
 
 ## Barangay CSV
-UTF-8 columns: psgc_code,region,province,city_municipality,barangay,urban_rural,source_url,source_version. Every row must identify the official PSA PSGC URL and Q3 2026 release. Importer accepts only a complete 42,010-row Q3-2026 snapshot with unique 10-digit PSGC codes; partial imports are rejected.
+UTF-8 columns: psgc_code,region,province,city_municipality,barangay,urban_rural,source_url,source_version. The currently bundled 42,010-row snapshot is pinned to the third-party PSA-derived Tenasia/ph-psgc Q2 2026 commit 3d7528b6625e4e7990ac1b96d89505a6bab157ec, with the PSA Q3 2026 correction for PSGC 1001322005 applied. It is not the official complete Q3 2026 workbook. The importer validates the complete pinned 42,010-row snapshot and unique 10-digit codes; partial imports are rejected. `urban_rural` remains null and no barangay boundary polygons are bundled.
 
 ## Offline maps
 PH-ResQ uses MapLibre Native and OpenFreeMap Liberty for user-selected regional offline packs. User-triggered downloads obey the provider's current limits: <=3,000 tiles or 50 MB per provider download, <=3 parallel requests; PH-ResQ enforces a stricter 40 MB local cap and 3,000-tile cap and uses a unique app User-Agent. Attribution stays visible. Do not bulk-download the Philippines from the public tile service.
 
-The nationwide vector basemap uses the Mapsforge project's prebuilt Philippines map in Mapsforge v5 format: https://download.mapsforge.org/maps/v5/asia/philippines.map (the public index listed 563 MB and a 2026-10-06 modification date when audited). GitHub Actions downloads it over HTTPS, computes a PH-ResQ SHA-256 sidecar, and publishes a replaceable `offline-map-latest` release. The Android app downloads the release asset, verifies SHA-256 before installation, and renders it with Mapsforge 0.25.0. The map is OSM basemap data under ODbL; it is not an authoritative barangay-boundary or emergency-facility dataset. Refresh workflow is monthly.
+The nationwide vector basemap uses the Mapsforge project's prebuilt Philippines map in Mapsforge v5 format: https://download.mapsforge.org/maps/v5/asia/philippines.map. The `offline-map-latest` GitHub release is published and contains `philippines.map` (590,131,647 bytes), `philippines.map.sha256`, and `map-metadata.json` (release asset SHA-256: `016879e83aff41e619e49729bc6055972ab2eedd1a03eaaaa3b5f3807834b8c2`). GitHub Actions downloads it over HTTPS, computes a PH-ResQ SHA-256 sidecar, and publishes the replaceable release. The Android app downloads the release asset, verifies SHA-256 before installation, and renders it with Mapsforge 0.25.0. The map is OSM basemap data under ODbL; it is not an authoritative barangay-boundary, hazard, or emergency-facility dataset. Physical-device airplane-mode rendering and storage recovery remain field acceptance tests.
 
 ## Acceptance
 1. PSGC count and unique codes match PSA.
@@ -85,3 +85,11 @@ Combined bundled evacuation seed: 429 records across two LGUs. This is not natio
 - These are official-source records, not call-verified numbers. All carry `expires_at=0` and must remain visibly review-due until a documented verification call or cross-check is recorded.
 - Municipality/province contacts are not linked to barangay PSGC codes. Barangay contact coverage counts only records with `scope=BARANGAY`, not municipality/province contacts.
 - National contact import and evacuation-center import now validate/insert each full batch inside a SQLite transaction; a rejected row rolls back the whole batch. Insert failures are checked rather than silently counted as success.
+
+
+## PSGC relationship and field-validation audit (2026-11-13)
+- Public contacts: 201 records, zero invalid rows and zero duplicate IDs. All 48 `scope=BARANGAY` records have a 10-digit PSGC link; city/municipality, province and national contacts are not forced onto barangay codes.
+- Evacuation facilities: 429 records, zero invalid rows and zero duplicate IDs. 423 link to the current PSGC reference; six Quezon City records remain unlinked because the source uses the non-matching labels `Doña Aurora` (3) and `San Isidro Galas` (3). They are not assigned guessed PSGC codes.
+- All 429 evacuation records have `operational_status=UNKNOWN`; none has coordinates, and 28 have a stated capacity. Source listing does not confirm current availability.
+- Resolver matching is province-aware. If a barangay/city label maps to more than one PSGC code and the source omits province context, the record remains unlinked. Address parsing supports repeated `Barangay` tokens without selecting an arbitrary match.
+- National contact coverage remains incomplete. The 201 official-source contact records cover selected agencies and LGUs only; they are not all call-verified.

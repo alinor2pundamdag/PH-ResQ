@@ -147,12 +147,14 @@ fun NationalDataPanel(database:ResQDatabase,modifier:Modifier=Modifier){
      "UNVERIFIED_SOCIAL"->"UNVERIFIED SOCIAL"
      else->"NEEDS REVIEW"
     }
-    Text("${contact.officeName} • ${contact.phone} • $sourceLabel${if(reviewDue)" • REVIEW DUE" else ""}",modifier=Modifier.fillMaxWidth().clickable{runCatching{context.startActivity(Intent(Intent.ACTION_DIAL,Uri.parse("tel:${contact.phone}"))) }},style=MaterialTheme.typography.bodySmall)
+    val psgcLabel=if(contact.scope=="BARANGAY") "PSGC ${contact.psgcCode ?: "UNLINKED"}" else "PSGC not applicable (${contact.scope})"
+    Text("${contact.officeName} • ${contact.phone} • $psgcLabel • $sourceLabel${if(reviewDue)" • REVIEW DUE" else ""}",modifier=Modifier.fillMaxWidth().clickable{runCatching{context.startActivity(Intent(Intent.ACTION_DIAL,Uri.parse("tel:${contact.phone}"))) }},style=MaterialTheme.typography.bodySmall)
     Text("${contact.sourceTitle} • OPEN SOURCE",modifier=Modifier.fillMaxWidth().clickable{runCatching{context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse(contact.sourceUrl))) }},style=MaterialTheme.typography.labelSmall)
    }
    centers.take(20).forEach{center->
     val sourceLabel=if(center.operationalStatus=="UNKNOWN")"STATUS UNKNOWN • REVIEW DUE" else center.verification.name
-    Text("${center.name} • ${center.capacity?.let{n->"$n ${center.capacityUnit.lowercase()}"}?:"capacity unknown"} • ${center.operationalStatus} • $sourceLabel",style=MaterialTheme.typography.bodySmall)
+    val psgcLabel=center.psgcCode?.let{"PSGC $it"} ?: "PSGC UNLINKED"
+    Text("${center.name} • $psgcLabel • ${center.capacity?.let{n->"$n ${center.capacityUnit.lowercase()}"}?:"capacity unknown"} • ${center.operationalStatus} • $sourceLabel",style=MaterialTheme.typography.bodySmall)
     Text("${center.address} • ${center.sourceTitle} • OPEN SOURCE",modifier=Modifier.fillMaxWidth().clickable{runCatching{context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse(center.sourceUrl))) }},style=MaterialTheme.typography.labelSmall)
    }
    Text("Source listing does not prove that a facility is currently open. DILG/OCD FOI responses did not identify a single consolidated nationwide operational-centre master file. Records without current confirmation remain UNKNOWN.",style=MaterialTheme.typography.bodySmall)
