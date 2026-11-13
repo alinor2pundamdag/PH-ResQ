@@ -56,7 +56,14 @@ jobs:
           mvn -q -f "$RUNNER_TEMP/map-writer-pom.xml" dependency:copy-dependencies \
             -DincludeScope=runtime \
             -DoutputDirectory="$HOME/.openstreetmap/osmosis/plugins"
-          ls -lh "$HOME/.openstreetmap/osmosis/plugins"
+          PLUGIN_DIR="$HOME/.openstreetmap/osmosis/plugins"
+          FAT_DIR="$RUNNER_TEMP/mapsforge-plugin-fat"
+          mkdir -p "$FAT_DIR"
+          for dependency in "$PLUGIN_DIR"/*.jar; do (cd "$FAT_DIR" && jar xf "$dependency"); done
+          rm -f "$FAT_DIR"/META-INF/*.SF "$FAT_DIR"/META-INF/*.RSA "$FAT_DIR"/META-INF/*.DSA "$FAT_DIR"/META-INF/MANIFEST.MF
+          rm -f "$PLUGIN_DIR"/*.jar
+          jar cf "$PLUGIN_DIR/mapsforge-map-writer-0.25.0.jar" -C "$FAT_DIR" .
+          ls -lh "$PLUGIN_DIR"
 
       - name: Download and verify current Geofabrik Philippines extract
         shell: bash
@@ -75,7 +82,7 @@ jobs:
       - name: Generate Mapsforge country map
         shell: bash
         env:
-          JAVACMD_OPTIONS: "-Xmx5G -Djava.io.tmpdir=${ runner.temp }/osmosis-tmp"
+          JAVACMD_OPTIONS: "-Xmx5G -Djava.io.tmpdir=${{ runner.temp }}/osmosis-tmp"
         run: |
           set -euo pipefail
           "$OSMOSIS_BIN" \
@@ -117,9 +124,10 @@ jobs:
       - name: Publish replaceable offline map release
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: offline-map-latest
           name: PH-ResQ Nationwide Offline Map
-          target_commitish: ${ github.sha }
+          target_commitish: ${{ github.sha }}
           body: |
             Automatically generated from the current Geofabrik Philippines OpenStreetMap extract.
             Map data © OpenStreetMap contributors, ODbL.
