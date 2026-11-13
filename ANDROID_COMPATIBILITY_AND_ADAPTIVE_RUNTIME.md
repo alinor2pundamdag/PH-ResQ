@@ -1,6 +1,6 @@
 # PH-ResQ Android Device Compatibility & Adaptive Runtime Architecture
 
-**Status:** Normative target architecture; partial capability checks exist, but the adaptive runtime, device matrix, and physical-device validation are not yet implemented.
+**Status:** Partial implementation: immutable capability snapshot is now shown in the Compose home UI and refreshed on activity resume; content width is constrained and centered for tablet/large-window layouts. Battery-aware policy adaptation, complete configuration-change refresh, API/OEM matrix, accessibility instrumentation and physical-device validation remain open.
 **Applies to:** Android OS/API, hardware features, OEM behavior, app lifecycle, UI configuration, storage, and power policy.
 **Related:** `MASTER_PLAN.md`, `SYSTEM_ARCHITECTURE.md`, `ARCHITECTURE_DECISIONS.md`, `DATABASE_SPEC.md`, `SECURITY_MODEL.md`, `TEST_ACCEPTANCE_MATRIX.md`.
 

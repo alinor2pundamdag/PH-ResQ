@@ -34,6 +34,9 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -69,6 +72,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import ph.resq.app.core.ContactList
 import ph.resq.app.core.MedicalIdQr
 import ph.resq.app.core.LastKnownLocation
@@ -89,6 +95,8 @@ import ph.resq.app.core.OfflineDataRepository
 import ph.resq.app.core.HazardDataRepository
 import ph.resq.app.core.OfflineDatasetImporter
 import ph.resq.app.core.SafeVolumePolicy
+import ph.resq.app.core.DeviceCapabilityProfile
+import ph.resq.app.core.CapabilityState
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 
@@ -141,6 +149,15 @@ private fun ResQRoot() {
 @Composable
 private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> Unit) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var capabilityProfile by remember { mutableStateOf(DeviceCapabilityProfile.detect(context)) }
+    DisposableEffect(lifecycleOwner, context) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) capabilityProfile = DeviceCapabilityProfile.detect(context)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     var medicalName by remember { mutableStateOf("") }
     var medicalBloodType by remember { mutableStateOf("") }
     var medicalAllergies by remember { mutableStateOf("") }
@@ -488,7 +505,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     )
     val visibleWave = if (reduceMotion) 0f else wave
     val visibleColorPhase = if (reduceMotion) 0f else colorPhase
-    Column(Modifier.fillMaxSize().safeContentPadding().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    BoxWithConstraints(Modifier.fillMaxSize().safeContentPadding()) {
+    val adaptiveContentWidth = if (maxWidth >= 900.dp) 820.dp else 720.dp
+    Column(Modifier.fillMaxWidth().widthIn(max = adaptiveContentWidth).align(Alignment.TopCenter).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(
             Modifier.fillMaxWidth().height(8.dp).graphicsLayer(rotationZ = visibleWave)
                 .background(Brush.horizontalGradient(listOf(Color.Blue, Color.Red, Color.White, Color.Yellow, Color.White, Color.Red, Color.Blue)))
@@ -507,6 +526,36 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         Button(onClick = onReviewPrivacy, modifier = Modifier.fillMaxWidth()) {
             Text("REVIEW PRIVACY NOTICE")
+        }
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("DEVICE COMPATIBILITY", style = MaterialTheme.typography.titleLarge)
+                Text("${capabilityProfile.manufacturer} ${capabilityProfile.model} • Android ${capabilityProfile.androidRelease} (API ${capabilityProfile.sdkInt})")
+                Text("Available storage: ${capabilityProfile.availableStorageBytes / (1024L * 1024L)} MB • Battery saver: ${if (capabilityProfile.batterySaverEnabled) "ON" else "OFF"}")
+                listOf(
+                    "telephony" to "Phone / SIM capability", "location" to "Location permission",
+                    "ble" to "Bluetooth LE", "wifi_direct" to "Wi-Fi Direct hardware",
+                    "microphone" to "Microphone", "notifications" to "Notifications",
+                    "keystore" to "Android Keystore"
+                ).forEach { (id, label) ->
+                    val capability = capabilityProfile.capability(id)
+                    val stateLabel = when (capability.state) {
+                        CapabilityState.AVAILABLE -> "AVAILABLE"
+                        CapabilityState.DENIED -> "PERMISSION NEEDED"
+                        CapabilityState.DISABLED -> "TURNED OFF"
+                        CapabilityState.UNSUPPORTED -> "NOT SUPPORTED"
+                        CapabilityState.RESTRICTED_BY_SYSTEM -> "SYSTEM RESTRICTED"
+                        CapabilityState.TEMPORARILY_UNAVAILABLE -> "TEMPORARILY UNAVAILABLE"
+                        CapabilityState.ERROR -> "CHECK ERROR"
+                    }
+                    Text("$label: $stateLabel")
+                    Text(capability.reasonCode.replace('_', ' '), style = MaterialTheme.typography.bodySmall)
+                }
+                Text("Auto-detected on app resume. Android controls permissions and system settings; PH-ResQ cannot silently enable them.")
+                Button(onClick = { capabilityProfile = DeviceCapabilityProfile.detect(context) }, modifier = Modifier.fillMaxWidth()) {
+                    Text("REFRESH DEVICE CHECK")
+                }
+            }
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -879,6 +928,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             }
         }
         Text("Ang SMS handoff ay hindi patunay ng delivery. Sa agarang panganib, gamitin ang available na opisyal na emergency channel.")
+    }
     }
 }
 

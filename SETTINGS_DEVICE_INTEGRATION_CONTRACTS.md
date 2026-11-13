@@ -1,6 +1,6 @@
 # PH-ResQ Settings, Device Capabilities & Integration Contracts
 
-**Status:** Target contract; settings and capability checks are currently fragmented and only partly wired.
+**Status:** Partial implementation: the capability provider is wired to a lifecycle-refreshed device-status card with explicit permission/hardware states and manual refresh. Typed SettingsRepository/FeaturePolicyCoordinator ownership and full preference migration remain open.
 **Related:** `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md`, `PERSISTENCE_RECOVERY_ARCHITECTURE.md`, `SYSTEM_ARCHITECTURE.md`, `FEATURE_TRACEABILITY.md`.
 
 ## 1. Three authorities

@@ -35,6 +35,30 @@ class DeviceCapabilityProfileTest {
         assertEquals(CapabilityState.ERROR, profile.capability("not_registered").state)
     }
 
+    @Test
+    @Config(sdk = [26])
+    fun api26MinimumSupportedRuntimeIsDetected() {
+        val profile = DeviceCapabilityProfile.detect(RuntimeEnvironment.getApplication())
+        assertEquals(26, profile.sdkInt)
+        assertTrue(profile.capabilities.isNotEmpty())
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun api30LegacyBluetoothPermissionPathDoesNotCrash() {
+        val profile = DeviceCapabilityProfile.detect(RuntimeEnvironment.getApplication())
+        assertEquals(30, profile.sdkInt)
+        assertNotNull(profile.capability("ble"))
+    }
+
+    @Test
+    @Config(sdk = [31])
+    fun api31BluetoothRuntimePermissionPathDoesNotCrash() {
+        val profile = DeviceCapabilityProfile.detect(RuntimeEnvironment.getApplication())
+        assertEquals(31, profile.sdkInt)
+        assertNotNull(profile.capability("ble"))
+    }
+
     @Test fun android13NotificationPermissionIsNotAssumedGranted() {
         val context = RuntimeEnvironment.getApplication()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
