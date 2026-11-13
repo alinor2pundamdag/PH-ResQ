@@ -38,12 +38,15 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -56,6 +59,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
@@ -147,7 +152,16 @@ private fun ResQRoot() {
         surface = Color(0xFF101D2E), onSurface = Color.White,
         error = Color(0xFFFF6B6B), onError = Color.Black
     )
-    MaterialTheme(colorScheme = colors) {
+    MaterialTheme(
+        colorScheme = colors,
+        shapes = Shapes(
+            extraSmall = RoundedCornerShape(8.dp),
+            small = RoundedCornerShape(14.dp),
+            medium = RoundedCornerShape(20.dp),
+            large = RoundedCornerShape(28.dp),
+            extraLarge = RoundedCornerShape(32.dp)
+        )
+    ) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             if (!consentAccepted) {
                 ConsentScreen(
@@ -626,7 +640,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         )
         Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = Color(red = visibleColorPhase, green = 0f, blue = 1f - visibleColorPhase))
         if (selectedSection == HomeSection.EMERGENCY) {
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Emergency cell broadcasts", style = MaterialTheme.typography.titleLarge)
                 Text("Ang government/carrier emergency alerts ay pinamamahalaan ng Android at mobile network. Hindi inaangking binabasa o hinaharang ng PH-ResQ ang lahat ng cell broadcasts.")
@@ -1134,6 +1148,20 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     }
 }
 
+@Composable
+private fun PremiumCard(content: @Composable ColumnScope.() -> Unit) {
+    val shape = RoundedCornerShape(26.dp)
+    Card(
+        modifier = Modifier.fillMaxWidth().border(
+            width = 1.dp,
+            brush = Brush.linearGradient(listOf(Color(0xFF4B769B), Color(0xFF17283D), Color(0xFF31506D))),
+            shape = shape
+        ),
+        shape = shape,
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF101D2E)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) { content() }
+}
 private fun vibrate(context: Context) {
     try {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
