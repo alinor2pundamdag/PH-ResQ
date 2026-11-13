@@ -54,17 +54,17 @@ private const val MAX_TILES=3000L
     val bounds=map.projection.visibleRegion.latLngBounds
     val definition=OfflineTilePyramidRegionDefinition(STYLE_URL,bounds,9.0,14.0,view.pixelRatio)
     downloading=true;progress=0f;status="Preparing map pack…"
-    manager.createOfflineRegion(definition,"PH-ResQ region \${System.currentTimeMillis()}".toByteArray(),object:OfflineManager.CreateOfflineRegionCallback{
+    manager.createOfflineRegion(definition,"PH-ResQ region ${System.currentTimeMillis()}".toByteArray(),object:OfflineManager.CreateOfflineRegionCallback{
      override fun onCreate(region:OfflineRegion){
       region.setObserver(object:OfflineRegion.OfflineRegionObserver{
        override fun onStatusChanged(s:OfflineRegionStatus){
         val bytes=s.completedResourceSize
         if(bytes>MAX_BYTES){region.setDownloadState(OfflineRegion.STATE_INACTIVE);downloading=false;status="Stopped at 50-MB provider limit. Zoom closer and retry.";refresh();return}
         progress=if(s.requiredResourceCount>0)(s.completedResourceCount.toFloat()/s.requiredResourceCount).coerceIn(0f,1f)else 0f
-        if(s.isComplete){region.setDownloadState(OfflineRegion.STATE_INACTIVE);downloading=false;status="Saved offline • \${s.completedTileCount} tiles • \${bytes/1048576} MB";refresh()}
-        else status="Downloading \${s.completedTileCount} tiles • \${bytes/1048576} MB"
+        if(s.isComplete){region.setDownloadState(OfflineRegion.STATE_INACTIVE);downloading=false;status="Saved offline • ${s.completedTileCount} tiles • ${bytes/1048576} MB";refresh()}
+        else status="Downloading ${s.completedTileCount} tiles • ${bytes/1048576} MB"
        }
-       override fun onError(error:OfflineRegionError){status="Temporary download error: \${error.message}. MapLibre may retry after connectivity returns."}
+       override fun onError(error:OfflineRegionError){status="Temporary download error: ${error.message}. MapLibre may retry after connectivity returns."}
        override fun mapboxTileCountLimitExceeded(limit:Long){region.setDownloadState(OfflineRegion.STATE_INACTIVE);downloading=false;status="Stopped at $limit tiles. Zoom closer and retry.";refresh()}
       })
       region.setDownloadState(OfflineRegion.STATE_ACTIVE)
