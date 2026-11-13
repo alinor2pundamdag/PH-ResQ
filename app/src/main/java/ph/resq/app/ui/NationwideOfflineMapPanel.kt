@@ -44,7 +44,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
     var available by remember{mutableStateOf(mapFile.exists()&&mapFile.length()>100_000_000L&&checksumFile.exists())}
     var downloading by remember{mutableStateOf(false)}
     var progress by remember{mutableFloatStateOf(0f)}
-    var status by remember{mutableStateOf("Nationwide map package is prepared by the PH-ResQ map build workflow.")}
+    var status by remember{mutableStateOf("Nationwide map package is published by the PH-ResQ map release workflow.")}
     var mapView by remember{mutableStateOf<MapsforgeMapView?>(null)}
     var mapLoaded by remember{mutableStateOf(false)}
     val client=remember{OkHttpClient.Builder().connectTimeout(30,TimeUnit.SECONDS).readTimeout(0,TimeUnit.MILLISECONDS).build()}
@@ -56,7 +56,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
 
     Column(modifier,verticalArrangement=Arrangement.spacedBy(8.dp)){
         Text("NATIONWIDE PHILIPPINES OFFLINE MAP",style=MaterialTheme.typography.titleLarge)
-        Text("Full-country vector basemap generated from the latest Geofabrik OpenStreetMap extract. It is separate from the smaller MapLibre area packs.")
+        Text("Full-country vector basemap from the official Mapsforge v5 Philippines map. It is separate from the smaller MapLibre area packs.")
         if(!available){
             Button(enabled=!downloading,onClick={
                 scope.launch{
