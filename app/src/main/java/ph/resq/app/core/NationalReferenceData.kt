@@ -23,13 +23,28 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
   linkContactsToBarangays()
   return records.size
  }
+ private fun normalizeLabel(value:String):String =
+  value.trim().lowercase().replace(Regex("^sta\\.?\\s+"),"santa ").replace(Regex("^sto\\.?\\s+"),"santo ")
+   .replace("kapitoly","kapitolyo").replace(Regex("[^a-z0-9]+")," ").trim()
  private fun resolveBarangayPsgc(label:String):String? {
   val match=Regex("^Barangay\\s+(.+?),\\s+(.+)$",RegexOption.IGNORE_CASE).matchEntire(label.trim()) ?: return null
-  val args=arrayOf(match.groupValues[1].trim(),match.groupValues[2].trim())
-  return database.readableDatabase.rawQuery("SELECT psgc_code FROM barangay_reference WHERE lower(barangay)=lower(?) AND lower(city_municipality)=lower(?) LIMIT 1",args).use{if(it.moveToFirst())it.getString(0) else null}
+  val barangay=normalizeLabel(match.groupValues[1])
+  val city=normalizeLabel(match.groupValues[2])
+  val candidates=database.readableDatabase.rawQuery("SELECT psgc_code,city_municipality FROM barangay_reference WHERE lower(barangay)=lower(?)",arrayOf(match.groupValues[1].trim().replace(Regex("^Sta\\.?\\s+"),"Santa ").replace(Regex("^Sto\\.?\\s+"),"Santo ").replace("Kapitoly","Kapitolyo")))
+  candidates.use { c ->
+   while(c.moveToNext()){
+    val stored=normalizeLabel(c.getString(1))
+    val variants=setOf(city,normalizeLabel("City of "+match.groupValues[2].removeSuffix(" City")),normalizeLabel(match.groupValues[2].removePrefix("City of ")+" City"))
+    if(stored in variants || stored==city) return c.getString(0)
+   }
+  }
+  return null
  }
  private fun linkContactsToBarangays() {
-  database.writableDatabase.execSQL("UPDATE public_emergency_contacts SET psgc_code = (SELECT b.psgc_code FROM barangay_reference b WHERE lower(public_emergency_contacts.office_name) = 'barangay ' || lower(b.barangay) || ', ' || lower(b.city_municipality) LIMIT 1) WHERE psgc_code IS NULL AND scope = 'BARANGAY'")
+  val db=database.writableDatabase
+  val pending=mutableListOf<Pair<String,String>>()
+  db.rawQuery("SELECT contact_id,office_name FROM public_emergency_contacts WHERE psgc_code IS NULL AND scope='BARANGAY'",null).use{c->while(c.moveToNext())pending.add(c.getString(0) to c.getString(1))}
+  pending.forEach{(id,label)->resolveBarangayPsgc(label)?.let{code->db.execSQL("UPDATE public_emergency_contacts SET psgc_code=? WHERE contact_id=?",arrayOf(code,id))}}
  }
  fun searchBarangays(query:String,limit:Int=100):List<BarangayReference>{
   val q=query.trim().take(120);val n=limit.coerceIn(1,500)
