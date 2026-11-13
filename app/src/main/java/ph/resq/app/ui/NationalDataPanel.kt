@@ -7,6 +7,9 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -14,7 +17,8 @@ import ph.resq.app.core.NationalReferenceRepository
 import ph.resq.app.core.ResQDatabase
 import ph.resq.app.core.NationalDatasetImporter
 @Composable fun NationalDataPanel(database:ResQDatabase,modifier:Modifier=Modifier){
- val context=LocalContext.current;val repository=remember(database){NationalReferenceRepository(database)}
+ val context=LocalContext.current;val repository=remember(database){NationalReferenceRepository(database)};val scope=rememberCoroutineScope()
+ var importing by remember{mutableStateOf(false)}
  var query by remember{mutableStateOf("")};var status by remember{mutableStateOf("No complete PSA Q3-2026 barangay snapshot imported yet.")}
  var coverage by remember{mutableStateOf(runCatching{repository.coverage()}.getOrNull())}
  var results by remember{mutableStateOf(emptyList<ph.resq.app.core.BarangayReference>())}
@@ -42,7 +46,7 @@ import ph.resq.app.core.NationalDatasetImporter
   if(uri!=null){
    val result=runCatching{
     context.contentResolver.takePersistableUriPermission(uri,android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    NationalDatasetImporter.importBarangaysCsv(context,uri,repository,"PSGC Q3 2026")
+    NationalDatasetImporter.importBarangaysCsv(context,uri,repository,"2026-Q3-identity-overlay")
    }
    status=result.fold({"Imported $it official PSGC barangays. Contact and evacuation coverage remain separate."},{"Import rejected: ${it.message}"})
    coverage=runCatching{repository.coverage()}.getOrNull()
@@ -53,6 +57,16 @@ import ph.resq.app.core.NationalDatasetImporter
    Text("NATIONAL BARANGAY & EMERGENCY DATA",style=MaterialTheme.typography.titleLarge)
    Text("PSA PSGC identity, public office contacts and evacuation-center records are separate datasets. Missing phone numbers, coordinates, capacities and facility statuses are never guessed.")
    Button(onClick={csvLauncher.launch(arrayOf("text/csv","text/comma-separated-values","application/vnd.ms-excel"))},modifier=Modifier.fillMaxWidth()){Text("IMPORT COMPLETE PSA BARANGAY CSV")}
+   Button(enabled=!importing,onClick={
+    importing=true
+    scope.launch{
+     val result=runCatching{withContext(Dispatchers.IO){NationalDatasetImporter.importBundledBarangays(context,repository)}}
+     status=result.fold({"Installed $it PSGC barangays for offline lookup. Identity data is PSA Q2 2026 with the official Q3 2026 correction applied."},{"PSGC install failed: ${it.message}"})
+     coverage=runCatching{repository.coverage()}.getOrNull()
+     importing=false
+    }
+   },modifier=Modifier.fillMaxWidth()){Text(if(importing)"INSTALLING 42,010 BARANGAYS…" else "INSTALL FULL 42,010 BARANGAY OFFLINE REFERENCE")}
+
    Button(onClick={contactsLauncher.launch(arrayOf("application/json","text/json"))},modifier=Modifier.fillMaxWidth()){Text("IMPORT PUBLIC EMERGENCY CONTACTS JSON")}
    Button(onClick={evacuationLauncher.launch(arrayOf("application/json","text/json"))},modifier=Modifier.fillMaxWidth()){Text("IMPORT EVACUATION CENTERS JSON")}
    Button(onClick={
