@@ -7,6 +7,7 @@ Current decision: **NO-GO for production release.** Controlled APK testing is al
 - [x] Latest validated PR-head workflow [41380309779](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41380309779) completed successfully for `cfef2855f69c5605ee1d3bcaf4175d3fbfcbf429`.
 - [x] CI verified `BUILD_METADATA.txt` source/checkout SHAs match that exact commit.
 - [x] Debug/release APKs and checksum evidence uploaded in artifact `ph-resq-apk-builds` (ID `13112892154`, expires 2026-11-16); archive digest `90f3b6b948be5120192f56ab67a619477632f0fa8ef5272b0736dc1db9010ef5`.
+- [ ] Latest source commit `c087b936522a08ee2bbc4944c2349cf0cbb6e77b` must pass exact-head CI before any APK from it is installed.
 - [ ] Re-run after canonical artifact-name alignment and use only that final successful run for the one-session device test.
 - [ ] Release APK signing configured and verified; current release variant is unsigned.
 - [ ] Release variant builds reproducibly from a clean checkout with documented local build instructions.

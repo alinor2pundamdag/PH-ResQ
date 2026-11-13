@@ -82,3 +82,8 @@ The code includes event-scoped SOS transitions, schema v8 migration repair, stal
 ## SOS interrupted-handoff recovery — source remediation added
 
 Commits `d871df02` and `46c3870f` add `INTERRUPTED_NOT_SENT` for interrupted QUEUED events and `HANDOFF_UNCONFIRMED` for interrupted SENDING events. Startup reconciliation scans the latest state of every SOS event, appends the appropriate state transactionally, preserves the encrypted draft/recipient/location snapshot, runs on `Dispatchers.IO`, updates the visible status, and never reopens or retries the SMS composer. Robolectric tests cover multiple interleaved events, snapshot preservation, idempotency, and leaving HANDED_OFF unchanged. This source change is awaiting exact-head CI; real process-death, messaging-app and SIM acceptance remain NOT RUN.
+
+
+## Emergency-first UI pass — source change awaiting CI
+
+Commit `c087b936` moves the SOS action card above contacts, directory and other non-emergency content, and switches the default palette from light to a high-contrast dark navy/red/blue scheme. The high-contrast override remains separately user-controlled. This is a source-level layout/theme correction; TalkBack, large-font, landscape, tablet/foldable and physical-device validation remain NOT RUN. Exact-head CI is pending.

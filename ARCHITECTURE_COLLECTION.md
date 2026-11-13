@@ -8,7 +8,7 @@
 
 See [FULL_SYSTEM_AUDIT_2026-11-13.md](FULL_SYSTEM_AUDIT_2026-11-13.md) for the latest requirements-to-code audit, all 34 feature statuses, system/device integration findings, P0/P1/P2 risks, exact-head CI status, and remediation order.
 
-The audit baseline is PR #1 head `83902c38132257d540d3f4b2ecc3366915bb886d`; SOS interrupted-event recovery has since been implemented in `d871df02db4512bf040a2f94f7fb50f2ffcef7c0` and moved off the UI thread with visible recovery status in `46c3870f25bb77e548e33a0c2fb64bba29fe7c25`. No exact-head CI run is confirmed for these changes; APK status remains NOT VERIFIED.
+The audit baseline is PR #1 head `83902c38132257d540d3f4b2ecc3366915bb886d`; SOS interrupted-event recovery has since been implemented in `d871df02db4512bf040a2f94f7fb50f2ffcef7c0` and moved off the UI thread with visible recovery status in `46c3870f25bb77e548e33a0c2fb64bba29fe7c25`; the SOS card has since been moved ahead of the non-emergency sections and the default theme changed to dark in `c087b936522a08ee2bbc4944c2349cf0cbb6e77b`. No exact-head CI run is confirmed for these changes; APK status remains NOT VERIFIED.
 
 ## Canonical application identity
 

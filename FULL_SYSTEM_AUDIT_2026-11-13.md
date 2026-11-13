@@ -1,7 +1,7 @@
 # PH-ResQ Full Cross-System Audit — 2026-11-13
 
 **Audit baseline:** PR #1 head `83902c38132257d540d3f4b2ecc3366915bb886d`  
-**Latest source remediation commit:** `46c3870f25bb77e548e33a0c2fb64bba29fe7c25`  
+**Latest source remediation commit:** `c087b936522a08ee2bbc4944c2349cf0cbb6e77b`  
 **Repository:** `alinor2pundamdag/PH-ResQ`  
 **Branch:** `docs/architecture-correction-2026-10-27`  
 **Pull request:** [#1](https://github.com/alinor2pundamdag/PH-ResQ/pull/1) — open, unmerged  
@@ -19,8 +19,8 @@ However, **none of the 34 retained feature IDs is currently demonstrated as full
 ### Current-head CI mismatch — release blocker
 
 - Audit baseline PR #1 head: `83902c38132257d540d3f4b2ecc3366915bb886d`.
-- Latest source remediation commit: `46c3870f25bb77e548e33a0c2fb64bba29fe7c25`.
-- Commit-specific Actions lookup returned no run for the audit baseline; exact-head CI and artifact verification are still pending for the latest source commit.
+- Latest source remediation commit: `c087b936522a08ee2bbc4944c2349cf0cbb6e77b`.
+- Commit-specific Actions lookup returned no run for the latest source commit; exact-head CI and artifact verification are still pending.
 - Historical successful workflow [run 43411656696](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/43411656696) and artifact `14030410499` are for another SHA and must not be used as this candidate.
 - CI is configured to run `lintDebug`, `testDebugUnitTest`, `assembleDebug`, and `assembleRelease`, verify checkout SHA, and produce `BUILD_METADATA.txt` and `SHA256SUMS`. Recheck the PR head and run after this remediation commit.
 
@@ -71,7 +71,7 @@ The repository's `FEATURE_TRACEABILITY.md` retains F-001 through F-034. Current 
 **Required action:** Complete the runtime profile contract and event-specific refresh; keep capability facts separate from user preferences and feature policy; add API 26/30/31/33/34/35 and OEM/hardware tests.
 
 ### P1-02 — UI is highly concentrated in one Compose activity
-**Evidence:** `MainActivity.kt` is approximately 64 KB and contains SOS orchestration, permissions, DB/repository construction, audio lifecycle, BLE scan, QR, directory/advisory UI, settings and device-policy display inside one activity/composable. The main screen is one long vertically scrolling surface.  
+**Evidence:** `MainActivity.kt` is approximately 64 KB and contains SOS orchestration, permissions, DB/repository construction, audio lifecycle, BLE scan, QR, directory/advisory UI, settings and device-policy display inside one activity/composable. The main screen is one long vertically scrolling surface. A latest UI pass moved the SOS card above non-emergency sections and changed the default palette to an emergency-first dark scheme; the activity remains monolithic and screen separation is still required.  
 **Impact:** High coupling, harder state restoration, testing, accessibility and regression isolation; UI can become a single failure surface during an emergency.  
 **Required action:** Refactor incrementally (without feature removal) into screen components, ViewModels/use-cases and repository interfaces. Separate Emergency/SOS, Contacts/Vault, Offline Directory/Alerts, Check-in, Medical ID, Settings/Device Status. Preserve a single-tap path to SOS and avoid decorative work delaying it.
 
