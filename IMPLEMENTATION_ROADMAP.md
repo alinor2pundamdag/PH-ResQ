@@ -1,6 +1,6 @@
 # PH-ResQ Implementation Roadmap
 
-**Status:** Ordered plan, not a claim that every phase is complete. Preserve all feature IDs in `FEATURE_TRACEABILITY.md`; update this roadmap whenever implementation evidence changes.
+**Status:** Ordered plan, not a claim that every phase is complete. Latest architecture audit: `bd8b1a78f17635a69dff9e03c484a1492d7117f` (2026-11-13). Preserve all feature IDs in `FEATURE_TRACEABILITY.md`; update this roadmap whenever implementation evidence changes.
 **Execution policy:** Work in small auditable commits on the feature branch. Do not merge or publish a production release without authorization.
 
 ## Gate 0A — Device and integration architecture

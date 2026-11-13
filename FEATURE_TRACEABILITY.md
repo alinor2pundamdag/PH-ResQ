@@ -1,6 +1,6 @@
 # PH-ResQ Feature Traceability
 
-**Purpose:** Prevent silent feature removal and make every requirement testable.  
+**Purpose:** Prevent silent feature removal and make every requirement testable. Cross-cutting device/persistence acceptance cases are defined in T-043–T-054 of `TEST_ACCEPTANCE_MATRIX.md`.  
 **Validation rule:** CI evidence is commit-specific. Before testing, confirm the latest successful run has the same `head_sha` as the intended PR commit and that its artifact contains `BUILD_METADATA.txt` and `SHA256SUMS`. Earlier successful runs do not validate later changes. Physical-device, integration, data-coverage, nationwide-data, and full feature acceptance remain outstanding.
 
 | ID | Retained requirement | Planned component/area | Implementation status | Minimum acceptance evidence |
@@ -39,6 +39,10 @@
 | F-032 | Search and bookmark history | Local data layer | Partial — local search history and hotline bookmarks added; UI/database resilience tests pending | Persistence, clear-history/privacy controls and migration tests |
 | F-033 | SMS/mesh delivery state | SOS/mesh state machine | Partial — SOS handoff state plus durable mesh queued/sent/retry/acked/failed/expired primitives; no SMS delivery confirmation or live mesh transport | Queued/sending/sent-to-handoff/delivered/acknowledged/failure states tested |
 | F-034 | Nationwide map and directory updates | Data pipeline | Partial — transactional directory importer and hash-verified tile cache support source/license/version metadata; no signed manifest, nationwide data package, or update/rollback downloader | Source license, version, freshness, size, update rollback and incomplete-update tests |
+
+## Cross-cutting architecture acceptance
+
+All 34 retained feature IDs inherit the device compatibility and persistence rules in `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md` and `PERSISTENCE_RECOVERY_ARCHITECTURE.md`. Settings/capability/UI wiring follows `SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md`. The test dependency map includes compact/large-font consent, runtime capability boundaries, permission revocation, unsupported hardware, settings authority, migration, key invalidation, SOS process-death recovery, storage exhaustion and exact device evidence. These tests are planned dependencies until executed on a named candidate SHA/device.
 
 ## Status vocabulary
 - **Planned:** requirement retained, implementation not evidenced.
