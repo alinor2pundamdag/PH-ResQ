@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.content.ClipData
 import androidx.core.content.FileProvider
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.core.app.NotificationManagerCompat
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
@@ -142,6 +143,13 @@ import java.io.File
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
+        }
         setContent { ResQRoot() }
     }
 }
