@@ -12,10 +12,10 @@ object NationalDatasetImporter{
   val header=rows.first().map{it.trim().lowercase()};val required=listOf("psgc_code","region","province","city_municipality","barangay");required.forEach{require(header.contains(it)){"Missing column: $it"}}
   val ix=required.associateWith{header.indexOf(it)};val urban=header.indexOf("urban_rural")
   val records=rows.drop(1).filter{it.any(String::isNotBlank)}.mapIndexed{rowNo,row->
-   fun f(name:String):String{val i=ix.getValue(name);require(i<row.size){"Malformed CSV row \${rowNo+2}"};return row[i].trim()}
+   fun f(name:String):String{val i=ix.getValue(name);require(i<row.size){"Malformed CSV row ${rowNo+2}"};return row[i].trim()}
    BarangayReference(f("psgc_code"),f("region"),f("province"),f("city_municipality"),f("barangay"),if(urban in row.indices)row[urban].trim().ifBlank{null}else null)
   }
-  require(records.size==NationalReferenceRepository.EXPECTED_BARANGAYS_Q3_2026){"Expected 42,010 barangays; found \${records.size}. Partial import blocked."}
+  require(records.size==NationalReferenceRepository.EXPECTED_BARANGAYS_Q3_2026){"Expected 42,010 barangays; found ${records.size}. Partial import blocked."}
   return repository.replaceBarangays(records,NationalReferenceRepository.PSA_SOURCE,version)
  }
 
@@ -24,7 +24,7 @@ object NationalDatasetImporter{
   val records=root.optJSONArray("records")?:error("Missing records array.");require(records.length() in 1..100_000);var imported=0
   for(i in 0 until records.length()){
    val o=records.getJSONObject(i)
-   fun required(k:String)=o.optString(k,"").trim().also{require(it.isNotBlank()){"Record \${i+1} missing $k"}}
+   fun required(k:String)=o.optString(k,"").trim().also{require(it.isNotBlank()){"Record ${i+1} missing $k"}}
    val source=required("source_url");val host=runCatching{android.net.Uri.parse(source).host.orEmpty().lowercase()}.getOrDefault("")
    val verification=if(host.endsWith(".gov.ph")||host=="gov.ph")ContactVerification.OFFICIAL_GOVERNMENT_SOURCE else ContactVerification.UNVERIFIED_SOCIAL
    repository.addPublicContact(PublicEmergencyContact(required("id"),o.optString("psgc_code").takeIf{it.isNotBlank()},required("scope").uppercase(),required("category").uppercase(),required("office_name"),required("phone"),source,required("source_title"),verification,null,null));imported++
@@ -35,7 +35,7 @@ object NationalDatasetImporter{
   val records=root.optJSONArray("records")?:error("Missing records array.");require(records.length() in 1..50_000);var imported=0
   for(i in 0 until records.length()){
    val o=records.getJSONObject(i)
-   fun required(k:String)=o.optString(k,"").trim().also{require(it.isNotBlank()){"Record \${i+1} missing $k"}}
+   fun required(k:String)=o.optString(k,"").trim().also{require(it.isNotBlank()){"Record ${i+1} missing $k"}}
    val source=required("source_url");val host=runCatching{android.net.Uri.parse(source).host.orEmpty().lowercase()}.getOrDefault("")
    val verification=if(host.endsWith(".gov.ph")||host=="gov.ph")ContactVerification.OFFICIAL_GOVERNMENT_SOURCE else ContactVerification.NEEDS_REVIEW
    val lat=if(o.isNull("latitude"))null else o.getDouble("latitude");val lon=if(o.isNull("longitude"))null else o.getDouble("longitude")
