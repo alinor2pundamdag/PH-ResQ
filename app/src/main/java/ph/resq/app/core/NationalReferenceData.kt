@@ -20,7 +20,16 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
    val m=ContentValues().apply{put("dataset_name","psgc_barangays");put("source_url",sourceUrl);put("license","PSA CC BY 4.0 unless otherwise stated");put("version",sourceVersion);put("verified_at",0L);put("imported_at",System.currentTimeMillis());put("record_count",records.size)}
    db.insertWithOnConflict("dataset_meta",null,m,SQLiteDatabase.CONFLICT_REPLACE);db.setTransactionSuccessful()
   } finally {db.endTransaction()}
+  linkContactsToBarangays()
   return records.size
+ }
+ private fun resolveBarangayPsgc(label:String):String? {
+  val match=Regex("^Barangay\\s+(.+?),\\s+(.+)$",RegexOption.IGNORE_CASE).matchEntire(label.trim()) ?: return null
+  val args=arrayOf(match.groupValues[1].trim(),match.groupValues[2].trim())
+  return database.readableDatabase.rawQuery("SELECT psgc_code FROM barangay_reference WHERE lower(barangay)=lower(?) AND lower(city_municipality)=lower(?) LIMIT 1",args).use{if(it.moveToFirst())it.getString(0) else null}
+ }
+ private fun linkContactsToBarangays() {
+  database.writableDatabase.execSQL("UPDATE public_emergency_contacts SET psgc_code = (SELECT b.psgc_code FROM barangay_reference b WHERE lower(public_emergency_contacts.office_name) = 'barangay ' || lower(b.barangay) || ', ' || lower(b.city_municipality) LIMIT 1) WHERE psgc_code IS NULL AND scope = 'BARANGAY'")
  }
  fun searchBarangays(query:String,limit:Int=100):List<BarangayReference>{
   val q=query.trim().take(120);val n=limit.coerceIn(1,500)
@@ -34,7 +43,8 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
   require(c.scope in setOf("BARANGAY","CITY_MUNICIPALITY","PROVINCE","REGIONAL","NATIONAL"))
   require(c.category in setOf("BARANGAY_HALL","DRRMO","POLICE","FIRE","AMBULANCE","HOSPITAL","COAST_GUARD","RESCUE","OTHER"))
   require(c.officeName.isNotBlank()&&c.phone.matches(Regex("[+0-9() .,-]{5,40}"))&&c.sourceUrl.startsWith("https://")&&c.sourceTitle.isNotBlank())
-  val v=ContentValues().apply{put("contact_id",c.id);put("psgc_code",c.psgcCode);put("scope",c.scope);put("category",c.category);put("office_name",c.officeName.trim());put("phone",c.phone.trim());put("source_url",c.sourceUrl);put("source_title",c.sourceTitle);put("verification",c.verification.name);if(c.verifiedAt==null)putNull("verified_at")else put("verified_at",c.verifiedAt);if(c.expiresAt==null)putNull("expires_at")else put("expires_at",c.expiresAt);put("updated_at",System.currentTimeMillis())}
+  val resolvedPsgc=c.psgcCode ?: if(c.scope=="BARANGAY") resolveBarangayPsgc(c.officeName) else null
+  val v=ContentValues().apply{put("contact_id",c.id);put("psgc_code",resolvedPsgc);put("scope",c.scope);put("category",c.category);put("office_name",c.officeName.trim());put("phone",c.phone.trim());put("source_url",c.sourceUrl);put("source_title",c.sourceTitle);put("verification",c.verification.name);if(c.verifiedAt==null)putNull("verified_at")else put("verified_at",c.verifiedAt);if(c.expiresAt==null)putNull("expires_at")else put("expires_at",c.expiresAt);put("updated_at",System.currentTimeMillis())}
   database.writableDatabase.insertWithOnConflict("public_emergency_contacts",null,v,SQLiteDatabase.CONFLICT_REPLACE)
  }
  fun searchContacts(query:String,limit:Int=100):List<PublicEmergencyContact>{
