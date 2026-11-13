@@ -50,9 +50,19 @@ These replies conflict on the custodian and demonstrate that there is no single 
 The app now ships 12 CSV shards under `app/src/main/assets/data/psgc_q3_part_01.csv` through `psgc_q3_part_12.csv`, plus `psgc_metadata.json`.
 - 42,010 rows, 42,010 unique 10-digit PSGC codes, zero duplicates, all 18 regions.
 - Lineage: pinned third-party PSA-derived snapshot `Tenasia/ph-psgc@2026-Q2` (commit `3d7528b6625e4e7990ac1b96d89505a6bab157ec`), with PSA's sole Q3 2026 name correction applied: PSGC `1001322005`, Cabanglasan, Bukidnon, `Lambangan` → `Lambagan` (PSA ref. 2026-331).
-- Official release: https://psa.gov.ph/classification/psgc ; official Q3 workbook: https://psa.gov.ph/system/files/scd/PSGC-3Q-2026-Publication-Datafile.xlsx
+- Official PSGC landing page: https://psa.gov.ph/classification/psgc ; official Q3 correction notice: https://psa.gov.ph/content/third-quarter-2026-psgc-updates-correction-name-one-barangay
 - The bundle is for administrative identity and hierarchy. The Q3 workbook also updates urban/rural classifications using the 2024 Census; that field is intentionally null in this bundle because the exact Q3 classification column has not yet been imported. Do not treat the urban/rural field as complete.
 - The source is a third-party PSA-derived distributor, not an official PSA API. PSA remains the authority; attribution is retained in the asset metadata.
 - The app installs the full reference into SQLite in a background coroutine and links existing barangay office contacts to PSGC codes using normalized name + city matching.
 
 This is **100% barangay identity/code coverage** for the published count, not 100% emergency-contact coverage, evacuation-center coverage, or polygon-boundary coverage.
+
+
+## Additional official emergency hotlines (implemented)
+The starter contact pack was expanded from 80 to 102 records. Added:
+- Quezon City Helpline 122, QCDRRMO and Emergency Operations Center numbers from the Quezon City Government.
+- Davao City DRRMO, Disaster Radio and BFP numbers from Davao City Online Services.
+- Makati MDRRMO number from the Makati City Government directory.
+- National Unified 911 reference from the DILG press release carried by PIA.
+
+All added records remain review-due until independently call-tested. The Quezon City 122 short code is explicitly accepted by the phone validator.
