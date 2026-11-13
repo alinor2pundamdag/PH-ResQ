@@ -104,4 +104,4 @@ This audit maps the repository at the SHA above. It does not itself implement th
 - Location freshness rejects stale and implausibly future-dated timestamps, and reports provider-permission failure if no enabled provider can be registered. Boundary tests cover the freshness window and future-clock tolerance.
 - The SOS hold control exposes a visible two-second progress indicator and cancellation guidance. A short-tap UI regression test verifies that a quick tap does not prepare an SOS.
 - The foreground notification action uses the non-deprecated `Notification.Action.Builder` API.
-- The latest successful parent-code CI run [43408806840](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/43408806840) passed lint, unit tests, debug/release assembly, exact-SHA metadata and APK artifact upload. The later hold-progress and documentation changes require their own exact-head CI run.
+- A successful CI run is accepted only when its SHA matches the current PR head and its artifact metadata matches that SHA. Historical parent runs are not evidence for later commits.

@@ -1,6 +1,6 @@
 # PH-ResQ Test & Acceptance Matrix
 
-**CI evidence rule:** accept a run only when its `head_sha` exactly matches the intended PR #1 head and its artifact includes `BUILD_METADATA.txt` and `SHA256SUMS`. The latest code-parent validation passed on [run 43408806840](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/43408806840), SHA `656358cc5b64e43a2ca2044b6550f81ed18ec041`; subsequent SOS hold UI and documentation changes require a new exact-head run. CI success is not feature acceptance. Physical-device, accessibility, and data/security tests remain open.
+**CI evidence rule:** accept a run only when its `head_sha` exactly matches the intended PR #1 head and its artifact includes `BUILD_METADATA.txt` and `SHA256SUMS`. Do not use an older parent artifact for a changed PR head. CI success is not feature acceptance. Physical-device, accessibility, and data/security tests remain open.
 **Rule:** Record repository commit SHA, build variant, device/API, test result, logs/screenshots, and tester for each executed case.
 
 | Test ID | Scenario | Expected result | Evidence required | Gate |
