@@ -75,16 +75,33 @@ private const val DEVICE_TILE_LIMIT=6000L
     downloading=true;progress=0f;status="Preparing map pack…"
     manager.createOfflineRegion(definition,"PH-ResQ region ${System.currentTimeMillis()}".toByteArray(),object:OfflineManager.CreateOfflineRegionCallback{
      override fun onCreate(region:OfflineRegion){
+      var cleanupStarted=false
+      fun discardIncomplete(reason:String){
+       if(cleanupStarted)return
+       cleanupStarted=true
+       region.setDownloadState(OfflineRegion.STATE_INACTIVE)
+       region.delete(object:OfflineRegion.OfflineRegionDeleteCallback{
+        override fun onDelete(){downloading=false;status=reason;refresh()}
+        override fun onError(error:String){downloading=false;status="$reason Cleanup failed: $error";refresh()}
+       })
+      }
       region.setObserver(object:OfflineRegion.OfflineRegionObserver{
        override fun onStatusChanged(s:OfflineRegionStatus){
         val bytes=s.completedResourceSize
-        if(bytes>MAX_BYTES || s.completedTileCount>MAX_TILES_PER_REGION){region.setDownloadState(OfflineRegion.STATE_INACTIVE);downloading=false;status="Stopped at the 40-MB safety / 3,000-tile per-region cap. Zoom closer and retry.";refresh();return}
+        if(bytes>MAX_BYTES || s.completedTileCount>MAX_TILES_PER_REGION){
+         discardIncomplete("Stopped at the 40-MB safety / 3,000-tile per-region cap. The incomplete pack was removed; zoom closer and retry.")
+         return
+        }
         progress=if(s.requiredResourceCount>0)(s.completedResourceCount.toFloat()/s.requiredResourceCount).coerceIn(0f,1f)else 0f
         if(s.isComplete){region.setDownloadState(OfflineRegion.STATE_INACTIVE);downloading=false;status="Saved offline • ${s.completedTileCount} tiles • ${bytes/1048576} MB";refresh()}
         else status="Downloading ${s.completedTileCount} tiles • ${bytes/1048576} MB"
        }
-       override fun onError(error:OfflineRegionError){status="Temporary download error: ${error.message}. MapLibre may retry after connectivity returns."}
-       override fun mapboxTileCountLimitExceeded(limit:Long){region.setDownloadState(OfflineRegion.STATE_INACTIVE);downloading=false;status="Stopped at $limit tiles. Zoom closer and retry.";refresh()}
+       override fun onError(error:OfflineRegionError){
+        discardIncomplete("Offline map download failed: ${error.message}. The partial region was removed; retry when connectivity is stable.")
+       }
+       override fun mapboxTileCountLimitExceeded(limit:Long){
+        discardIncomplete("Stopped at the device limit of $limit tiles. The incomplete pack was removed; delete an old region or zoom closer.")
+       }
       })
       region.setDownloadState(OfflineRegion.STATE_ACTIVE)
      }
