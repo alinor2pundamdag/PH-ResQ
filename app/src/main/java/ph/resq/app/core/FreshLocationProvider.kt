@@ -41,6 +41,7 @@ class FreshLocationProvider(context: Context) {
         }
         var best: Location? = null
         var finished = false
+        var registeredProviders = 0
         fun complete(location: Location?, message: String) {
             if (finished) return
             finished = true
@@ -49,12 +50,22 @@ class FreshLocationProvider(context: Context) {
         }
         val active = object : LocationListener {
             override fun onLocationChanged(location: Location) {
-                if (best == null || (location.hasAccuracy() && (!best!!.hasAccuracy() || location.accuracy < best!!.accuracy)) ||
-                    (!location.hasAccuracy() && location.time > best!!.time)) best = Location(location)
+                val now = System.currentTimeMillis()
+                if (!LocationFreshnessPolicy.isUsable(location.time, now)) return
+                val currentBest = best
+                val betterAccuracy = currentBest == null ||
+                    (location.hasAccuracy() && (!currentBest.hasAccuracy() || location.accuracy < currentBest.accuracy))
+                val equallyAccurateButNewer = currentBest != null &&
+                    location.hasAccuracy() == currentBest.hasAccuracy() &&
+                    (!location.hasAccuracy() || location.accuracy == currentBest.accuracy) &&
+                    location.time > currentBest.time
+                if (betterAccuracy || equallyAccurateButNewer) best = Location(location)
+
                 // Prefer a reasonably accurate fresh fix; otherwise wait for the bounded timeout.
-                if (best != null && best!!.hasAccuracy() && best!!.accuracy <= 100f &&
-                    System.currentTimeMillis() - best!!.time < 20_000L) {
-                    complete(best, "Fresh location acquired.")
+                val selected = best
+                if (selected != null && selected.hasAccuracy() && selected.accuracy <= 100f &&
+                    LocationFreshnessPolicy.isFresh(selected.time, now)) {
+                    complete(selected, "Fresh location acquired.")
                 }
             }
             @Deprecated("Deprecated by Android; retained for API 26 compatibility")
@@ -65,12 +76,20 @@ class FreshLocationProvider(context: Context) {
         listener = active
         try {
             providers.forEach { provider ->
-                try { manager.requestLocationUpdates(provider, 0L, 0f, active, Looper.getMainLooper()) }
-                catch (_: SecurityException) { }
+                try {
+                    manager.requestLocationUpdates(provider, 0L, 0f, active, Looper.getMainLooper())
+                    registeredProviders++
+                } catch (_: SecurityException) {
+                    // Try another enabled provider; report denial if none can be registered.
+                }
+            }
+            if (registeredProviders == 0) {
+                complete(null, "Location permission was revoked or no provider could be registered.")
+                return
             }
             timeout = Runnable {
                 val fix = best
-                if (fix != null && System.currentTimeMillis() - fix.time <= 120_000L) {
+                if (fix != null && LocationFreshnessPolicy.isUsable(fix.time, System.currentTimeMillis())) {
                     complete(fix, "Location request timed out; using the best recent fix.")
                 } else {
                     complete(null, "No sufficiently recent location fix was obtained.")
