@@ -63,6 +63,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -106,6 +107,8 @@ import ph.resq.app.core.CapabilityState
 import ph.resq.app.core.SettingsRepository
 import ph.resq.app.core.FeaturePolicyCoordinator
 import ph.resq.app.core.FeatureAvailability
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -204,8 +207,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     var pinVaultPin by remember { mutableStateOf("") }
     var pinVaultStatus by remember { mutableStateOf(if (pinVaultEnabled) "Vault locked. I-unlock bago gumamit ng saved contacts." else "Optional PIN vault is disabled.") }
     val database = remember { ResQDatabase(context) }
-    // Recover interrupted SOS events without reopening or repeating an external SMS handoff.
-    remember(database) { runCatching { database.reconcileInterruptedSosHandoffs() }.getOrNull() }
     val freshLocationProvider = remember { FreshLocationProvider(context) }
     var freshLocationStatus by remember { mutableStateOf("Hindi pa humihingi ng fresh location.") }
     var batterySnapshot by remember { mutableStateOf(runCatching { database.getAppState("low_battery_snapshot") }.getOrNull() ?: "Wala pang low-battery snapshot.") }
@@ -255,6 +256,20 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     var messageNote by remember { mutableStateOf("") }
     var state by remember { mutableStateOf(runCatching { database.latestSosState() }.getOrNull() ?: runCatching { SosState.valueOf(prefs.getString("sos_state", "IDLE") ?: "IDLE") }.getOrDefault(SosState.IDLE)) }
     var activeSosEventId by remember { mutableStateOf(runCatching { database.latestSosEventSnapshot()?.eventId }.getOrNull()) }
+    var sosRecoveryNotice by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(database) {
+        val recovery = withContext(Dispatchers.IO) {
+            runCatching {
+                val count = database.reconcileInterruptedSosHandoffs()
+                count to (database.latestSosState() to database.latestSosEventSnapshot()?.eventId)
+            }.getOrNull()
+        }
+        if (recovery != null && recovery.first > 0) {
+            state = recovery.second.first ?: state
+            activeSosEventId = recovery.second.second
+            sosRecoveryNotice = "${recovery.first} interrupted SOS event(s) recovered. Review the messaging app; PH-ResQ did not resend anything."
+        }
+    }
     var checkIn by remember { mutableStateOf(runCatching { database.latestFamilyCheckin() }.getOrNull() ?: prefs.getString("checkin", "Hindi pa naitala") ?: "Hindi pa naitala") }
     var hotlineQuery by remember { mutableStateOf("") }
     var recentSearches by remember { mutableStateOf(runCatching { database.recentSearches() }.getOrDefault(emptyList())) }
@@ -744,6 +759,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                     )
                 }
                 Text("SOS status: " + state.label)
+                sosRecoveryNotice?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 OutlinedTextField(value = messageNote, onValueChange = { messageNote = it.take(240) }, label = { Text("Optional na mensahe") }, modifier = Modifier.fillMaxWidth())
             }
         }
