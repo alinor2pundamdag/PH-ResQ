@@ -45,6 +45,9 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
     val mapFile=remember(context){File(context.getExternalFilesDir(null)?:context.filesDir,"maps/philippines.map")}
     val checksumFile=remember(context){File(mapFile.parentFile,"philippines.map.sha256")}
     val verificationMarker=remember(context){File(mapFile.parentFile,"philippines.map.verified")}
+    val backupFile=remember(context){File(mapFile.parentFile,"philippines.map.backup")}
+    val checksumBackup=remember(context){File(mapFile.parentFile,"philippines.map.sha256.backup")}
+    val markerBackup=remember(context){File(mapFile.parentFile,"philippines.map.verified.backup")}
     var available by remember{mutableStateOf(false)}
     var checkingExisting by remember{mutableStateOf(true)}
     var downloading by remember{mutableStateOf(false)}
@@ -57,9 +60,31 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
 
     // Verify an installed map once per file version. The marker is tied to the file size,
     // modification time and published SHA-256; any changed file is re-hashed before use.
-    LaunchedEffect(mapFile, checksumFile, verificationMarker){
+    LaunchedEffect(mapFile, checksumFile, verificationMarker, backupFile, checksumBackup, markerBackup){
         val valid=withContext(Dispatchers.IO){
             runCatching{
+                if(backupFile.isFile){
+                    val currentExpected=if(checksumFile.isFile)checksumFile.readText().trim().split(Regex("\\s+")).firstOrNull().orEmpty() else ""
+                    val committedMarker=if(mapFile.isFile && currentExpected.matches(Regex("[a-fA-F0-9]{64}"))) {
+                        "${mapFile.length()}|${mapFile.lastModified()}|${currentExpected.lowercase()}"
+                    } else ""
+                    val installCommitted=committedMarker.isNotEmpty() && verificationMarker.isFile &&
+                        verificationMarker.readText().trim()==committedMarker
+                    if(installCommitted){
+                        backupFile.delete();checksumBackup.delete();markerBackup.delete()
+                    }else{
+                        mapFile.delete()
+                        check(backupFile.renameTo(mapFile)){"Could not recover the previous verified nationwide map."}
+                        if(checksumBackup.isFile){
+                            checksumFile.delete()
+                            check(checksumBackup.renameTo(checksumFile)){"Could not recover the previous map checksum."}
+                        }else checksumFile.delete()
+                        if(markerBackup.isFile){
+                            verificationMarker.delete()
+                            check(markerBackup.renameTo(verificationMarker)){"Could not recover the previous map verification marker."}
+                        }else verificationMarker.delete()
+                    }
+                }
                 if(!mapFile.isFile || mapFile.length()<=100_000_000L || !checksumFile.isFile) return@runCatching false
                 val expected=checksumFile.readText().trim().split(Regex("\\s+")).firstOrNull()
                     ?.takeIf{it.matches(Regex("[a-fA-F0-9]{64}"))}?:return@runCatching false
@@ -117,7 +142,8 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                             check(free>size+150L*1024L*1024L){"Not enough free space. Need at least ${(size+150L*1024L*1024L)/1048576L} MB free."}
                             val temp=File(mapFile.parentFile,"philippines.map.part")
                             val backup=File(mapFile.parentFile,"philippines.map.backup")
-                            temp.delete();backup.delete()
+                            temp.delete()
+                            check(!backup.exists()){"An interrupted map installation must be recovered before downloading again."}
                             try{
                                 val digest=MessageDigest.getInstance("SHA-256")
                                 var downloaded=0L
@@ -147,6 +173,8 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                                 val oldChecksum=checksumFile.takeIf{it.isFile}?.readText()
                                 val oldMarker=verificationMarker.takeIf{it.isFile}?.readText()
                                 val hadPrevious=mapFile.exists()
+                                if(oldChecksum!=null)checksumFile.copyTo(checksumBackup,overwrite=true)else checksumBackup.delete()
+                                if(oldMarker!=null)verificationMarker.copyTo(markerBackup,overwrite=true)else markerBackup.delete()
                                 if(hadPrevious)check(mapFile.renameTo(backup)){"Could not stage the previous map safely."}
                                 try{
                                     check(temp.renameTo(mapFile)){"Could not install the verified map file."}
@@ -154,11 +182,15 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                                     val markerValue=mapFile.length().toString()+"|"+mapFile.lastModified()+"|"+expected.lowercase()
                                     verificationMarker.writeText(markerValue)
                                     backup.delete()
+                                    checksumBackup.delete()
+                                    markerBackup.delete()
                                 }catch(error:Throwable){
                                     mapFile.delete()
                                     if(hadPrevious && backup.exists())backup.renameTo(mapFile)
                                     if(oldChecksum!=null)checksumFile.writeText(oldChecksum)else checksumFile.delete()
                                     if(oldMarker!=null)verificationMarker.writeText(oldMarker)else verificationMarker.delete()
+                                    checksumBackup.delete()
+                                    markerBackup.delete()
                                     throw error
                                 }
                             }finally{
