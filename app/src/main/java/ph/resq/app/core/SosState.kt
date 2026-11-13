@@ -6,7 +6,6 @@ enum class SosState(val label: String) {
     SENDING("Sending"),
     INTERRUPTED_NOT_SENT("Saved locally; interrupted before messaging app opened — not sent"),
     HANDOFF_UNCONFIRMED("App was interrupted during SMS handoff — check the messaging app; do not assume it was sent"),
-    HANDOFF_UNCONFIRMED("App was interrupted during SMS handoff — check the messaging app; do not assume it was sent"),
     HANDED_OFF("Handed off to messaging app — delivery unconfirmed"),
     DELIVERED("Delivered — requires confirmation"),
     ACKNOWLEDGED("Acknowledged"),
