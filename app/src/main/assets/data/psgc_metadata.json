@@ -10,8 +10,7 @@
     "duplicate_psgc_codes": 0
   },
   "official_source": "https://psa.gov.ph/classification/psgc",
-  "official_q3_release": "https://psa.gov.ph/classification/psgc",
-  "official_q3_workbook": "https://psa.gov.ph/system/files/scd/PSGC-3Q-2026-Publication-Datafile.xlsx",
+  "official_q3_release": "https://psa.gov.ph/content/third-quarter-2026-psgc-updates-correction-name-one-barangay",
   "derived_from_repository": "https://github.com/Tenasia/ph-psgc/tree/2026-Q2",
   "derived_from_commit": "3d7528b6625e4e7990ac1b96d89505a6bab157ec",
   "q3_correction": {
@@ -35,5 +34,6 @@
     "The source repository snapshot is Q2 2026. The only Q3 name correction published by PSA is applied explicitly.",
     "The dataset is an offline identity/hierarchy reference, not a barangay polygon/boundary dataset.",
     "PSA is the authoritative source. Tenasia/ph-psgc is a third-party PSA-derived distributor; PH-ResQ is not affiliated with PSA."
-  ]
+  ],
+  "data_license": "PSA data attribution: Creative Commons Attribution 4.0 International (CC BY 4.0), subject to the PSA publication's stated terms."
 }
