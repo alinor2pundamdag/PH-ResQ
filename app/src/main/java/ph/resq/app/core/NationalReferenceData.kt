@@ -26,17 +26,19 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
  }
  private fun normalizeLabel(value:String):String =
   value.trim().lowercase().replace(Regex("^sta\\.?\\s+"),"santa ").replace(Regex("^sto\\.?\\s+"),"santo ")
-   .replace("kapitoly","kapitolyo").replace(Regex("[^a-z0-9]+")," ").trim()
+   .replace("kapitoly","kapitolyo").replace("ñ","n").replace(Regex("[^a-z0-9]+")," ").trim()
  private fun resolveBarangayPsgc(label:String):String? {
   val match=Regex("^Barangay\\s+(.+?),\\s+(.+)$",RegexOption.IGNORE_CASE).matchEntire(label.trim()) ?: return null
   val barangay=normalizeLabel(match.groupValues[1])
   val city=normalizeLabel(match.groupValues[2])
-  val candidates=database.readableDatabase.rawQuery("SELECT psgc_code,city_municipality FROM barangay_reference WHERE lower(barangay)=lower(?)",arrayOf(match.groupValues[1].trim().replace(Regex("^Sta\\.?\\s+"),"Santa ").replace(Regex("^Sto\\.?\\s+"),"Santo ").replace("Kapitoly","Kapitolyo")))
+  val cityVariants=listOf(match.groupValues[2].trim(),"City of "+match.groupValues[2].trim().removeSuffix(" City"),match.groupValues[2].trim().removePrefix("City of ")+" City").distinct()
+  val placeholders=cityVariants.joinToString(","){"?"}
+  val candidates=database.readableDatabase.rawQuery("SELECT psgc_code,city_municipality,barangay FROM barangay_reference WHERE city_municipality IN ($placeholders)",cityVariants.toTypedArray())
   candidates.use { c ->
    while(c.moveToNext()){
     val stored=normalizeLabel(c.getString(1))
-    val variants=setOf(city,normalizeLabel("City of "+match.groupValues[2].removeSuffix(" City")),normalizeLabel(match.groupValues[2].removePrefix("City of ")+" City"))
-    if(stored in variants || stored==city) return c.getString(0)
+    val storedBarangay=normalizeLabel(c.getString(2))
+    if(storedBarangay==barangay && (stored==city || stored in cityVariants.map(::normalizeLabel))) return c.getString(0)
    }
   }
   return null
