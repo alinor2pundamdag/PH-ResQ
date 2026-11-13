@@ -77,12 +77,16 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
         }
         available=valid
         checkingExisting=false
-        status=if(valid)"Installed nationwide map integrity verified." else "No verified nationwide map is installed. Download the signed-by-checksum release to enable offline rendering."
+        status=if(valid)"Installed nationwide map integrity verified." else "No verified nationwide map is installed. Download the checksum-verified release to enable offline rendering."
     }
 
     DisposableEffect(mapView){
         val view=mapView
-        onDispose{view?.destroyAll();AndroidGraphicFactory.clearResourceMemoryCache()}
+        if(view==null) onDispose { }
+        else onDispose{
+            view.destroyAll()
+            AndroidGraphicFactory.clearResourceMemoryCache()
+        }
     }
 
     Column(modifier,verticalArrangement=Arrangement.spacedBy(8.dp)){
