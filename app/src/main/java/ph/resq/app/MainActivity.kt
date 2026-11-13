@@ -761,7 +761,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Offline national emergency contacts", style = MaterialTheme.typography.titleLarge)
-                Text("Source: Philippine Government Emergency Hotlines portal; reviewed 2026-10-27. Ang 911 ang national emergency hotline.")
+                Text("Includes the official eHotlines national directory and selected LGU public numbers from Pasig, Marinduque, Lapuyan, Quezon and Laguna. Every entry keeps its source and review status; these numbers have not been phone-verified. 911 remains the national emergency hotline.")
                 OutlinedTextField(value = hotlineQuery, onValueChange = { hotlineQuery = it.take(80) }, label = { Text("Search agency or number") }, modifier = Modifier.fillMaxWidth())
                 Button(onClick = {
                     runCatching {
