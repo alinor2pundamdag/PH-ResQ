@@ -9,14 +9,14 @@ object NationalDatasetImporter{
   val input=context.contentResolver.openInputStream(uri)?:error("Cannot open CSV.")
   val bytes=input.use{stream->val out=ByteArrayOutputStream();val b=ByteArray(8192);var total=0;while(true){val n=stream.read(b);if(n<0)break;total+=n;require(total<=MAX_BYTES){"CSV exceeds 15 MB."};out.write(b,0,n)};out.toByteArray()}
   val rows=parseCsv(bytes.toString(Charsets.UTF_8).removePrefix("\uFEFF"));require(rows.isNotEmpty()){"CSV is empty."}
-  val header=rows.first().map{it.trim().lowercase()};val required=listOf("psgc_code","region","province","city_municipality","barangay");required.forEach{require(header.contains(it)){"Missing column: $it"}}
+  val header=rows.first().map{it.trim().lowercase()};val required=listOf("psgc_code","region","province","city_municipality","barangay","source_url","source_version");required.forEach{require(header.contains(it)){"Missing column: $it"}}
   val ix=required.associateWith{header.indexOf(it)};val urban=header.indexOf("urban_rural")
   val records=rows.drop(1).filter{it.any(String::isNotBlank)}.mapIndexed{rowNo,row->
    fun f(name:String):String{val i=ix.getValue(name);require(i<row.size){"Malformed CSV row ${rowNo+2}"};return row[i].trim()}
-   BarangayReference(f("psgc_code"),f("region"),f("province"),f("city_municipality"),f("barangay"),if(urban in row.indices)row[urban].trim().ifBlank{null}else null)
+   require(f("source_url")==NationalReferenceRepository.PSA_SOURCE){"Row ${rowNo+2} does not identify the official PSA PSGC source."}; require(f("source_version").equals("Q3 2026",ignoreCase=true)){"Row ${rowNo+2} is not tagged as PSA Q3 2026."}; BarangayReference(f("psgc_code"),f("region"),f("province"),f("city_municipality"),f("barangay"),if(urban in row.indices)row[urban].trim().ifBlank{null}else null)
   }
   require(records.size==NationalReferenceRepository.EXPECTED_BARANGAYS_Q3_2026){"Expected 42,010 barangays; found ${records.size}. Partial import blocked."}
-  return repository.replaceBarangays(records,NationalReferenceRepository.PSA_SOURCE,version)
+  return repository.replaceBarangays(records,NationalReferenceRepository.PSA_SOURCE,"Q3 2026")
  }
 
  fun importPublicContactsJson(context:Context,uri:Uri,repository:NationalReferenceRepository):Int =
