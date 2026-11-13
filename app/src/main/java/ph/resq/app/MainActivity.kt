@@ -641,12 +641,14 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = Color(red = visibleColorPhase, green = 0f, blue = 1f - visibleColorPhase))
         if (selectedSection == HomeSection.EMERGENCY) {
         if (selectedSection == HomeSection.EMERGENCY) {
+        if (selectedSection == HomeSection.EMERGENCY) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Emergency cell broadcasts", style = MaterialTheme.typography.titleLarge)
                 Text("Ang government/carrier emergency alerts ay pinamamahalaan ng Android at mobile network. Hindi inaangking binabasa o hinaharang ng PH-ResQ ang lahat ng cell broadcasts.")
                 Text("Suriin ang Emergency alerts / Wireless emergency alerts sa system settings ng device at panatilihing naka-enable ang mga alertong naaangkop sa iyong lugar.")
             }
+        }
         }
         }
         }
@@ -715,6 +717,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             Text("REVIEW PRIVACY NOTICE")
         }
         }
+        if (selectedSection == HomeSection.DEVICE) {
         if (selectedSection == HomeSection.DEVICE) {
         if (selectedSection == HomeSection.DEVICE) {
         PremiumCard {
@@ -1100,6 +1103,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             Text(record.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Text(record.category + (record.phone?.let { " • $it" } ?: ""))
             if (record.latitude != null && record.longitude != null) Text("Coordinates: ${record.latitude}, ${record.longitude}")
+        }
         }
         }
         Text("Evacuation centers (local cache)", style = MaterialTheme.typography.titleMedium)
