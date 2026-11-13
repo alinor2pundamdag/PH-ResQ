@@ -108,31 +108,53 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                             val free=StatFs(mapFile.parentFile!!.absolutePath).availableBytes
                             check(free>size+150L*1024L*1024L){"Not enough free space. Need at least ${(size+150L*1024L*1024L)/1048576L} MB free."}
                             val temp=File(mapFile.parentFile,"philippines.map.part")
-                            temp.delete()
-                            val digest=MessageDigest.getInstance("SHA-256")
-                            client.newCall(Request.Builder().url(NATIONWIDE_MAP_URL).get().build()).execute().use{response->
-                                check(response.isSuccessful){"Map download failed (HTTP ${response.code})."}
-                                val body=response.body?:error("Empty map download.")
-                                val total=body.contentLength().takeIf{it>0}?:size
-                                body.byteStream().use{input->
-                                    FileOutputStream(temp).use{output->
-                                        val buffer=ByteArray(1024*1024);var downloaded=0L;var lastUpdate=0L
-                                        while(true){
-                                            val count=input.read(buffer);if(count<0)break
-                                            output.write(buffer,0,count);digest.update(buffer,0,count);downloaded+=count
-                                            if(downloaded-lastUpdate>=8L*1024L*1024L){
-                                                lastUpdate=downloaded
-                                                withContext(Dispatchers.Main){progress=(downloaded.toFloat()/total.toFloat()).coerceIn(0f,1f)}
+                            val backup=File(mapFile.parentFile,"philippines.map.backup")
+                            temp.delete();backup.delete()
+                            try{
+                                val digest=MessageDigest.getInstance("SHA-256")
+                                var downloaded=0L
+                                client.newCall(Request.Builder().url(NATIONWIDE_MAP_URL).get().build()).execute().use{response->
+                                    check(response.isSuccessful){"Map download failed (HTTP ${response.code})."}
+                                    val body=response.body?:error("Empty map download.")
+                                    val total=body.contentLength().takeIf{it>0}?:size
+                                    body.byteStream().use{input->
+                                        FileOutputStream(temp).use{output->
+                                            val buffer=ByteArray(1024*1024);var lastUpdate=0L
+                                            while(true){
+                                                val count=input.read(buffer);if(count<0)break
+                                                output.write(buffer,0,count);digest.update(buffer,0,count);downloaded+=count
+                                                if(downloaded-lastUpdate>=8L*1024L*1024L){
+                                                    lastUpdate=downloaded
+                                                    withContext(Dispatchers.Main){progress=(downloaded.toFloat()/total.toFloat()).coerceIn(0f,1f)}
+                                                }
                                             }
+                                            output.fd.sync()
                                         }
                                     }
                                 }
+                                check(downloaded==size && temp.length()==size){"Downloaded map size does not match the release metadata."}
+                                val actual=digest.digest().joinToString(""){"%02x".format(it)}
+                                check(actual.equals(expected,ignoreCase=true)){"SHA-256 mismatch. The downloaded map was rejected."}
+                                val oldChecksum=checksumFile.takeIf{it.isFile}?.readText()
+                                val oldMarker=verificationMarker.takeIf{it.isFile}?.readText()
+                                val hadPrevious=mapFile.exists()
+                                if(hadPrevious)check(mapFile.renameTo(backup)){"Could not stage the previous map safely."}
+                                try{
+                                    check(temp.renameTo(mapFile)){"Could not install the verified map file."}
+                                    checksumFile.writeText("$expected  philippines.map\n")
+                                    val markerValue=mapFile.length().toString()+"|"+mapFile.lastModified()+"|"+expected.lowercase()
+                                    verificationMarker.writeText(markerValue)
+                                    backup.delete()
+                                }catch(error:Throwable){
+                                    mapFile.delete()
+                                    if(hadPrevious && backup.exists())backup.renameTo(mapFile)
+                                    if(oldChecksum!=null)checksumFile.writeText(oldChecksum)else checksumFile.delete()
+                                    if(oldMarker!=null)verificationMarker.writeText(oldMarker)else verificationMarker.delete()
+                                    throw error
+                                }
+                            }finally{
+                                temp.delete()
                             }
-                            val actual=digest.digest().joinToString(""){"%02x".format(it)}
-                            check(actual.equals(expected,ignoreCase=true)){"SHA-256 mismatch. The downloaded map was rejected."}
-                            if(mapFile.exists())mapFile.delete()
-                            check(temp.renameTo(mapFile)){"Could not install the verified map file."}
-                            checksumFile.writeText("$expected  philippines.map\n")
                         }
                     }
                     status=result.fold({"Nationwide map downloaded and SHA-256 verified."},{"Download failed: ${it.message}"})
