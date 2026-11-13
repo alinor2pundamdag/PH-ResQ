@@ -10,7 +10,7 @@ import java.util.UUID
  * Local transactional foundation for durable emergency state.
  * Directory/map tables are empty until sourced datasets and importers are added.
  */
-class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCipher = EncryptedFieldCipher()) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 9) {
+class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCipher = EncryptedFieldCipher()) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 10) {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE app_state (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)")
@@ -33,7 +33,7 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
         db.execSQL("CREATE INDEX idx_barangay_lgu ON barangay_reference(city_municipality COLLATE NOCASE, province COLLATE NOCASE)")
         db.execSQL("CREATE TABLE public_emergency_contacts (contact_id TEXT PRIMARY KEY NOT NULL, psgc_code TEXT, scope TEXT NOT NULL, category TEXT NOT NULL, office_name TEXT NOT NULL, phone TEXT NOT NULL, source_url TEXT NOT NULL, source_title TEXT NOT NULL, verification TEXT NOT NULL, verified_at INTEGER, expires_at INTEGER, updated_at INTEGER NOT NULL)")
         db.execSQL("CREATE INDEX idx_public_contacts_psgc ON public_emergency_contacts(psgc_code)")
-        db.execSQL("CREATE TABLE national_evacuation_centers (center_id TEXT PRIMARY KEY NOT NULL, psgc_code TEXT, name TEXT NOT NULL, address TEXT NOT NULL, facility_type TEXT, latitude REAL, longitude REAL, capacity INTEGER, operational_status TEXT NOT NULL, source_url TEXT NOT NULL, source_title TEXT NOT NULL, verification TEXT NOT NULL, verified_at INTEGER, updated_at INTEGER NOT NULL)")
+        db.execSQL("CREATE TABLE national_evacuation_centers (center_id TEXT PRIMARY KEY NOT NULL, psgc_code TEXT, name TEXT NOT NULL, address TEXT NOT NULL, facility_type TEXT, latitude REAL, longitude REAL, capacity INTEGER, capacity_unit TEXT NOT NULL DEFAULT 'PERSONS', operational_status TEXT NOT NULL, source_url TEXT NOT NULL, source_title TEXT NOT NULL, verification TEXT NOT NULL, verified_at INTEGER, updated_at INTEGER NOT NULL)")
         db.execSQL("CREATE INDEX idx_national_evac_psgc ON national_evacuation_centers(psgc_code)")
         db.execSQL("CREATE INDEX idx_national_evac_coords ON national_evacuation_centers(latitude,longitude)")
     }
@@ -130,6 +130,10 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
             db.execSQL("CREATE INDEX idx_national_evac_psgc ON national_evacuation_centers(psgc_code)")
             db.execSQL("CREATE INDEX idx_national_evac_coords ON national_evacuation_centers(latitude,longitude)")
             version = 9
+        }
+        if (version < 10 && newVersion >= 10) {
+            db.execSQL("ALTER TABLE national_evacuation_centers ADD COLUMN capacity_unit TEXT NOT NULL DEFAULT 'PERSONS'")
+            version = 10
         }
     }
 
