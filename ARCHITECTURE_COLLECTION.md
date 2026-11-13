@@ -8,7 +8,7 @@
 
 See [FULL_SYSTEM_AUDIT_2026-11-13.md](FULL_SYSTEM_AUDIT_2026-11-13.md) for the latest requirements-to-code audit, all 34 feature statuses, system/device integration findings, P0/P1/P2 risks, exact-head CI status, and remediation order.
 
-The audit target is PR #1 head `927af2031bbe6a6b9846910872824859f07e34d5`. The latest successful CI run inspected is for a different SHA (`0f36250beffb00dda7296bc2f92b20c39c0775da`), so the current PR head is not build-validated and its older APK must not be used as the current candidate.
+The audit baseline is PR #1 head `83902c38132257d540d3f4b2ecc3366915bb886d`; the latest remediation commit is `bc32f658ae366e3a4a7300c290aa26007f4b0b24`. A new SOS recovery change was committed after the baseline audit. No CI run has yet been confirmed for the remediation commit; treat its APK status as NOT VERIFIED until exact-head CI passes.
 
 ## Canonical application identity
 

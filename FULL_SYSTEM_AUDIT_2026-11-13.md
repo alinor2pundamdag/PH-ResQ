@@ -1,6 +1,7 @@
 # PH-ResQ Full Cross-System Audit — 2026-11-13
 
-**Audit target:** PR #1 head `927af2031bbe6a6b9846910872824859f07e34d5`  
+**Audit baseline:** PR #1 head `83902c38132257d540d3f4b2ecc3366915bb886d`  
+**Latest remediation commit:** `bc32f658ae366e3a4a7300c290aa26007f4b0b24`  
 **Repository:** `alinor2pundamdag/PH-ResQ`  
 **Branch:** `docs/architecture-correction-2026-10-27`  
 **Pull request:** [#1](https://github.com/alinor2pundamdag/PH-ResQ/pull/1) — open, unmerged  
@@ -17,11 +18,11 @@ However, **none of the 34 retained feature IDs is currently demonstrated as full
 
 ### Current-head CI mismatch — release blocker
 
-- Current PR #1 head: `927af2031bbe6a6b9846910872824859f07e34d5`.
-- Latest successful workflow inspected: [run 43411656696](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/43411656696), head SHA `0f36250beffb00dda7296bc2f92b20c39c0775da`.
-- These SHAs differ. The current PR head has no workflow run returned by the commit-specific workflow query.
-- Therefore, the successful run and artifact `ph-resq-apk-builds` ID `14030410499` do **not** validate the current PR head. Do not install or describe that artifact as the current candidate.
-- The CI workflow itself runs `lintDebug`, `testDebugUnitTest`, `assembleDebug`, and `assembleRelease`, verifies checkout SHA, and creates `BUILD_METADATA.txt` and `SHA256SUMS`. It must rerun after the next PR-head commit.
+- Audit baseline PR #1 head: `83902c38132257d540d3f4b2ecc3366915bb886d`.
+- Latest remediation commit: `bc32f658ae366e3a4a7300c290aa26007f4b0b24`.
+- Commit-specific Actions lookup returned no run for the audit baseline. The remediation commit was pushed after the lookup; exact-head CI and artifact verification are still pending.
+- Historical successful workflow [run 43411656696](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/43411656696) and artifact `14030410499` are for another SHA and must not be used as this candidate.
+- CI is configured to run `lintDebug`, `testDebugUnitTest`, `assembleDebug`, and `assembleRelease`, verify checkout SHA, and produce `BUILD_METADATA.txt` and `SHA256SUMS`. Recheck the PR head and run after this remediation commit.
 
 ## 2. Requirements coverage — all 34 retained features
 
@@ -49,8 +50,8 @@ The repository's `FEATURE_TRACEABILITY.md` retains F-001 through F-034. Current 
 
 ### P0-02 — SOS handoff is not SMS delivery, and crash reconciliation is incomplete
 **Evidence:** `MainActivity.prepareSos()` persists QUEUED then SENDING, starts the foreground status service where notifications are allowed, and opens an `ACTION_SENDTO smsto:` external messaging composer. HANDED_OFF is recorded after `startActivity` returns. The user still has to review and tap Send.  
-**Impact:** No carrier-send receipt, recipient delivery receipt, recipient acknowledgement, or emergency-service response is available. A process kill between SENDING and HANDED_OFF can leave an ambiguous event; there is no event-scoped recovery worker/reconciliation screen that safely explains it without duplicate sending.  
-**Required action:** Keep wording at “opened messaging app / delivery unconfirmed”; add startup reconciliation for QUEUED/SENDING/HANDED_OFF/FAILED, preserve event UUID, never auto-resend an ambiguous handoff, and add no-SIM/no-app/permission/process-death device tests. Do not add direct SMS sending without a separately approved consent/legal/security design.
+**Impact:** No carrier-send receipt, recipient delivery receipt, recipient acknowledgement, or emergency-service response is available. A process kill between SENDING and HANDED_OFF can leave an ambiguous event; there was no event-scoped recovery before remediation `bc32f658`; startup now changes an interrupted SENDING event to HANDOFF_UNCONFIRMED without resending. A dedicated recovery screen and process-death device acceptance remain absent.  
+**Remediation in `bc32f658`:** Added `HANDOFF_UNCONFIRMED`, a database-transactional `reconcileInterruptedSosHandoff()` that appends a new transition while preserving the original encrypted draft/recipient/location ciphertext, and startup invocation before UI state is restored. It only reconciles the latest SENDING state, is idempotent, and never launches or retries the messaging app. Added Robolectric tests for snapshot preservation, idempotency, and leaving HANDED_OFF unchanged. **Remaining:** exact-head CI, process-death instrumentation, no-SIM/no-app/permission device tests, and UI recovery guidance. This is a source-level remediation, not yet verified by CI/device evidence. Do not add direct SMS sending without a separately approved consent/legal/security design.
 
 ### P0-03 — Sensitive-data field coverage and key-loss behavior are not closed
 **Evidence:** `EncryptedFieldCipher` uses Android Keystore AES-GCM for selected values; SOS draft/recipient/location snapshots are encrypted; PIN vault uses PBKDF2-derived AES-GCM. The SQLite schema also contains plaintext `last_location`, `search_history`, `bookmarks`, `family_checkins`, and generic `app_state` values. Current visible location text is encrypted in preferences, but schema and all call paths still need a field-by-field classification and proof of actual use.  

@@ -115,3 +115,6 @@ A failed, skipped, unexecuted, or unreported test is not a pass. Older successfu
 | T-055 | SOS event intent is committed before external messaging handoff; event UUID remains stable and each transition is scoped to its own event across interleaved QUEUED → SENDING → HANDED_OFF/FAILED attempts; schema v7 rows and empty v6 legacy schemas migrate without deletion; unverified DELIVERED/ACKNOWLEDGED writes are rejected | Robolectric database regression tests + exact-SHA CI; instrumented process-death test remains required | P0 |
 | T-056 | Fresh GPS timestamp is within the accepted age/future-skew window; stale/future fixes are rejected and provider registration failure is reported | LocationFreshnessPolicy unit tests + physical-device provider/permission test | P0 |
 | T-057 | SOS hold progress is visible; release before two seconds or gesture cancellation never prepares SOS; full hold triggers exactly one confirmation | Compose UI regression test + physical-device timing/haptic test | P0 |
+
+
+| T-058 | App process is killed after SENDING but before HANDED_OFF is committed | On next startup, same event UUID becomes HANDOFF_UNCONFIRMED, encrypted draft/recipients/location remain intact, reconciliation is idempotent, and no SMS composer is relaunched | Robolectric database regression + exact-head CI; instrumentation/process-death test remains required | P0 |

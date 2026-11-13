@@ -77,3 +77,8 @@ A previous compile attempt found a missing explicit return in the block-bodied `
 ## Current remaining engineering boundary
 
 The code includes event-scoped SOS transitions, schema v8 migration repair, stale/future GPS timestamp rejection, visible SOS hold progress, a short-tap UI test, and a non-deprecated notification action. These remain partial feature implementations. Wi-Fi Direct, authenticated BLE payload transport, peer-key establishment, multi-hop relay, remote family sync, signed dataset update/rollback, licensed offline map renderer/package, nationwide authoritative datasets, duress vault, full key recovery, and physical-device/accessibility/legal acceptance remain open. Do not claim emergency-service readiness.
+
+
+## SOS interrupted-handoff recovery — source remediation added
+
+Commit `bc32f658ae366e3a4a7300c290aa26007f4b0b24` adds a terminal `HANDOFF_UNCONFIRMED` state for the ambiguous case where the app process dies after persisting `SENDING` but before it can persist `HANDED_OFF`. Startup reconciliation appends this state transactionally for the latest interrupted event, preserves the original encrypted draft/recipient/location snapshot, and never reopens or retries the SMS composer. Robolectric tests cover encrypted snapshot preservation, idempotent reconciliation, and no change to an already `HANDED_OFF` event. This source change is awaiting exact-head CI; real process-death, messaging-app and SIM acceptance remain NOT RUN.
