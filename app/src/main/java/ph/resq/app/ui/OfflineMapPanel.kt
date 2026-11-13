@@ -25,7 +25,7 @@ private const val MAX_TILES=3000L
  val context=LocalContext.current;val owner=LocalLifecycleOwner.current
  var mapView by remember{mutableStateOf<MapView?>(null)};var ready by remember{mutableStateOf(false)}
  var downloading by remember{mutableStateOf(false)};var progress by remember{mutableFloatStateOf(0f)}
- var saved by remember{mutableIntStateOf(0)};var status by remember{mutableStateOf("Pan and zoom to the area you want to save.")}
+ var saved by remember{mutableIntStateOf(0)};var regionItems by remember{mutableStateOf(emptyList<OfflineRegion>())};var status by remember{mutableStateOf("Pan and zoom to the area you want to save.")}
  val manager=remember(context){
   val dispatcher=Dispatcher().apply{maxRequests=4;maxRequestsPerHost=4}
   val client=OkHttpClient.Builder().dispatcher(dispatcher).connectTimeout(20,TimeUnit.SECONDS).readTimeout(30,TimeUnit.SECONDS)
@@ -34,12 +34,15 @@ private const val MAX_TILES=3000L
   OfflineManager.getInstance(context).also{it.setOfflineMapboxTileCountLimit(MAX_TILES)}
  }
  fun refresh(){manager.listOfflineRegions(object:OfflineManager.ListOfflineRegionsCallback{
-  override fun onList(regions:Array<OfflineRegion>?){saved=regions?.size?:0}
+  override fun onList(regions:Array<OfflineRegion>?){regionItems=regions?.toList().orEmpty();saved=regionItems.size}
   override fun onError(error:String){status="Cannot read saved map regions: $error"}
  })}
  DisposableEffect(owner,mapView){
   val view=mapView;val observer=LifecycleEventObserver{_,event->when(event){Lifecycle.Event.ON_START->view?.onStart();Lifecycle.Event.ON_RESUME->view?.onResume();Lifecycle.Event.ON_PAUSE->view?.onPause();Lifecycle.Event.ON_STOP->view?.onStop();else->Unit}}
-  owner.lifecycle.addObserver(observer);onDispose{owner.lifecycle.removeObserver(observer);view?.onPause();view?.onStop();view?.onDestroy()}
+  owner.lifecycle.addObserver(observer)
+  if(owner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) view?.onStart()
+  if(owner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) view?.onResume()
+  onDispose{owner.lifecycle.removeObserver(observer);view?.onPause();view?.onStop();view?.onDestroy()}
  }
  Column(modifier,verticalArrangement=Arrangement.spacedBy(8.dp)){
   Text("OFFLINE MAP",style=MaterialTheme.typography.titleLarge)
