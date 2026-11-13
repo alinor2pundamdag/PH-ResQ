@@ -4,16 +4,17 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import java.util.UUID
 
 /**
  * Local transactional foundation for durable emergency state.
  * Directory/map tables are empty until sourced datasets and importers are added.
  */
-class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCipher = EncryptedFieldCipher()) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 7) {
+class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCipher = EncryptedFieldCipher()) : SQLiteOpenHelper(context, "ph_resq_local.db", null, 8) {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE app_state (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)")
-        db.execSQL("CREATE TABLE sos_events (id INTEGER PRIMARY KEY AUTOINCREMENT, state TEXT NOT NULL, created_at INTEGER NOT NULL, draft_ciphertext TEXT, recipients_ciphertext TEXT, location_ciphertext TEXT)")
+        db.execSQL("CREATE TABLE sos_events (id INTEGER PRIMARY KEY AUTOINCREMENT, event_id TEXT NOT NULL, state TEXT NOT NULL, created_at INTEGER NOT NULL, draft_ciphertext TEXT, recipients_ciphertext TEXT, location_ciphertext TEXT)")
         db.execSQL("CREATE TABLE last_location (id INTEGER PRIMARY KEY CHECK(id = 1), latitude REAL NOT NULL, longitude REAL NOT NULL, accuracy_m REAL, captured_at INTEGER NOT NULL)")
         db.execSQL("CREATE TABLE search_history (id INTEGER PRIMARY KEY AUTOINCREMENT, query TEXT NOT NULL, searched_at INTEGER NOT NULL)")
         db.execSQL("CREATE TABLE bookmarks (item_id TEXT PRIMARY KEY NOT NULL, label TEXT NOT NULL, created_at INTEGER NOT NULL)")
@@ -82,13 +83,35 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_directory_coordinates ON directory_entries(latitude, longitude)")
             version = 7
         }
+        if (version < 8 && newVersion >= 8) {
+            // Legacy transition rows cannot safely be grouped into one event; assign independent IDs.
+            db.execSQL("ALTER TABLE sos_events ADD COLUMN event_id TEXT")
+            val legacyIds = mutableListOf<Long>()
+            db.rawQuery("SELECT id FROM sos_events WHERE event_id IS NULL", null).use { cursor ->
+                while (cursor.moveToNext()) legacyIds.add(cursor.getLong(0))
+            }
+            legacyIds.forEach { rowId ->
+                val values = ContentValues().apply { put("event_id", UUID.randomUUID().toString()) }
+                db.update("sos_events", values, "id = ?", arrayOf(rowId.toString()))
+            }
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_sos_event_id ON sos_events(event_id, id)")
+            version = 8
+        }
     }
 
     fun recordSosEvent(state: SosState, draft: String?, recipients: String?, location: String) {
         val db = writableDatabase
         db.beginTransaction()
         try {
+            val eventId = if (state == SosState.QUEUED) {
+                UUID.randomUUID().toString()
+            } else {
+                db.rawQuery("SELECT event_id FROM sos_events ORDER BY id DESC LIMIT 1", null).use { cursor ->
+                    if (cursor.moveToFirst()) cursor.getString(0) else UUID.randomUUID().toString()
+                }
+            }
             val values = ContentValues().apply {
+                put("event_id", eventId)
                 put("state", state.name)
                 put("created_at", System.currentTimeMillis())
                 if (draft == null) putNull("draft_ciphertext") else put("draft_ciphertext", fieldCipher.encrypt(draft))
@@ -241,6 +264,7 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
     }
 
     data class SosEventSnapshot(
+        val eventId: String,
         val state: SosState,
         val createdAt: Long,
         val draft: String?,
@@ -251,17 +275,18 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
     /** Read the latest durable event without treating an undecryptable value as empty data. */
     fun latestSosEventSnapshot(): SosEventSnapshot? {
         readableDatabase.rawQuery(
-            "SELECT state,created_at,draft_ciphertext,recipients_ciphertext,location_ciphertext FROM sos_events ORDER BY id DESC LIMIT 1",
+            "SELECT event_id,state,created_at,draft_ciphertext,recipients_ciphertext,location_ciphertext FROM sos_events ORDER BY id DESC LIMIT 1",
             null
         ).use { cursor ->
             if (!cursor.moveToFirst()) return null
-            val eventState = runCatching { SosState.valueOf(cursor.getString(0)) }.getOrNull() ?: return null
+            val eventState = runCatching { SosState.valueOf(cursor.getString(1)) }.getOrNull() ?: return null
             return SosEventSnapshot(
+                eventId = cursor.getString(0),
                 state = eventState,
-                createdAt = cursor.getLong(1),
-                draft = fieldCipher.decrypt(cursor.getString(2)),
-                recipients = fieldCipher.decrypt(cursor.getString(3)),
-                location = fieldCipher.decrypt(cursor.getString(4))
+                createdAt = cursor.getLong(2),
+                draft = fieldCipher.decrypt(cursor.getString(3)),
+                recipients = fieldCipher.decrypt(cursor.getString(4)),
+                location = fieldCipher.decrypt(cursor.getString(5))
             )
         }
     }
