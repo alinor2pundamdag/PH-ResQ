@@ -43,7 +43,7 @@ The nationwide vector basemap uses the official Mapsforge v5 prebuilt Philippine
 These replies conflict on the custodian and demonstrate that there is no single reliable public nationwide file currently confirmed by these FOI responses. The app must therefore show per-LGU coverage and must not advertise complete national evacuation coverage.
 
 ## Starter records committed with this branch
-- 80 public office numbers from Pasig City (2024), Marinduque provincial/LGU page, and Lapuyan municipal page. All carry source links and are review-due; none is represented as verified by a phone call.
+- 192 public office numbers are bundled: the original 102 records plus 43 national agency hotlines from the official eHotlines government portal, 46 Quezon Province DRRMO/police/fire records from the provincial government page, and one Laguna PDRRMO number published by Siniloan LGU. All new records retain source URLs, are marked official-source (not phone-verified), and remain review-due. The Quezon page's Mulanay number is shown as a 9-digit value and was excluded rather than guessed.
 - 28 evacuation-center records from Bay, Laguna Table 130 (as of December 2024). Capacity unit is explicitly FAMILIES; coordinates are null and operational status is UNKNOWN.
 
 
@@ -77,3 +77,11 @@ The bundled evacuation seed now combines:
 The Quezon City page states it was last updated on 2026-02-19. It supplies facility names grouped by barangay, but does not publish capacities, coordinates, or current operational status. The app therefore stores the barangay as a locator, leaves coordinates and capacity null, sets operational status to UNKNOWN, and leaves verifiedAt null. These entries are official-source-listed, not call-verified or confirmed open.
 
 Combined bundled evacuation seed: 429 records across two LGUs. This is not nationwide coverage. Repeated identical facility names in a barangay may represent separate sites that the source does not distinguish; the deduplication rule may therefore undercount those ambiguous duplicates.
+
+## Official-source contact expansion (2026-11-13)
+- Official national portal: https://ehotlines.e.gov.ph/ — added NDRRMC, DSWD, Red Cross, PNP, BFP, Coast Guard, MMDA, DOTr, LTO, LTFRB, PAGASA, PHIVOLCS, utilities, VAWC and NCMH numbers. The existing 911 record remains the single national emergency hotline entry.
+- Quezon Provincial Government: https://quezon.gov.ph/quezon-province-emergency-hotlines/ — added the provincial DRRMO, listed municipal DRRMOs, provincial police and fire contacts. The Mulanay line is malformed (9 digits) and intentionally excluded; no digits were inferred.
+- Siniloan LGU: https://siniloanlaguna.gov.ph/emergency-hotlines/ — added the published Laguna PDRRMO contact.
+- These are official-source records, not call-verified numbers. All carry `expires_at=0` and must remain visibly review-due until a documented verification call or cross-check is recorded.
+- Municipality/province contacts are not linked to barangay PSGC codes. Barangay contact coverage counts only records with `scope=BARANGAY`, not municipality/province contacts.
+- National contact import and evacuation-center import now validate/insert each full batch inside a SQLite transaction; a rejected row rolls back the whole batch. Insert failures are checked rather than silently counted as success.
