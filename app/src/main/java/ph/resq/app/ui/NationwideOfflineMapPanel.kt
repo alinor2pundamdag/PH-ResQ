@@ -49,6 +49,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
     var status by remember{mutableStateOf("Nationwide map package is published by the PH-ResQ map release workflow.")}
     var mapView by remember{mutableStateOf<MapsforgeMapView?>(null)}
     var mapLoaded by remember{mutableStateOf(false)}
+    var mapLoadFailed by remember{mutableStateOf(false)}
     val client=remember{OkHttpClient.Builder().connectTimeout(30,TimeUnit.SECONDS).readTimeout(0,TimeUnit.MILLISECONDS).build()}
 
     // Verify an installed map once per file version. The marker is tied to the file size,
@@ -91,7 +92,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
 
     Column(modifier,verticalArrangement=Arrangement.spacedBy(8.dp)){
         Text("NATIONWIDE PHILIPPINES OFFLINE MAP",style=MaterialTheme.typography.titleLarge)
-        Text("Full-country vector basemap from the official Mapsforge v5 Philippines map. It is separate from the smaller MapLibre area packs.")
+        Text("Full-country Philippines vector basemap in Mapsforge v5 format. It is separate from the smaller MapLibre area packs.")
         if(!available){
             if(checkingExisting) Text("Checking the installed map file…",style=MaterialTheme.typography.bodySmall)
             Button(enabled=!downloading&&!checkingExisting,onClick={
@@ -181,7 +182,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                     }
                 },
                 update={view->
-                    if(!mapLoaded){
+                    if(!mapLoaded && !mapLoadFailed){
                         runCatching{
                             val tileCache=AndroidUtil.createTileCache(context,"ph-resq-philippines",view.model.displayModel.tileSize,1f,view.model.frameBufferModel.overdrawFactor)
                             val dataStore=MapFile(FileInputStream(mapFile))
@@ -191,14 +192,21 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                             view.setCenter(LatLong(12.8797,121.7740))
                             view.setZoomLevel(5.toByte())
                             mapLoaded=true
+                            mapLoadFailed=false
                             status="Nationwide offline map is ready."
-                        }.onFailure{status="Map file could not be opened: ${it.message}";mapLoaded=true}
+                        }.onFailure{status="Map file could not be opened: ${it.message}";mapLoaded=true;mapLoadFailed=true}
                     }
                 }
             )
+            if(mapLoadFailed){
+                Text("The map passed checksum validation but the renderer could not open it. The downloaded file is retained; retry after checking available memory and storage.")
+                Button(onClick={mapLoaded=false;mapLoadFailed=false;status="Retrying map renderer…"},modifier=Modifier.fillMaxWidth()){Text("RETRY MAP RENDERING")}
+            }
             Button(onClick={
-                mapView?.layerManager?.layers?.clear()
+                mapView?.destroyAll()
+                mapView=null
                 mapLoaded=false
+                mapLoadFailed=false
                 available=false
                 mapFile.delete();checksumFile.delete();verificationMarker.delete()
                 status="Nationwide map deleted from app storage."
