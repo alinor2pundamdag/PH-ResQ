@@ -26,14 +26,16 @@
 | CANCELLED | User cancelled before irreversible dispatch | Cancelled |
 | FAILED | Attempt cannot proceed without recovery or user action | Not sent / failed; explain reason |
 
-The current app uses `SosState`, `SosStateMachine`, and schema-v8 `event_id` to persist an event snapshot before external handoff. On startup, if the latest event remains SENDING, `reconcileInterruptedSosHandoff()` appends HANDOFF_UNCONFIRMED while preserving the encrypted snapshot; it does not auto-reopen or resend the SMS composer. Generic transition writes cannot set DELIVERED or ACKNOWLEDGED. The app has no transport-backed delivery-receipt pipeline; do not display either state unless a trusted receipt/acknowledgement adapter is implemented and tested.
+The current app uses `SosState`, `SosStateMachine`, and schema-v8 `event_id` to persist an event snapshot before external handoff. On startup, `reconcileInterruptedSosHandoffs()` examines the latest state of every event: QUEUED becomes INTERRUPTED_NOT_SENT, while SENDING becomes HANDOFF_UNCONFIRMED. It preserves the original encrypted snapshot, is idempotent, runs off the UI thread, and never auto-reopens or resends the SMS composer. Generic transition writes cannot set DELIVERED or ACKNOWLEDGED. The app has no transport-backed delivery-receipt pipeline; do not display either state unless a trusted receipt/acknowledgement adapter is implemented and tested.
 
 ## 3. Legal transitions
 
 - IDLE → QUEUED or CANCELLED
 - QUEUED → SENDING, HANDED_OFF, CANCELLED, or FAILED
 - SENDING → HANDED_OFF, DELIVERED, RETRY_PENDING, FAILED, or CANCELLED
+- QUEUED → INTERRUPTED_NOT_SENT when startup finds a queued event that never reached SENDING; no external messaging handoff was started.
 - SENDING → HANDOFF_UNCONFIRMED when startup finds a process-interrupted external handoff; this is terminal and requires user review. The state is intentionally ambiguous because the messaging app may have opened before process death.
+- INTERRUPTED_NOT_SENT and HANDOFF_UNCONFIRMED are terminal; the user must initiate a new explicit SOS event if needed.
 - HANDED_OFF → FAILED in the current implementation. A future trusted transport may add receipt-backed delivery/acknowledgement transitions only through a separate evidence-verifying API.
 - DELIVERED and ACKNOWLEDGED are retained as domain states but are unreachable through the generic current transition API.
 - RETRY_PENDING → SENDING, CANCELLED, or FAILED
@@ -62,6 +64,7 @@ The draft may include a user-approved distress message, available location coord
 | No GPS fix | Allow SOS without coordinates; say location is unavailable |
 | Stale GPS | Include timestamp/accuracy and mark as stale |
 | Process death during write | Transaction rollback or recoverable prior state |
+| Process death while QUEUED | Append INTERRUPTED_NOT_SENT; explain no messaging app was opened and do not auto-send |
 | Process death while SENDING | Append HANDOFF_UNCONFIRMED, preserve the event snapshot, and never auto-resend; ask the user to check the messaging app | 
 | Process death after handoff | Restore HANDED_OFF; never infer delivery |
 | Duplicate button taps | Same event/operation guard; no duplicate event |

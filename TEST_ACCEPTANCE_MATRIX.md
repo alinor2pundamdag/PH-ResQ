@@ -117,4 +117,4 @@ A failed, skipped, unexecuted, or unreported test is not a pass. Older successfu
 | T-057 | SOS hold progress is visible; release before two seconds or gesture cancellation never prepares SOS; full hold triggers exactly one confirmation | Compose UI regression test + physical-device timing/haptic test | P0 |
 
 
-| T-058 | App process is killed after SENDING but before HANDED_OFF is committed | On next startup, same event UUID becomes HANDOFF_UNCONFIRMED, encrypted draft/recipients/location remain intact, reconciliation is idempotent, and no SMS composer is relaunched | Robolectric database regression + exact-head CI; instrumentation/process-death test remains required | P0 |
+| T-058 | App process is killed while one or more SOS events are QUEUED/SENDING | On next startup, each latest QUEUED event becomes INTERRUPTED_NOT_SENT and each latest SENDING event becomes HANDOFF_UNCONFIRMED; event UUID and encrypted snapshot remain intact; reconciliation is idempotent and never reopens the SMS composer | Robolectric database regression + exact-head CI; instrumentation/process-death test remains required | P0 |

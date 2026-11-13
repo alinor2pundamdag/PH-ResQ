@@ -8,7 +8,7 @@
 
 See [FULL_SYSTEM_AUDIT_2026-11-13.md](FULL_SYSTEM_AUDIT_2026-11-13.md) for the latest requirements-to-code audit, all 34 feature statuses, system/device integration findings, P0/P1/P2 risks, exact-head CI status, and remediation order.
 
-The audit baseline is PR #1 head `83902c38132257d540d3f4b2ecc3366915bb886d`; the latest remediation commit is `bc32f658ae366e3a4a7300c290aa26007f4b0b24`. A new SOS recovery change was committed after the baseline audit. No CI run has yet been confirmed for the remediation commit; treat its APK status as NOT VERIFIED until exact-head CI passes.
+The audit baseline is PR #1 head `83902c38132257d540d3f4b2ecc3366915bb886d`; SOS interrupted-event recovery has since been implemented in `d871df02db4512bf040a2f94f7fb50f2ffcef7c0` and moved off the UI thread with visible recovery status in `46c3870f25bb77e548e33a0c2fb64bba29fe7c25`. No exact-head CI run is confirmed for these changes; APK status remains NOT VERIFIED.
 
 ## Canonical application identity
 
