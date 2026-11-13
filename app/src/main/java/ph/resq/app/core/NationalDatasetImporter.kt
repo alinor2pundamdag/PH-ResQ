@@ -39,7 +39,7 @@ object NationalDatasetImporter{
    val source=required("source_url");val host=runCatching{android.net.Uri.parse(source).host.orEmpty().lowercase()}.getOrDefault("")
    val verification=if(host.endsWith(".gov.ph")||host=="gov.ph")ContactVerification.OFFICIAL_GOVERNMENT_SOURCE else ContactVerification.NEEDS_REVIEW
    val lat=if(o.isNull("latitude"))null else o.getDouble("latitude");val lon=if(o.isNull("longitude"))null else o.getDouble("longitude")
-   val capacity=if(o.isNull("capacity"))null else o.getInt("capacity")
+   val capacity=if(o.isNull("capacity"))null else o.getInt("capacity");val capacityUnit=o.optString("capacity_unit","UNKNOWN").uppercase().takeIf{it in setOf("PERSONS","FAMILIES","HOUSEHOLDS","UNKNOWN")}?:"UNKNOWN"
    val status=o.optString("operational_status","UNKNOWN").uppercase().takeIf{it in setOf("OPEN","LIMITED","FULL","CLOSED","UNKNOWN","UNDER_CONSTRUCTION")}?:"UNKNOWN"
    repository.addEvacuationCenter(NationalEvacuationCenter(required("id"),o.optString("psgc_code").takeIf{it.isNotBlank()},required("name"),required("address"),o.optString("facility_type").takeIf{it.isNotBlank()},lat,lon,capacity,status,source,required("source_title"),verification,null));imported++
   };return imported
