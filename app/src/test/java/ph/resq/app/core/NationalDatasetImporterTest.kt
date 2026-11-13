@@ -46,6 +46,10 @@ class NationalDatasetImporterTest{
   assertEquals(102,NationalDatasetImporter.importBundledPublicContacts(context,repository))
   assertTrue(repository.searchContacts("911",10).any{it.phone=="911"})
   assertTrue(repository.searchContacts("122",10).any{it.phone=="122"})
+  val contactRows=repository.searchContacts("",200)
+  assertEquals(102,contactRows.size)
+  assertTrue(contactRows.all{it.expiresAt==0L})
+  assertTrue(repository.coverage().contactBarangays>0)
 
   assertEquals(429,NationalDatasetImporter.importBundledEvacuationCenters(context,repository))
   val finalCoverage=repository.coverage()
@@ -57,5 +61,7 @@ class NationalDatasetImporterTest{
   assertTrue(centers.all{it.latitude==null&&it.longitude==null})
   assertTrue(centers.any{it.address.contains("Quezon City")})
   assertTrue(centers.any{it.address.contains("Bay")})
+  assertTrue(centers.all{it.verifiedAt==null})
+  assertTrue(centers.any{it.psgcCode!=null})
  }
 }
