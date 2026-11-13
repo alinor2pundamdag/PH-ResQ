@@ -1,6 +1,7 @@
 package ph.resq.app.ui
 
 import android.os.StatFs
+import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,6 +27,11 @@ import java.io.FileOutputStream
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 
+private object MapsforgeGraphicsRuntime{
+    @Volatile private var initialized=false
+    @Synchronized fun initialize(context:Context){if(!initialized){AndroidGraphicFactory.createInstance(context.applicationContext);initialized=true}}
+}
+
 private const val NATIONWIDE_MAP_URL="https://github.com/alinor2pundamdag/PH-ResQ/releases/download/offline-map-latest/philippines.map"
 private const val NATIONWIDE_MAP_SHA_URL="https://github.com/alinor2pundamdag/PH-ResQ/releases/download/offline-map-latest/philippines.map.sha256"
 
@@ -42,7 +48,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
     var mapView by remember{mutableStateOf<MapsforgeMapView?>(null)}
     var mapLoaded by remember{mutableStateOf(false)}
     val client=remember{OkHttpClient.Builder().connectTimeout(30,TimeUnit.SECONDS).readTimeout(0,TimeUnit.MILLISECONDS).build()}
-    remember(context){if(AndroidGraphicFactory.INSTANCE==null)AndroidGraphicFactory.createInstance(context.applicationContext);Unit}
+    remember(context){MapsforgeGraphicsRuntime.initialize(context);Unit}
 
     DisposableEffect(mapView){
         val view=mapView
