@@ -5,7 +5,8 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import android.util.Base64
+import java.io.FileOutputStream
+import java.util.UUID
 import java.io.File
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -31,6 +32,9 @@ class EncryptedVoiceNoteRecorder {
                 ?.forEach { it.delete() }
             File(context.cacheDir, "voice-share").listFiles()
                 ?.filter { it.name.startsWith("phresq-playback-") && it.name.endsWith(".m4a") }
+                ?.forEach { it.delete() }
+            context.filesDir.listFiles()
+                ?.filter { it.name.startsWith("voice-note-") && it.name.endsWith(".part") }
                 ?.forEach { it.delete() }
         }
     }
@@ -109,13 +113,26 @@ class EncryptedVoiceNoteRecorder {
     private fun encryptFile(context: Context, source: File): File {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
-        val ciphertext = cipher.doFinal(source.readBytes())
-        val destination = File(context.filesDir, "voice-note-" + System.currentTimeMillis() + ".enc")
-        destination.outputStream().use { output ->
-            output.write(cipher.iv)
-            output.write(ciphertext)
+        val plaintext = source.readBytes()
+        val ciphertext = try { cipher.doFinal(plaintext) } finally { plaintext.fill(0) }
+        val destination = File(context.filesDir, "voice-note-" + UUID.randomUUID() + ".enc")
+        val temporary = File(context.filesDir, destination.name + ".part")
+        try {
+            FileOutputStream(temporary).use { output ->
+                output.write(cipher.iv)
+                output.write(ciphertext)
+                output.fd.sync()
+            }
+            check(temporary.renameTo(destination)) { "Could not atomically save the encrypted voice note." }
+            return destination
+        } catch (error: Exception) {
+            temporary.delete()
+            destination.delete()
+            throw error
+        } finally {
+            ciphertext.fill(0)
+            temporary.delete()
         }
-        return destination
     }
 
     /** Returns saved encrypted notes newest first. The filename contains no user-provided data. */
