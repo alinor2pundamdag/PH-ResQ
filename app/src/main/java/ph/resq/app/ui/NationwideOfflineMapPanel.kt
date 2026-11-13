@@ -42,7 +42,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
     var mapView by remember{mutableStateOf<MapsforgeMapView?>(null)}
     var mapLoaded by remember{mutableStateOf(false)}
     val client=remember{OkHttpClient.Builder().connectTimeout(30,TimeUnit.SECONDS).readTimeout(0,TimeUnit.MILLISECONDS).build()}
-    remember(context){AndroidGraphicFactory.createInstance(context.applicationContext);Unit}
+    remember(context){if(AndroidGraphicFactory.INSTANCE==null)AndroidGraphicFactory.createInstance(context.applicationContext);Unit}
 
     DisposableEffect(mapView){
         val view=mapView
@@ -128,7 +128,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                             view.setZoomLevel(5.toByte())
                             mapLoaded=true
                             status="Nationwide offline map is ready."
-                        }.onFailure{status="Map file could not be opened: ${it.message}"}
+                        }.onFailure{status="Map file could not be opened: ${it.message}";mapLoaded=true}
                     }
                 }
             )
