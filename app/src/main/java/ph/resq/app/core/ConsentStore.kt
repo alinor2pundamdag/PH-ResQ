@@ -7,7 +7,7 @@ class ConsentStore(context: Context) {
     private val preferences = context.getSharedPreferences("ph_resq_consent", Context.MODE_PRIVATE)
 
     companion object {
-        const val CURRENT_POLICY_VERSION = "2026-11-13-v3"
+        const val CURRENT_POLICY_VERSION = "2026-11-13-v4"
     }
 
     fun isAccepted(): Boolean =
