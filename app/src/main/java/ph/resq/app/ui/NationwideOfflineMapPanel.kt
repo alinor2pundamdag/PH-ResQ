@@ -10,6 +10,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -50,7 +53,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
     var mapView by remember{mutableStateOf<MapsforgeMapView?>(null)}
     var mapLoaded by remember{mutableStateOf(false)}
     var mapLoadFailed by remember{mutableStateOf(false)}
-    val client=remember{OkHttpClient.Builder().connectTimeout(30,TimeUnit.SECONDS).readTimeout(0,TimeUnit.MILLISECONDS).build()}
+    val client=remember{OkHttpClient.Builder().connectTimeout(30,TimeUnit.SECONDS).readTimeout(90,TimeUnit.SECONDS).callTimeout(30,TimeUnit.MINUTES).build()}
 
     // Verify an installed map once per file version. The marker is tied to the file size,
     // modification time and published SHA-256; any changed file is re-hashed before use.
@@ -126,6 +129,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                                         FileOutputStream(temp).use{output->
                                             val buffer=ByteArray(1024*1024);var lastUpdate=0L
                                             while(true){
+                                                currentCoroutineContext().ensureActive()
                                                 val count=input.read(buffer);if(count<0)break
                                                 output.write(buffer,0,count);digest.update(buffer,0,count);downloaded+=count
                                                 if(downloaded-lastUpdate>=8L*1024L*1024L){
@@ -162,6 +166,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                             }
                         }
                     }
+                    result.exceptionOrNull()?.let { if(it is CancellationException) throw it }
                     status=result.fold({"Nationwide map downloaded and SHA-256 verified."},{"Download failed: ${it.message}"})
                     available=result.isSuccess&&mapFile.exists()&&checksumFile.exists()&&verificationMarker.exists()
                     downloading=false
