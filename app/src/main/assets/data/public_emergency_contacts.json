@@ -1,6 +1,6 @@
 {
   "type": "emergency_contacts",
-  "dataset_version": "2026-11-13-official-source-expansion",
+  "dataset_version": "2026-11-13-official-source-expansion-v2",
   "records": [
     {
       "id": "pasig-city-drrmo-8643-0000",
@@ -2178,6 +2178,105 @@
       "phone": "0917 417 3698",
       "source_url": "https://siniloanlaguna.gov.ph/emergency-hotlines/",
       "source_title": "Siniloan Laguna Emergency Hotlines — official municipal website (accessed 2026-11-13; phone verification not performed)",
+      "expires_at": 0
+    },
+    {
+      "id": "siniloan-mdrrmo-mobile",
+      "psgc_code": null,
+      "scope": "CITY_MUNICIPALITY",
+      "category": "DRRMO",
+      "office_name": "MDRRMO Siniloan",
+      "phone": "0929 630 3715",
+      "source_url": "https://siniloanlaguna.gov.ph/emergency-hotlines/",
+      "source_title": "Emergency Hotlines | Municipality of Siniloan, Laguna (numbers cross-checked by the LGU against office pages on 2026-09-28; accessed 2026-11-13; no direct phone call performed)",
+      "expires_at": 0
+    },
+    {
+      "id": "siniloan-mdrrmo-landline",
+      "psgc_code": null,
+      "scope": "CITY_MUNICIPALITY",
+      "category": "DRRMO",
+      "office_name": "MDRRMO Siniloan",
+      "phone": "(049) 548-4073",
+      "source_url": "https://siniloanlaguna.gov.ph/emergency-hotlines/",
+      "source_title": "Emergency Hotlines | Municipality of Siniloan, Laguna (numbers cross-checked by the LGU against office pages on 2026-09-28; accessed 2026-11-13; no direct phone call performed)",
+      "expires_at": 0
+    },
+    {
+      "id": "siniloan-bfp-landline",
+      "psgc_code": null,
+      "scope": "CITY_MUNICIPALITY",
+      "category": "FIRE",
+      "office_name": "BFP Siniloan Fire Station",
+      "phone": "(049) 501-5230",
+      "source_url": "https://siniloanlaguna.gov.ph/emergency-hotlines/",
+      "source_title": "Emergency Hotlines | Municipality of Siniloan, Laguna (numbers cross-checked by the LGU against office pages on 2026-09-28; accessed 2026-11-13; no direct phone call performed)",
+      "expires_at": 0
+    },
+    {
+      "id": "siniloan-bfp-mobile-1",
+      "psgc_code": null,
+      "scope": "CITY_MUNICIPALITY",
+      "category": "FIRE",
+      "office_name": "BFP Siniloan Fire Station",
+      "phone": "0930 710 7167",
+      "source_url": "https://siniloanlaguna.gov.ph/emergency-hotlines/",
+      "source_title": "Emergency Hotlines | Municipality of Siniloan, Laguna (numbers cross-checked by the LGU against office pages on 2026-09-28; accessed 2026-11-13; no direct phone call performed)",
+      "expires_at": 0
+    },
+    {
+      "id": "siniloan-bfp-mobile-2",
+      "psgc_code": null,
+      "scope": "CITY_MUNICIPALITY",
+      "category": "FIRE",
+      "office_name": "BFP Siniloan Fire Station",
+      "phone": "0915 603 4231",
+      "source_url": "https://siniloanlaguna.gov.ph/emergency-hotlines/",
+      "source_title": "Emergency Hotlines | Municipality of Siniloan, Laguna (numbers cross-checked by the LGU against office pages on 2026-09-28; accessed 2026-11-13; no direct phone call performed)",
+      "expires_at": 0
+    },
+    {
+      "id": "siniloan-pnp",
+      "psgc_code": null,
+      "scope": "CITY_MUNICIPALITY",
+      "category": "POLICE",
+      "office_name": "PNP Siniloan Municipal Police Station",
+      "phone": "0906 543 1340",
+      "source_url": "https://siniloanlaguna.gov.ph/emergency-hotlines/",
+      "source_title": "Emergency Hotlines | Municipality of Siniloan, Laguna (numbers cross-checked by the LGU against office pages on 2026-09-28; accessed 2026-11-13; no direct phone call performed)",
+      "expires_at": 0
+    },
+    {
+      "id": "siniloan-rhu-1",
+      "psgc_code": null,
+      "scope": "CITY_MUNICIPALITY",
+      "category": "OTHER",
+      "office_name": "Siniloan Rural Health Unit / Municipal Health Office",
+      "phone": "0951 126 8569",
+      "source_url": "https://siniloanlaguna.gov.ph/emergency-hotlines/",
+      "source_title": "Emergency Hotlines | Municipality of Siniloan, Laguna (numbers cross-checked by the LGU against office pages on 2026-09-28; accessed 2026-11-13; no direct phone call performed)",
+      "expires_at": 0
+    },
+    {
+      "id": "siniloan-rhu-2",
+      "psgc_code": null,
+      "scope": "CITY_MUNICIPALITY",
+      "category": "OTHER",
+      "office_name": "Siniloan Rural Health Unit / Municipal Health Office",
+      "phone": "0917 831 4590",
+      "source_url": "https://siniloanlaguna.gov.ph/emergency-hotlines/",
+      "source_title": "Emergency Hotlines | Municipality of Siniloan, Laguna (numbers cross-checked by the LGU against office pages on 2026-09-28; accessed 2026-11-13; no direct phone call performed)",
+      "expires_at": 0
+    },
+    {
+      "id": "siniloan-infirmary",
+      "psgc_code": null,
+      "scope": "CITY_MUNICIPALITY",
+      "category": "OTHER",
+      "office_name": "Siniloan Infirmary Hospital",
+      "phone": "0968 169 9292",
+      "source_url": "https://siniloanlaguna.gov.ph/emergency-hotlines/",
+      "source_title": "Emergency Hotlines | Municipality of Siniloan, Laguna (numbers cross-checked by the LGU against office pages on 2026-09-28; accessed 2026-11-13; no direct phone call performed)",
       "expires_at": 0
     }
   ],
