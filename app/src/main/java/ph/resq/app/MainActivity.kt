@@ -783,7 +783,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             }
         }
         }
-        }
         if (selectedSection == HomeSection.DIRECTORY) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -850,7 +849,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }
                 Text("Kailangan ng network/phone service. Ang pag-open ng dialer o SMS app ay hindi patunay ng koneksyon, delivery, o pagsagot.")
             }
-        }
         }
         }
         if (selectedSection == HomeSection.PEOPLE) {
@@ -939,7 +937,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             }
         }
         }
-        }
         if (selectedSection == HomeSection.DEVICE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -962,7 +959,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             }
         }
         }
-        }
         if (selectedSection == HomeSection.DEVICE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -979,7 +975,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }, modifier = Modifier.fillMaxWidth()) { Text("SCAN NEARBY DEVICES (15s)") }
                 blePeers.take(10).forEach { peer -> Text(peer.label + " • RSSI " + peer.rssi + " dBm (approximate proximity only)") }
             }
-        }
         }
         }
         if (selectedSection == HomeSection.PEOPLE) {
@@ -1028,7 +1023,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             }
         }
         }
-        }
         if (selectedSection == HomeSection.PEOPLE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1050,7 +1044,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                     }
                 }) { Text("Save check-in locally") }
             }
-        }
         }
         }
         if (selectedSection == HomeSection.PEOPLE) {
@@ -1080,7 +1073,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             }
         }
         }
-        }
         if (selectedSection == HomeSection.DEVICE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1088,7 +1080,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Text(batterySnapshot)
                 Text("Best-effort: naitatala kapag bukas ang app at nakatanggap ito ng battery broadcast; hindi ito kapalit ng OS-level guaranteed callback.")
             }
-        }
         }
         }
         if (selectedSection == HomeSection.DIRECTORY) {
