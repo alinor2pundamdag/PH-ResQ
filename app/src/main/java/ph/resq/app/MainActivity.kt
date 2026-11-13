@@ -73,6 +73,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -537,7 +538,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     val visibleWave = if (reduceMotion) 0f else wave
     val visibleColorPhase = if (reduceMotion) 0f else colorPhase
     BoxWithConstraints(Modifier.fillMaxSize().safeContentPadding()) {
-    val adaptiveContentWidth = if (maxWidth >= 900.dp) 820.dp else 720.dp
+    val availableWidth = maxWidth
+    val adaptiveContentWidth = if (availableWidth >= 900.dp) 820.dp else 720.dp
+    val adaptiveLayoutLabel = when { availableWidth >= 900.dp -> "EXPANDED TABLET"; availableWidth >= 600.dp -> "MEDIUM"; else -> "COMPACT PHONE" }
     Column(Modifier.fillMaxWidth().widthIn(max = adaptiveContentWidth).align(Alignment.TopCenter).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(
             Modifier.fillMaxWidth().height(8.dp).graphicsLayer(rotationZ = visibleWave)
@@ -568,7 +571,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("DEVICE COMPATIBILITY", style = MaterialTheme.typography.titleLarge)
                 Text("${capabilityProfile.manufacturer} ${capabilityProfile.model} • Android ${capabilityProfile.androidRelease} (API ${capabilityProfile.sdkInt})")
-                Text("Adaptive layout: " + when { maxWidth >= 900.dp -> "EXPANDED TABLET"; maxWidth >= 600.dp -> "MEDIUM"; else -> "COMPACT PHONE" } + " • Display ${configuration.screenWidthDp}×${configuration.screenHeightDp} dp • Font scale ${configuration.fontScale}")
+                Text("Adaptive layout: $adaptiveLayoutLabel • Display ${configuration.screenWidthDp}×${configuration.screenHeightDp} dp • Font scale ${configuration.fontScale}")
                 Text("Available storage: ${capabilityProfile.availableStorageBytes / (1024L * 1024L)} MB • Battery saver: ${if (capabilityProfile.batterySaverEnabled) "ON" else "OFF"}")
                 listOf(
                     "telephony" to "Phone / SIM capability", "location" to "Location permission",
