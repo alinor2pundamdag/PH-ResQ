@@ -52,6 +52,20 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
   val v=ContentValues().apply{put("center_id",c.id);put("psgc_code",c.psgcCode);put("name",c.name);put("address",c.address);put("facility_type",c.facilityType);if(c.latitude==null)putNull("latitude")else put("latitude",c.latitude);if(c.longitude==null)putNull("longitude")else put("longitude",c.longitude);if(c.capacity==null)putNull("capacity")else put("capacity",c.capacity);put("operational_status",c.operationalStatus);put("source_url",c.sourceUrl);put("source_title",c.sourceTitle);put("verification",c.verification.name);if(c.verifiedAt==null)putNull("verified_at")else put("verified_at",c.verifiedAt);put("updated_at",System.currentTimeMillis())}
   database.writableDatabase.insertWithOnConflict("national_evacuation_centers",null,v,SQLiteDatabase.CONFLICT_REPLACE)
  }
+
+ fun searchEvacuationCenters(query:String,limit:Int=100):List<NationalEvacuationCenter>{
+  val q=query.trim().take(120);val n=limit.coerceIn(1,500)
+  val sql="SELECT center_id,psgc_code,name,address,facility_type,latitude,longitude,capacity,operational_status,source_url,source_title,verification,verified_at FROM national_evacuation_centers "+
+   (if(q.isBlank())"" else "WHERE name LIKE ? OR address LIKE ? OR psgc_code = ? ")+"ORDER BY name LIMIT $n"
+  val args=if(q.isBlank())null else arrayOf("%$q%","%$q%",q);val out=mutableListOf<NationalEvacuationCenter>()
+  database.readableDatabase.rawQuery(sql,args).use{c->while(c.moveToNext())out.add(NationalEvacuationCenter(
+   c.getString(0),if(c.isNull(1))null else c.getString(1),c.getString(2),c.getString(3),if(c.isNull(4))null else c.getString(4),
+   if(c.isNull(5))null else c.getDouble(5),if(c.isNull(6))null else c.getDouble(6),if(c.isNull(7))null else c.getInt(7),c.getString(8),
+   c.getString(9),c.getString(10),runCatching{ContactVerification.valueOf(c.getString(11))}.getOrDefault(ContactVerification.NEEDS_REVIEW),
+   if(c.isNull(12))null else c.getLong(12)))}
+  return out
+ }
+
  fun coverage():NationalCoverageSnapshot{
   fun count(sql:String)=database.readableDatabase.rawQuery(sql,null).use{if(it.moveToFirst())it.getInt(0)else 0}
   val loaded=count("SELECT COUNT(*) FROM barangay_reference");val contactBarangays=count("SELECT COUNT(DISTINCT psgc_code) FROM public_emergency_contacts WHERE psgc_code IS NOT NULL")
