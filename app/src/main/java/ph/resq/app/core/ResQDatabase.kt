@@ -99,24 +99,40 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
         }
     }
 
-    fun recordSosEvent(state: SosState, draft: String?, recipients: String?, location: String) {
+    /**
+     * Append an immutable transition row for one SOS event.
+     * Non-QUEUED transitions must carry the originating eventId; a global "latest row" lookup
+     * would cross-wire concurrent SOS attempts after a second event is queued.
+     */
+    fun recordSosEvent(
+        state: SosState,
+        draft: String?,
+        recipients: String?,
+        location: String,
+        eventId: String? = null
+    ): String {
         val db = writableDatabase
         db.beginTransaction()
         try {
-            val eventId = if (state == SosState.QUEUED) {
+            val resolvedEventId = if (state == SosState.QUEUED) {
                 UUID.randomUUID().toString()
             } else {
-                db.rawQuery("SELECT event_id,state FROM sos_events ORDER BY id DESC LIMIT 1", null).use { cursor ->
-                    check(cursor.moveToFirst()) { "A new SOS event must begin in QUEUED state." }
-                    val previousState = SosState.valueOf(cursor.getString(1))
+                val transitionEventId = eventId?.takeIf { it.isNotBlank() }
+                    ?: error("An existing SOS event ID is required for a transition.")
+                db.rawQuery(
+                    "SELECT state FROM sos_events WHERE event_id = ? ORDER BY id DESC LIMIT 1",
+                    arrayOf(transitionEventId)
+                ).use { cursor ->
+                    check(cursor.moveToFirst()) { "SOS event not found: $transitionEventId" }
+                    val previousState = SosState.valueOf(cursor.getString(0))
                     check(SosStateMachine.canTransition(previousState, state)) {
                         "Illegal SOS transition: ${previousState.name} -> ${state.name}"
                     }
-                    cursor.getString(0)
                 }
+                transitionEventId
             }
             val values = ContentValues().apply {
-                put("event_id", eventId)
+                put("event_id", resolvedEventId)
                 put("state", state.name)
                 put("created_at", System.currentTimeMillis())
                 if (draft == null) putNull("draft_ciphertext") else put("draft_ciphertext", fieldCipher.encrypt(draft))
@@ -126,6 +142,7 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
             db.insertOrThrow("sos_events", null, values)
             db.execSQL("DELETE FROM sos_events WHERE id NOT IN (SELECT id FROM sos_events ORDER BY id DESC LIMIT 200)")
             db.setTransactionSuccessful()
+            resolvedEventId
         } finally {
             db.endTransaction()
         }
@@ -278,11 +295,13 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
     )
 
     /** Read the latest durable event without treating an undecryptable value as empty data. */
-    fun latestSosEventSnapshot(): SosEventSnapshot? {
-        readableDatabase.rawQuery(
-            "SELECT event_id,state,created_at,draft_ciphertext,recipients_ciphertext,location_ciphertext FROM sos_events ORDER BY id DESC LIMIT 1",
-            null
-        ).use { cursor ->
+    fun latestSosEventSnapshot(eventId: String? = null): SosEventSnapshot? {
+        val sql = if (eventId == null) {
+            "SELECT event_id,state,created_at,draft_ciphertext,recipients_ciphertext,location_ciphertext FROM sos_events ORDER BY id DESC LIMIT 1"
+        } else {
+            "SELECT event_id,state,created_at,draft_ciphertext,recipients_ciphertext,location_ciphertext FROM sos_events WHERE event_id = ? ORDER BY id DESC LIMIT 1"
+        }
+        readableDatabase.rawQuery(sql, if (eventId == null) null else arrayOf(eventId)).use { cursor ->
             if (!cursor.moveToFirst()) return null
             val eventState = runCatching { SosState.valueOf(cursor.getString(1)) }.getOrNull() ?: return null
             return SosEventSnapshot(

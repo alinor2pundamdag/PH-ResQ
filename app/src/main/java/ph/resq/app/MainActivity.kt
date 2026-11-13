@@ -249,6 +249,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     }
     var messageNote by remember { mutableStateOf("") }
     var state by remember { mutableStateOf(runCatching { database.latestSosState() }.getOrNull() ?: runCatching { SosState.valueOf(prefs.getString("sos_state", "IDLE") ?: "IDLE") }.getOrDefault(SosState.IDLE)) }
+    var activeSosEventId by remember { mutableStateOf(runCatching { database.latestSosEventSnapshot()?.eventId }.getOrNull()) }
     var checkIn by remember { mutableStateOf(runCatching { database.latestFamilyCheckin() }.getOrNull() ?: prefs.getString("checkin", "Hindi pa naitala") ?: "Hindi pa naitala") }
     var hotlineQuery by remember { mutableStateOf("") }
     var recentSearches by remember { mutableStateOf(runCatching { database.recentSearches() }.getOrDefault(emptyList())) }
@@ -413,9 +414,17 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         capabilityProfile = DeviceCapabilityProfile.detect(context)
     }
     fun setSosState(next: SosState, draft: String? = null, recipients: String? = null): Boolean {
-        val saved = runCatching {
-            database.recordSosEvent(next, draft, recipients, locationLine)
-        }.isSuccess
+        val savedEventId = runCatching {
+            database.recordSosEvent(
+                next,
+                draft,
+                recipients,
+                locationLine,
+                eventId = if (next == SosState.QUEUED) null else activeSosEventId
+            )
+        }.getOrNull()
+        val saved = savedEventId != null
+        if (saved) activeSosEventId = savedEventId
         if (!saved) {
             Toast.makeText(context, "Hindi ligtas na na-save ang SOS state. Walang external handoff na sisimulan.", Toast.LENGTH_LONG).show()
             return false

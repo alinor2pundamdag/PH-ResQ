@@ -129,9 +129,8 @@ class ResQDatabaseTest {
 
     @Test
     fun sosStateTransitionsKeepTheSameStableEventId() {
-        database.recordSosEvent(SosState.QUEUED, "SOS draft", "+639171234567", "last known")
-        val queuedId = database.latestSosEventSnapshot()?.eventId
-        database.recordSosEvent(SosState.SENDING, "SOS draft", "+639171234567", "last known")
+        val queuedId = database.recordSosEvent(SosState.QUEUED, "SOS draft", "+639171234567", "last known")
+        database.recordSosEvent(SosState.SENDING, "SOS draft", "+639171234567", "last known", queuedId)
         val sending = database.latestSosEventSnapshot()
         assertEquals(SosState.SENDING, sending?.state)
         assertEquals(queuedId, sending?.eventId)
@@ -139,12 +138,11 @@ class ResQDatabaseTest {
 
     @Test
     fun databaseRejectsUnverifiedDeliveryAndAcknowledgementTransitions() {
-        database.recordSosEvent(SosState.QUEUED, "SOS draft", "+639171234567", "last known")
-        database.recordSosEvent(SosState.SENDING, "SOS draft", "+639171234567", "last known")
-        database.recordSosEvent(SosState.HANDED_OFF, "SOS draft", "+639171234567", "last known")
-        val eventId = database.latestSosEventSnapshot()?.eventId
-        assertTrue(runCatching { database.recordSosEvent(SosState.DELIVERED, "SOS draft", "+639171234567", "last known") }.isFailure)
-        assertTrue(runCatching { database.recordSosEvent(SosState.ACKNOWLEDGED, "SOS draft", "+639171234567", "last known") }.isFailure)
+        val eventId = database.recordSosEvent(SosState.QUEUED, "SOS draft", "+639171234567", "last known")
+        database.recordSosEvent(SosState.SENDING, "SOS draft", "+639171234567", "last known", eventId)
+        database.recordSosEvent(SosState.HANDED_OFF, "SOS draft", "+639171234567", "last known", eventId)
+        assertTrue(runCatching { database.recordSosEvent(SosState.DELIVERED, "SOS draft", "+639171234567", "last known", eventId) }.isFailure)
+        assertTrue(runCatching { database.recordSosEvent(SosState.ACKNOWLEDGED, "SOS draft", "+639171234567", "last known", eventId) }.isFailure)
         assertEquals(eventId, database.latestSosEventSnapshot()?.eventId)
         assertEquals(SosState.HANDED_OFF, database.latestSosEventSnapshot()?.state)
     }
@@ -164,6 +162,29 @@ class ResQDatabaseTest {
         assertEquals(SosState.QUEUED, migrated?.state)
         assertTrue(migrated != null && migrated.eventId.isNotBlank())
         assertEquals(1234L, migrated?.createdAt)
+    }
+
+
+    @Test
+    fun interleavedSosAttemptsKeepTransitionsBoundToTheirOwnEventIds() {
+        val first = database.recordSosEvent(SosState.QUEUED, "first draft", "+639171111111", "first location")
+        val second = database.recordSosEvent(SosState.QUEUED, "second draft", "+639172222222", "second location")
+        database.recordSosEvent(SosState.SENDING, "first draft", "+639171111111", "first location", first)
+        database.recordSosEvent(SosState.HANDED_OFF, "first draft", "+639171111111", "first location", first)
+        database.recordSosEvent(SosState.SENDING, "second draft", "+639172222222", "second location", second)
+        database.recordSosEvent(SosState.FAILED, "second draft", "+639172222222", "second location", second)
+        assertEquals(SosState.HANDED_OFF, database.latestSosEventSnapshot(first)?.state)
+        assertEquals("first draft", database.latestSosEventSnapshot(first)?.draft)
+        assertEquals(SosState.FAILED, database.latestSosEventSnapshot(second)?.state)
+        assertEquals("second draft", database.latestSosEventSnapshot(second)?.draft)
+    }
+
+    @Test
+    fun sosTransitionWithoutExplicitEventIdIsRejected() {
+        database.recordSosEvent(SosState.QUEUED, "draft", "+639171234567", "location")
+        assertTrue(runCatching {
+            database.recordSosEvent(SosState.SENDING, "draft", "+639171234567", "location")
+        }.isFailure)
     }
 
     @Test
