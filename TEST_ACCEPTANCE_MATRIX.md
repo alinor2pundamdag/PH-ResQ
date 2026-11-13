@@ -1,6 +1,6 @@
 # PH-ResQ Test & Acceptance Matrix
 
-**Latest validated CI evidence:** commit `9160f2e591aff3dac2482f6686a82c04e6db5e5a` passed [run 41394643354](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41394643354): `lintDebug`, `testDebugUnitTest`, `assembleDebug`, `assembleRelease`, exact-SHA verification, and APK/evidence upload. Artifact `ph-resq-apk-builds` ID `13119091250` is available until 2026-11-16 (archive SHA-256 `7798511da2c800100f46226cac32a6f968a34716fa1a2397a2fbb0b98cf54eba`). This candidate includes the consent layout fix. CI success is not feature acceptance. Physical-device, accessibility, and data/security tests remain open.
+**CI evidence rule:** accept a run only when its `head_sha` exactly matches the intended PR #1 head and its artifact includes `BUILD_METADATA.txt` and `SHA256SUMS`. The latest code-parent validation passed on [run 43408806840](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/43408806840), SHA `656358cc5b64e43a2ca2044b6550f81ed18ec041`; subsequent SOS hold UI and documentation changes require a new exact-head run. CI success is not feature acceptance. Physical-device, accessibility, and data/security tests remain open.
 **Rule:** Record repository commit SHA, build variant, device/API, test result, logs/screenshots, and tester for each executed case.
 
 | Test ID | Scenario | Expected result | Evidence required | Gate |
@@ -52,7 +52,7 @@
 | T-046 | Permission revocation and radio state changes | BLE/location/notification capability refreshes to denied/disabled; active work stops safely; no duplicate work | Instrumented lifecycle test | P0 |
 | T-047 | Unsupported optional hardware | No telephony, BLE, microphone, GPS or notification permission does not crash core local app; each affected feature shows fallback | Emulator + physical-device tests | P0 |
 | T-048 | Settings/capability authority separation | User preference persists; missing hardware/permission constrains effective mode without overwriting preference | Repository/policy unit tests | P1 |
-| T-049 | Migration from each supported database version | Sequential migration through schema v7+ preserves records and encrypted fields; interrupted migration never resets DB | Migration fixtures + Robolectric | P0 |
+| T-049 | Migration from each supported database version | Sequential migration through schema v8 preserves records and encrypted fields; interrupted migration never resets DB | Migration fixtures + Robolectric | P0 |
 | T-050 | Key invalidation, reinstall and backup restore | Unavailable device-bound key is surfaced; ciphertext is not replaced by empty/plaintext data | Security/device test | P0 |
 | T-051 | Process death during SOS transition | Event and transition ledger recover; ambiguous external handoff is not automatically repeated | Fault-injection + repository test | P0 |
 | T-052 | Storage exhaustion during import/cache write | Prior dataset remains active; pending SOS data is retained; clear recoverable error shown | Fault-injection/Robolectric | P0 |
@@ -68,14 +68,14 @@ This map ensures every retained requirement has at least one planned acceptance 
 | F-001 | T-029, T-047 | Offline behavior is tested with preloaded data; first-time downloads are not expected offline. |
 | F-002 | T-019, T-034 | Nationwide coverage and source licensing require a separate data audit. |
 | F-003 | T-020, T-011 | Tile integrity is not equivalent to a licensed renderer or nationwide coverage. |
-| F-004 | T-004, T-005 | Hold duration, cancellation and haptics require device/UI evidence. |
+| F-004 | T-004, T-005, T-057 | Hold duration, cancellation and haptics require device/UI evidence. |
 | F-005 | T-006, T-007, T-055 | Durable intent precedes handoff; messaging handoff is not delivery confirmation. |
 | F-006 | T-030 | User-selected app/recipient and delivery limitations must be explicit. |
 | F-007 | T-010, T-013, T-025, T-036, T-039–T-042, T-049–T-053 | All six persistence areas need recovery/migration coverage. |
 | F-008 | T-024 | Low-battery snapshot is best effort; critical state must already be persisted. |
 | F-009 | T-011 | Digest must come from a trusted expected value or authenticated manifest. |
 | F-010 | T-026, T-036, T-041–T-042 | Remote sync/ack remains open until an actual transport exists. |
-| F-011 | T-009, T-024, T-025 | Freshness, permission, lifecycle and battery behavior are required. |
+| F-011 | T-009, T-024, T-025, T-056 | Freshness, permission, lifecycle and battery behavior are required. |
 | F-012 | T-014, T-038 | Discovery alone is not packet transfer. |
 | F-013 | T-016 | Requires actual Wi-Fi Direct transport on supported devices. |
 | F-014 | T-015, T-017, T-038 | Envelope/queue tests do not substitute for radio interoperability. |
@@ -112,4 +112,6 @@ This map ensures every retained requirement has at least one planned acceptance 
 A failed, skipped, unexecuted, or unreported test is not a pass. Older successful builds do not validate a newer revision.
 
 
-| T-055 | SOS event intent is committed before external messaging handoff; event UUID remains stable across QUEUED → SENDING → HANDED_OFF/FAILED; schema v7 records migrate without deletion; unverified DELIVERED/ACKNOWLEDGED writes are rejected | Robolectric database tests + exact-SHA CI; instrumented process-death test remains required | P0 |
+| T-055 | SOS event intent is committed before external messaging handoff; event UUID remains stable and each transition is scoped to its own event across interleaved QUEUED → SENDING → HANDED_OFF/FAILED attempts; schema v7 rows and empty v6 legacy schemas migrate without deletion; unverified DELIVERED/ACKNOWLEDGED writes are rejected | Robolectric database regression tests + exact-SHA CI; instrumented process-death test remains required | P0 |
+| T-056 | Fresh GPS timestamp is within the accepted age/future-skew window; stale/future fixes are rejected and provider registration failure is reported | LocationFreshnessPolicy unit tests + physical-device provider/permission test | P0 |
+| T-057 | SOS hold progress is visible; release before two seconds or gesture cancellation never prepares SOS; full hold triggers exactly one confirmation | Compose UI regression test + physical-device timing/haptic test | P0 |

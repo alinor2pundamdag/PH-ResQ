@@ -28,7 +28,7 @@ Every result records commit SHA, test ID, build variant, OS/API, device model, s
 - Lock-screen notification redaction and log review.
 
 ### SOS and messaging
-- Press less than two seconds, exactly two seconds, release/cancel, repeated taps and accessibility alternative.
+- Press less than two seconds, visible two-second progress, exactly two seconds, release/cancel, repeated taps and accessibility alternative.
 - Durable event write before handoff, process death before/after handoff, no SIM, no compatible messaging app, denied permission, offline network, stale/missing location.
 - Ensure handoff never renders as delivered; receipt and ACK must be authenticated and event-bound.
 - Voice note size, encryption, playback, share chooser, cancellation, storage exhaustion and retention.

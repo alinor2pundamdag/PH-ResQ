@@ -1,7 +1,7 @@
 # PH-ResQ Local Database Specification
 
 **Status:** Current schema inventory plus target invariants. The SQLite helper is implemented, but full repository wiring, migration coverage, retention, backup/recovery, and acceptance are not complete.
-**Current database:** `ph_resq_local.db`, schema version 7 in `ResQDatabase.kt`.
+**Current database:** `ph_resq_local.db`, schema version 8 in `ResQDatabase.kt`.
 **Related:** `MASTER_PLAN.md`, `SECURITY_MODEL.md`, `TEST_ACCEPTANCE_MATRIX.md`.
 
 ## 1. Storage principles

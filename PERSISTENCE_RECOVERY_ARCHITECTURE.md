@@ -1,6 +1,6 @@
 # PH-ResQ Persistence, Recovery & Data Lifecycle Architecture
 
-**Status:** Normative target; current SQLite schema v7 and selected encrypted stores exist, but complete repository wiring, migrations, retention, backup/recovery, and device acceptance are open.
+**Status:** Normative target; current SQLite schema v8 and selected encrypted stores exist, but complete repository wiring, migrations, retention, backup/recovery, and device acceptance are open.
 **Related:** `DATABASE_SPEC.md`, `SOS_STATE_MACHINE.md`, `SECURITY_MODEL.md`, `ARCHITECTURE_DECISIONS.md`, `TEST_ACCEPTANCE_MATRIX.md`.
 
 ## 1. Persistence invariants
@@ -25,7 +25,7 @@
 | P3 Last GPS | Last fix, accuracy, capture time | SQLite last_location + bounded one-shot location helper | Freshness policy, permission revocation, manual fallback, encrypted-at-rest review, retention, reboot/process-death tests |
 | P4 SOS event/outbox | Event, state transitions, draft, recipient snapshot, location, retry and handoff evidence | Schema v8 `sos_events` stores a stable event UUID; encrypted draft/recipient/location snapshot is committed with QUEUED before handoff; SENDING and HANDED_OFF are persisted transitions; generic DELIVERED/ACKNOWLEDGED transitions are blocked without receipt evidence | Event-scoped recovery worker, attempt idempotency/reconciliation, process-death tests, and trusted receipt/ack pipeline if a real transport is added |
 | P5 History/bookmarks/check-ins | Search, bookmarks, family check-ins and sync state | SQLite tables and Robolectric persistence tests | Repository/UI coverage, clear/delete retention, remote sync contract, no false synced state, migration fixtures |
-| P6 Offline data/maps | Directory, advisory, evacuation, map tile metadata/files, mesh queue/replay | SQLite schema v7, import/search/cache primitives, encrypted mesh outbox | Licensed packages, signed manifest, version/rollback, tile file lifecycle, stale handling, queue retention and disk pressure |
+| P6 Offline data/maps | Directory, advisory, evacuation, map tile metadata/files, mesh queue/replay | SQLite schema v8, import/search/cache primitives, encrypted mesh outbox | Licensed packages, signed manifest, version/rollback, tile file lifecycle, stale handling, queue retention and disk pressure |
 
 The six areas are logical domains, not six separate databases. They must share one transaction and encryption policy where cross-domain invariants require it.
 
@@ -74,7 +74,7 @@ Define per-domain retention periods and user controls for SOS history, precise l
 ## 7. Migration policy
 
 - Maintain explicit sequential migrations from every supported released schema version.
-- Test empty install and upgrades from each prior version, including schema v7 forward migration.
+- Test empty install and upgrades from each prior version, including schema v8 forward migration.
 - Test interruption, low disk, duplicate migration, corrupt row, encrypted-column migration and rollback.
 - Never use destructive fallback migration in production.
 - Keep a recoverable pre-migration snapshot where storage/security policy permits; validate snapshot integrity before use.

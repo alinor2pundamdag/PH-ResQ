@@ -1,6 +1,6 @@
 # Phase 3 — Local Database, Six Persistence Areas & Geospatial Search
 
-**Status:** Partial SQLite implementation exists (`ResQDatabase`, schema version 7), with directory/advisory/evacuation JSON import and local query primitives. Complete nationwide data, all persistence flows, migration/recovery acceptance, spatial performance, and offline map rendering remain unverified.
+**Status:** Partial SQLite implementation exists (`ResQDatabase`, schema version 8), with directory/advisory/evacuation JSON import and local query primitives. Complete nationwide data, all persistence flows, migration/recovery acceptance, spatial performance, and offline map rendering remain unverified.
 
 ## Objective
 Provide reliable offline storage for emergency data and local spatial search, with atomic updates, trusted integrity metadata, and recovery behavior.

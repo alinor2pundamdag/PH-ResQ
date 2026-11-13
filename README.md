@@ -4,7 +4,7 @@
 
 > **Android-first, offline-first emergency assistance project for the Philippines.**
 
-**Build/validation rule:** Treat an APK as build-validated only when the latest completed successful [PR #1 workflow](https://github.com/alinor2pundamdag/PH-ResQ/pull/1) has a `head_sha` matching the intended commit and its artifact includes `BUILD_METADATA.txt` and `SHA256SUMS`. The latest verified PR head is `99457bdc4d07214be1bf3e4fbb581cd64c8fc061`, validated by [CI run 41378995667](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41378995667); the artifact expires 2026-11-16. The workflow checks out and verifies the exact source commit. CI success is not physical-device or emergency-service validation. Nationwide data/maps, radio mesh transport, external delivery confirmation, security recovery, and physical-device acceptance remain outstanding.
+**Build/validation rule:** Treat an APK as testable only when the latest successful [PR #1 Actions run](https://github.com/alinor2pundamdag/PH-ResQ/actions) has a `head_sha` matching the current PR head and its artifact includes `BUILD_METADATA.txt` and `SHA256SUMS`. The workflow runs lint, unit/Robolectric tests, debug/release assembly, exact-SHA verification, and APK/evidence upload. A green CI result is not physical-device or emergency-service validation. Nationwide data/maps, operational radio mesh, external delivery confirmation, complete security recovery, and physical-device acceptance remain outstanding.
 
 ## Application name consistency
 

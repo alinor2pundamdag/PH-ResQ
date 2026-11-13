@@ -1,6 +1,6 @@
 # PH-ResQ Critical Architecture Audit & Remediation Register
 
-**Audit basis:** repository source and documents at candidate `0ef2401d0cdfb71ed34c6dbe4e3b3f746aee6f5d`, inspected 2026-11-13.
+**Audit basis:** repository source and documents at candidate `90479d1dcfd665f41b90744234810ec877ad0c22`, inspected 2026-11-13.
 **Purpose:** Map what exists, separate implementation from specification, and order critical corrections without deleting or weakening any retained feature.
 **Status:** Architecture audit and remediation plan; not a certification or claim that open work has been implemented.
 
@@ -9,8 +9,8 @@
 ### Application source
 - `MainActivity.kt`, `ConsentScreen.kt`: Compose entry point and UI.
 - `SosStatusForegroundService.kt`: visible SOS handoff status service.
-- Core: `ConsentStore`, `ResQDatabase`, `EncryptedFieldCipher`, `PinProtectedVault`, `LocalVault`, `SosState`, `SosMessage`, `FreshLocationProvider`, `LastKnownLocation`, `AdaptiveLocationPolicy`, `BleDiscoveryManager`, `MeshEnvelopeCodec`, `DurableMeshQueue`, `OfflineDataRepository`, `OfflineDatasetImporter`, `HazardDataRepository`, `EncryptedVoiceNoteRecorder`, `MedicalIdQr`, `IntegrityVerifier`, `NationalHotlineDirectory`, `Geohash`, `RollingPrivacyToken`, and `SafeVolumePolicy`.
-- Persistence implementation: custom `SQLiteOpenHelper`, database schema version 7; SharedPreferences for consent/selected settings; app-private encrypted files for voice notes/mesh packets.
+- Core: `ConsentStore`, `ResQDatabase`, `EncryptedFieldCipher`, `PinProtectedVault`, `LocalVault`, `SosState`, `SosMessage`, `FreshLocationProvider`, `LocationFreshnessPolicy`, `LastKnownLocation`, `AdaptiveLocationPolicy`, `BleDiscoveryManager`, `MeshEnvelopeCodec`, `DurableMeshQueue`, `OfflineDataRepository`, `OfflineDatasetImporter`, `HazardDataRepository`, `EncryptedVoiceNoteRecorder`, `MedicalIdQr`, `IntegrityVerifier`, `NationalHotlineDirectory`, `Geohash`, `RollingPrivacyToken`, and `SafeVolumePolicy`.
+- Persistence implementation: custom `SQLiteOpenHelper`, database schema version 8; SharedPreferences for consent/selected settings; app-private encrypted files for voice notes/mesh packets.
 - Build: Kotlin + Compose, minSdk 26, compileSdk/targetSdk 35, Java 17. No Gradle wrapper is committed; CI configures Gradle externally.
 - Tests: Robolectric/JUnit tests cover consent, database persistence, importer, vault, mesh codec/queue, advisories, volume, SOS model and selected security/geospatial utilities. No instrumented UI/device integration suite is evidenced in this source tree.
 
@@ -33,7 +33,7 @@
 | C-10 | P1 | Remote family check-in is local-only | Local check-in and encrypted outbox; no remote transport/ack | Define authenticated endpoint, consent, retry/idempotency, privacy and honest pending/synced states |
 | C-11 | P1 | Feature traceability is incomplete/stale | Feature table has 34 feature IDs; test matrix now has at least 36 test cases; statuses need crosswalk | Every F-ID maps to code, test IDs, acceptance evidence and risks; keep 34 retained features |
 | C-12 | P2 | Settings and platform capabilities are fragmented | Selected SharedPreferences/app_state values; no single typed settings/capability owner | Central SettingsRepository, schema/version, defaults, UI mapping and policy validation |
-| C-13 | P2 | Database is a raw SQLite helper with limited repository separation | Schema v7; direct helper used by repositories | Introduce tested repository/DAO boundaries without data reset; decide Room only with migration-safe plan |
+| C-13 | P2 | Database is a raw SQLite helper with limited repository separation | Schema v8; direct helper used by repositories | Introduce tested repository/DAO boundaries without data reset; decide Room only with migration-safe plan |
 | C-14 | P2 | Spatial index/performance not proven | coordinate B-tree + bounding box/Haversine; not R-tree; no nationwide benchmark | Benchmark realistic PSGC/emergency data on low-end hardware; choose measured index strategy |
 | C-15 | P2 | Data integrity does not authenticate source | SHA-256 verifier and user-supplied metadata; no signed trusted manifest | Signed manifest, pinned publisher key rotation, package digest and rollback protection |
 | C-16 | P2 | Build reproducibility gap | No committed Gradle wrapper; CI provisions Gradle externally | Pin Gradle wrapper/distribution and dependency verification; reproduce clean build |
@@ -95,3 +95,13 @@ Statuses: `PROPOSED → SPECIFIED → IMPLEMENTED → AUTOMATED_TESTED → DEVIC
 ## 6. Audit completion and next execution gates
 
 This audit maps the repository at the SHA above. It does not itself implement the open P0/P1 runtime features. Next: capability/settings foundation; persistence/recovery; SOS ledger; authenticated mesh transport; data pipeline; UI/accessibility; device matrix; final CI/APK audit. Keep PR #1 open and unmerged.
+
+
+## Remediation delta — 2026-11-13 candidate 90479d1
+
+- SOS transition rows are explicitly bound to the originating event UUID. A later SOS attempt can no longer steal another event's SENDING/HANDED_OFF/FAILED transition by becoming the globally latest row. Interleaved-attempt and missing-ID regression tests were added.
+- The v6-to-v8 migration repairs an absent legacy `sos_events` table without dropping other records, and assigns independent UUIDs to legacy rows when the table exists. Empty-v6 and populated-v7 migration fixtures are covered.
+- Location freshness rejects stale and implausibly future-dated timestamps, and reports provider-permission failure if no enabled provider can be registered. Boundary tests cover the freshness window and future-clock tolerance.
+- The SOS hold control exposes a visible two-second progress indicator and cancellation guidance. A short-tap UI regression test verifies that a quick tap does not prepare an SOS.
+- The foreground notification action uses the non-deprecated `Notification.Action.Builder` API.
+- The latest successful parent-code CI run [43408806840](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/43408806840) passed lint, unit tests, debug/release assembly, exact-SHA metadata and APK artifact upload. The later hold-progress and documentation changes require their own exact-head CI run.

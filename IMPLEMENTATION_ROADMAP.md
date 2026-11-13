@@ -1,13 +1,13 @@
 # PH-ResQ Implementation Roadmap
 
-**Status:** Ordered plan, not a claim that every phase is complete. Latest architecture audit: `bd8b1a78f17635a69dff9e03c484a1492d7117f` (2026-11-13). Preserve all feature IDs in `FEATURE_TRACEABILITY.md`; update this roadmap whenever implementation evidence changes.
+**Status:** Ordered plan, not a claim that every phase is complete. Latest source remediation candidate: `90479d1dcfd665f41b90744234810ec877ad0c22` (2026-11-13); confirm exact final head through PR #1 Actions. Preserve all feature IDs in `FEATURE_TRACEABILITY.md`; update this roadmap whenever implementation evidence changes.
 **Execution policy:** Work in small auditable commits on the feature branch. Do not merge or publish a production release without authorization.
 
 ## Gate 0A — Device and integration architecture
 - [x] Add first-pass Android runtime capability snapshot for API/device metadata and typed telephony/BLE/Wi-Fi Direct/location/microphone/notification/Keystore states.
 - [x] Add Robolectric tests for capability profile shape and permission-aware notification state (execution pending on current SHA).
-- [ ] Wire profile refresh to lifecycle/permission/radio changes and expose state/fallback in Compose UI.
-- [ ] Implement settings/capability/policy ownership from the new integration contracts.
+- [x] Wire profile refresh to activity resume/permission results and expose state/fallback in Compose UI; configuration/radio-broadcast and physical OEM acceptance remain.
+- [x] Implement typed SettingsRepository, FeaturePolicyCoordinator and effective capability-state UI; API/OEM and accessibility acceptance remain.
 - Publish API 26+ support tiers; test representative API levels and OEMs; define graceful fallback for absent hardware and denied/revoked permissions.
 - Do not claim all Android devices or all future API levels are compatible.
 
@@ -28,7 +28,7 @@
 **Exit evidence:** no contradictions in feature status, named source references exist, all 34 feature IDs remain represented.
 
 ## Gate 1 — P0 emergency correctness
-- Finish durable SOS event orchestration and prove persistence before handoff.
+- [x] Persist SOS intent before external handoff and bind every transition to the originating stable event UUID; interleaved attempts are covered by Robolectric. Process-death and physical handoff acceptance remain.
 - Verify the two-second hold, accessible alternative, cancel behavior, duplicate prevention, stale/missing location, honest status wording and notification lifecycle.
 - Add tests for process death, no SIM, no messaging app, notification permission denial, interrupted write and retry behavior.
 
@@ -76,4 +76,4 @@
 **Exit evidence:** current-head CI pass, matching APK artifact + SHA-256, completed acceptance matrix, documented residual risks. If any P0 gate fails, decision remains NO-GO.
 
 ## Status snapshot
-The repository contains substantial partial Android source and utility tests. Current limitations include no complete nationwide data/map package, no operational BLE/Wi-Fi Direct mesh transport or peer-key establishment, no recipient-delivery confirmation for messaging-app handoff, and incomplete physical-device/accessibility/security/recovery acceptance. CI success is not equivalent to feature acceptance.
+The repository contains substantial partial Android source, connected settings/capability policies, event-scoped SOS persistence, location freshness validation, visible SOS hold progress, and expanded Robolectric regression coverage. Current limitations include no complete nationwide data/map package, no operational BLE/Wi-Fi Direct mesh transport or peer-key establishment, no recipient-delivery confirmation for messaging-app handoff, and incomplete physical-device/accessibility/security/recovery acceptance. CI success is not equivalent to feature acceptance.
