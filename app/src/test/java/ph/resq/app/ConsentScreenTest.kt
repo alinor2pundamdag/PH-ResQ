@@ -6,8 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.test.performScrollTo
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -40,11 +39,9 @@ class ConsentScreenTest {
         accept.assertIsDisplayed()
         decline.assertIsDisplayed()
 
-        repeat(20) {
-            composeRule.onNodeWithTag("consent-notice-scroll").performTouchInput { swipeUp() }
-        }
-
-        composeRule.onNodeWithText("DATA COVERAGE AT LIMITASYON").assertIsDisplayed()
+        val coverageHeading = composeRule.onNodeWithText("DATA COVERAGE AT LIMITASYON")
+        coverageHeading.performScrollTo()
+        coverageHeading.assertIsDisplayed()
         accept.assertIsDisplayed()
         decline.assertIsDisplayed()
         assertFalse(accepted)
