@@ -1094,6 +1094,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         Button(enabled = !offlineImporting, onClick = { offlineImportLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) {
             Text(if (offlineImporting) "IMPORTING — PLEASE WAIT" else "IMPORT OFFLINE JSON")
         }
+        }
         if (offlineImporting) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         Text(offlineImportStatus)
         OutlinedTextField(value = offlineQuery, onValueChange = { offlineQuery = it.take(120) }, label = { Text("Barangay, lugar, agency o evacuation center") }, modifier = Modifier.fillMaxWidth())
