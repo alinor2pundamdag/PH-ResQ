@@ -12,7 +12,7 @@ concurrency:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,10 +35,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
-      - name: Verify, lint, test, and build
-        env:
-          SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: gradle --no-daemon lintDebug testDebugUnitTest assembleDebug assembleRelease
+      - name: Run Android lint
+        run: gradle lintDebug --console=plain
+      - name: Run unit tests
+        run: gradle testDebugUnitTest --console=plain --stacktrace
+      - name: Assemble debug APK
+        run: gradle assembleDebug --console=plain
+      - name: Assemble release APK
+        run: gradle assembleRelease --console=plain
       - name: Write build evidence
         if: success()
         env:
