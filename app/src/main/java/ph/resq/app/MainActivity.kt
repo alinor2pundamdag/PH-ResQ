@@ -63,6 +63,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.LinearProgressIndicator
@@ -1230,6 +1231,15 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             }
         }
     }
+    FloatingActionButton(
+        onClick = { showAccessibleSosConfirm = true },
+        modifier = Modifier.align(Alignment.BottomEnd).padding(
+            end = 24.dp,
+            bottom = if (availableWidth >= 600.dp) 24.dp else 92.dp
+        ),
+        containerColor = Color(0xFFE53935),
+        contentColor = Color.White
+    ) { Text("SOS", fontWeight = FontWeight.Bold) }
     }
 }
 
