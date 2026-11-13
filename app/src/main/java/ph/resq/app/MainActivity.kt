@@ -98,6 +98,8 @@ import ph.resq.app.core.SafeVolumePolicy
 import ph.resq.app.core.DeviceCapabilityProfile
 import ph.resq.app.core.CapabilityState
 import ph.resq.app.core.SettingsRepository
+import ph.resq.app.core.FeaturePolicyCoordinator
+import ph.resq.app.core.FeatureAvailability
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 
@@ -564,7 +566,17 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                     Text("$label: $stateLabel")
                     Text(capability.reasonCode.replace('_', ' '), style = MaterialTheme.typography.bodySmall)
                 }
-                Text("Auto-detected on app resume. Android controls permissions and system settings; PH-ResQ cannot silently enable them.")
+                Text("Effective feature behavior", style = MaterialTheme.typography.titleMedium)
+                FeaturePolicyCoordinator.evaluate(capabilityProfile).forEach { policy ->
+                    val status = when (policy.availability) {
+                        FeatureAvailability.READY -> "READY"
+                        FeatureAvailability.DEGRADED -> "FALLBACK"
+                        FeatureAvailability.BLOCKED -> "UNAVAILABLE"
+                    }
+                    Text("${policy.featureId}: $status")
+                    Text(policy.reason, style = MaterialTheme.typography.bodySmall)
+                }
+                Text("Auto-detected on app resume and after permission decisions. Android controls permissions and system settings; PH-ResQ cannot silently enable them.")
                 Button(onClick = { capabilityProfile = DeviceCapabilityProfile.detect(context) }, modifier = Modifier.fillMaxWidth()) {
                     Text("REFRESH DEVICE CHECK")
                 }
