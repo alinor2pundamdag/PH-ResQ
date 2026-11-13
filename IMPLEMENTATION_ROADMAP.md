@@ -4,7 +4,10 @@
 **Execution policy:** Work in small auditable commits on the feature branch. Do not merge or publish a production release without authorization.
 
 ## Gate 0A — Device and integration architecture
-- Implement the capability profile and settings/capability/policy ownership from the new integration contracts.
+- [x] Add first-pass Android runtime capability snapshot for API/device metadata and typed telephony/BLE/Wi-Fi Direct/location/microphone/notification/Keystore states.
+- [x] Add Robolectric tests for capability profile shape and permission-aware notification state (execution pending on current SHA).
+- [ ] Wire profile refresh to lifecycle/permission/radio changes and expose state/fallback in Compose UI.
+- [ ] Implement settings/capability/policy ownership from the new integration contracts.
 - Publish API 26+ support tiers; test representative API levels and OEMs; define graceful fallback for absent hardware and denied/revoked permissions.
 - Do not claim all Android devices or all future API levels are compatible.
 

@@ -1,7 +1,7 @@
 # PH-ResQ Feature Traceability
 
 **Purpose:** Prevent silent feature removal and make every requirement testable. Cross-cutting device/persistence acceptance cases are defined in T-043–T-054 of `TEST_ACCEPTANCE_MATRIX.md`.  
-**Validation rule:** CI evidence is commit-specific. Before testing, confirm the latest successful run has the same `head_sha` as the intended PR commit and that its artifact contains `BUILD_METADATA.txt` and `SHA256SUMS`. Earlier successful runs do not validate later changes. Physical-device, integration, data-coverage, nationwide-data, and full feature acceptance remain outstanding.
+**Validation rule:** CI evidence is commit-specific. A first-pass `DeviceCapabilityProfile` now detects OS/device metadata and typed states for telephony, BLE, Wi-Fi Direct, location, microphone, notifications and Android Keystore; UI/settings integration and current-SHA test execution remain pending. Before testing, confirm the latest successful run has the same `head_sha` as the intended PR commit and that its artifact contains `BUILD_METADATA.txt` and `SHA256SUMS`. Earlier successful runs do not validate later changes. Physical-device, integration, data-coverage, nationwide-data, and full feature acceptance remain outstanding.
 
 | ID | Retained requirement | Planned component/area | Implementation status | Minimum acceptance evidence |
 |---|---|---|---|---|

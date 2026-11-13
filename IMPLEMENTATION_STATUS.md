@@ -8,7 +8,7 @@ The original consent layout placed the entire notice and both actions in one ver
 
 ## Architecture audit update (2026-11-13)
 
-Audit target: PR #1 head `0ef2401d0cdfb71ed34c6dbe4e3b3f746aee6f5d`. GitHub reports the `build-and-test` check completed successfully on that SHA. Artifact source metadata and APK contents have not yet been inspected in this audit; do not treat this as testable-APK confirmation. Added four normative documents: `CRITICAL_ARCHITECTURE_AUDIT.md`, `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md`, `SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md`, and `PERSISTENCE_RECOVERY_ARCHITECTURE.md`. The audit identifies P0 gaps in device support policy, operational mesh, SOS handoff semantics, persistence/recovery, and key lifecycle. No feature IDs were removed. No source runtime behavior was changed by this architecture-document pass.
+Audit target: PR #1 head `0ef2401d0cdfb71ed34c6dbe4e3b3f746aee6f5d`. GitHub reports the `build-and-test` check completed successfully on that SHA. Artifact source metadata and APK contents have not yet been inspected in this audit; do not treat this as testable-APK confirmation. Added four normative documents: `CRITICAL_ARCHITECTURE_AUDIT.md`, `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md`, `SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md`, and `PERSISTENCE_RECOVERY_ARCHITECTURE.md`. A first-pass `DeviceCapabilityProfile` provider and Robolectric tests have now been added; it is not yet connected to the Compose settings/UI or a lifecycle refresh coordinator. The audit identifies P0 gaps in device support policy, operational mesh, SOS handoff semantics, persistence/recovery, and key lifecycle. No feature IDs were removed. No source runtime behavior was changed by this architecture-document pass.
 
 ## Automated evidence
 
