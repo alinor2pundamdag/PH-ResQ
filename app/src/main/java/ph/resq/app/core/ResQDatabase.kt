@@ -240,6 +240,32 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
         }
     }
 
+    data class SosEventSnapshot(
+        val state: SosState,
+        val createdAt: Long,
+        val draft: String?,
+        val recipients: String?,
+        val location: String?
+    )
+
+    /** Read the latest durable event without treating an undecryptable value as empty data. */
+    fun latestSosEventSnapshot(): SosEventSnapshot? {
+        readableDatabase.rawQuery(
+            "SELECT state,created_at,draft_ciphertext,recipients_ciphertext,location_ciphertext FROM sos_events ORDER BY id DESC LIMIT 1",
+            null
+        ).use { cursor ->
+            if (!cursor.moveToFirst()) return null
+            val eventState = runCatching { SosState.valueOf(cursor.getString(0)) }.getOrNull() ?: return null
+            return SosEventSnapshot(
+                state = eventState,
+                createdAt = cursor.getLong(1),
+                draft = fieldCipher.decrypt(cursor.getString(2)),
+                recipients = fieldCipher.decrypt(cursor.getString(3)),
+                location = fieldCipher.decrypt(cursor.getString(4))
+            )
+        }
+    }
+
     fun latestSosState(): SosState? {
         readableDatabase.rawQuery("SELECT state FROM sos_events ORDER BY id DESC LIMIT 1", null).use { cursor ->
             if (!cursor.moveToFirst()) return null

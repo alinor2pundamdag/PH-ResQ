@@ -412,10 +412,19 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         capabilityProfile = DeviceCapabilityProfile.detect(context)
     }
-    fun setSosState(next: SosState, draft: String? = null, recipients: String? = null) {
+    fun setSosState(next: SosState, draft: String? = null, recipients: String? = null): Boolean {
+        val saved = runCatching {
+            database.recordSosEvent(next, draft, recipients, locationLine)
+        }.isSuccess
+        if (!saved) {
+            Toast.makeText(context, "Hindi ligtas na na-save ang SOS state. Walang external handoff na sisimulan.", Toast.LENGTH_LONG).show()
+            return false
+        }
         state = next
-        prefs.edit().putString("sos_state", next.name).putLong("sos_state_updated_at", System.currentTimeMillis()).apply()
-        runCatching { database.recordSosEvent(next, draft, recipients, locationLine) }
+        // SQLite is the source of truth; this preference is only a fast UI restore hint.
+        prefs.edit().putString("sos_state", next.name)
+            .putLong("sos_state_updated_at", System.currentTimeMillis()).commit()
+        true
     }
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -457,19 +466,20 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             Toast.makeText(context, "I-unlock muna ang PIN-protected emergency contacts.", Toast.LENGTH_LONG).show()
             return
         }
-        setSosState(SosState.QUEUED)
-        vibrate(context)
         val recipients = ContactList.parse(contactsRaw)
         if (recipients.isEmpty()) {
             Toast.makeText(context, "Maglagay muna ng emergency contact.", Toast.LENGTH_LONG).show()
-            setSosState(SosState.FAILED)
             return
         }
         val body = SosMessage.build(messageNote, locationLine)
         val recipientList = recipients.joinToString(";")
+        // Persist the user's exact SOS intent and recipient snapshot before any external side effect.
+        if (!setSosState(SosState.QUEUED, body, recipientList)) return
+        vibrate(context)
         val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + recipientList)).apply { putExtra("sms_body", body) }
         try {
             if (intent.resolveActivity(context.packageManager) != null) {
+                if (!setSosState(SosState.SENDING, body, recipientList)) return
                 val notificationPermissionGranted =
                     Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                         ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
