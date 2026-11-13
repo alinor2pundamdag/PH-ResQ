@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase
 enum class ContactVerification { NEEDS_REVIEW, OFFICIAL_GOVERNMENT_SOURCE, CROSS_CHECKED, VERIFIED_BY_CALL, UNVERIFIED_SOCIAL }
 data class BarangayReference(val psgcCode:String,val region:String,val province:String,val cityMunicipality:String,val barangay:String,val urbanRural:String?=null)
 data class PublicEmergencyContact(val id:String,val psgcCode:String?,val scope:String,val category:String,val officeName:String,val phone:String,val sourceUrl:String,val sourceTitle:String,val verification:ContactVerification,val verifiedAt:Long?=null,val expiresAt:Long?=null)
-data class NationalEvacuationCenter(val id:String,val psgcCode:String?,val name:String,val address:String,val facilityType:String?,val latitude:Double?,val longitude:Double?,val capacity:Int?,val operationalStatus:String,val sourceUrl:String,val sourceTitle:String,val verification:ContactVerification,val verifiedAt:Long?=null)
+data class NationalEvacuationCenter(val id:String,val psgcCode:String?,val name:String,val address:String,val facilityType:String?,val latitude:Double?,val longitude:Double?,val capacity:Int?,val capacityUnit:String,val operationalStatus:String,val sourceUrl:String,val sourceTitle:String,val verification:ContactVerification,val verifiedAt:Long?=null)
 data class NationalCoverageSnapshot(val expectedBarangays:Int,val loadedBarangays:Int,val contactBarangays:Int,val evacuationCenters:Int,val geocodedCenters:Int,val verifiedContacts:Int,val barangayCoveragePercent:Double)
 class NationalReferenceRepository(private val database:ResQDatabase) {
  companion object { const val EXPECTED_BARANGAYS_Q3_2026=42_010; const val PSA_SOURCE="https://psa.gov.ph/classification/psgc" }
@@ -48,21 +48,21 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
   require(c.id.isNotBlank()&&c.id.length<=160&&(c.psgcCode==null||c.psgcCode.matches(Regex("\\d{10}"))))
   require(c.name.isNotBlank()&&c.address.isNotBlank()&&c.sourceUrl.startsWith("https://")&&c.sourceTitle.isNotBlank())
   require((c.latitude==null)==(c.longitude==null));if(c.latitude!=null)require(c.latitude.isFinite()&&c.latitude in -90.0..90.0&&c.longitude!!.isFinite()&&c.longitude in -180.0..180.0)
-  require(c.capacity==null||c.capacity in 1..1_000_000);require(c.operationalStatus in setOf("OPEN","LIMITED","FULL","CLOSED","UNKNOWN","UNDER_CONSTRUCTION"))
-  val v=ContentValues().apply{put("center_id",c.id);put("psgc_code",c.psgcCode);put("name",c.name);put("address",c.address);put("facility_type",c.facilityType);if(c.latitude==null)putNull("latitude")else put("latitude",c.latitude);if(c.longitude==null)putNull("longitude")else put("longitude",c.longitude);if(c.capacity==null)putNull("capacity")else put("capacity",c.capacity);put("operational_status",c.operationalStatus);put("source_url",c.sourceUrl);put("source_title",c.sourceTitle);put("verification",c.verification.name);if(c.verifiedAt==null)putNull("verified_at")else put("verified_at",c.verifiedAt);put("updated_at",System.currentTimeMillis())}
+  require(c.capacity==null||c.capacity in 1..1_000_000);require(c.capacityUnit in setOf("PERSONS","FAMILIES","HOUSEHOLDS","UNKNOWN"));require(c.operationalStatus in setOf("OPEN","LIMITED","FULL","CLOSED","UNKNOWN","UNDER_CONSTRUCTION"))
+  val v=ContentValues().apply{put("center_id",c.id);put("psgc_code",c.psgcCode);put("name",c.name);put("address",c.address);put("facility_type",c.facilityType);if(c.latitude==null)putNull("latitude")else put("latitude",c.latitude);if(c.longitude==null)putNull("longitude")else put("longitude",c.longitude);if(c.capacity==null)putNull("capacity")else put("capacity",c.capacity);put("capacity_unit",c.capacityUnit);put("operational_status",c.operationalStatus);put("source_url",c.sourceUrl);put("source_title",c.sourceTitle);put("verification",c.verification.name);if(c.verifiedAt==null)putNull("verified_at")else put("verified_at",c.verifiedAt);put("updated_at",System.currentTimeMillis())}
   database.writableDatabase.insertWithOnConflict("national_evacuation_centers",null,v,SQLiteDatabase.CONFLICT_REPLACE)
  }
 
  fun searchEvacuationCenters(query:String,limit:Int=100):List<NationalEvacuationCenter>{
   val q=query.trim().take(120);val n=limit.coerceIn(1,500)
-  val sql="SELECT center_id,psgc_code,name,address,facility_type,latitude,longitude,capacity,operational_status,source_url,source_title,verification,verified_at FROM national_evacuation_centers "+
+  val sql="SELECT center_id,psgc_code,name,address,facility_type,latitude,longitude,capacity,capacity_unit,operational_status,source_url,source_title,verification,verified_at FROM national_evacuation_centers "+
    (if(q.isBlank())"" else "WHERE name LIKE ? OR address LIKE ? OR psgc_code = ? ")+"ORDER BY name LIMIT $n"
   val args=if(q.isBlank())null else arrayOf("%$q%","%$q%",q);val out=mutableListOf<NationalEvacuationCenter>()
   database.readableDatabase.rawQuery(sql,args).use{c->while(c.moveToNext())out.add(NationalEvacuationCenter(
    c.getString(0),if(c.isNull(1))null else c.getString(1),c.getString(2),c.getString(3),if(c.isNull(4))null else c.getString(4),
-   if(c.isNull(5))null else c.getDouble(5),if(c.isNull(6))null else c.getDouble(6),if(c.isNull(7))null else c.getInt(7),c.getString(8),
-   c.getString(9),c.getString(10),runCatching{ContactVerification.valueOf(c.getString(11))}.getOrDefault(ContactVerification.NEEDS_REVIEW),
-   if(c.isNull(12))null else c.getLong(12)))}
+   if(c.isNull(5))null else c.getDouble(5),if(c.isNull(6))null else c.getDouble(6),if(c.isNull(7))null else c.getInt(7),c.getString(8),c.getString(9),
+   c.getString(10),c.getString(11),runCatching{ContactVerification.valueOf(c.getString(12))}.getOrDefault(ContactVerification.NEEDS_REVIEW),
+   if(c.isNull(13))null else c.getLong(13)))}
   return out
  }
 
