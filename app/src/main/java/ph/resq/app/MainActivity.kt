@@ -29,6 +29,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -54,6 +55,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.OutlinedTextField
@@ -104,7 +106,8 @@ import ph.resq.app.core.CapabilityState
 import ph.resq.app.core.SettingsRepository
 import ph.resq.app.core.FeaturePolicyCoordinator
 import ph.resq.app.core.FeatureAvailability
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 class MainActivity : ComponentActivity() {
@@ -1022,18 +1025,42 @@ private fun vibrate(context: Context) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun SosHoldButton(modifier: Modifier = Modifier, onConfirmed: () -> Unit) {
-    Button(
-        onClick = {},
-        modifier = modifier.pointerInput(Unit) {
-            detectTapGestures(
-                onPress = {
-                    val releasedEarly = withTimeoutOrNull(2_000L) { tryAwaitRelease() }
-                    if (releasedEarly == null) onConfirmed()
-                }
-            )
+internal fun SosHoldButton(modifier: Modifier = Modifier, onConfirmed: () -> Unit) {
+    val progress = remember { Animatable(0f) }
+    var isHolding by remember { mutableStateOf(false) }
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Button(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        isHolding = true
+                        val confirmed = coroutineScope {
+                            val animation = launch {
+                                progress.animateTo(1f, animationSpec = tween(2_000))
+                            }
+                            val released = tryAwaitRelease()
+                            val heldLongEnough = animation.isCompleted
+                            animation.cancel()
+                            released && heldLongEnough
+                        }
+                        progress.snapTo(0f)
+                        isHolding = false
+                        // A cancelled gesture never dispatches, even if its timer elapsed.
+                        if (confirmed) onConfirmed()
+                    }
+                )
+            }
+        ) {
+            Text(if (isHolding) "KEEP HOLDING — SOS PREPARING" else "HOLD FOR 2 SECONDS — PREPARE SOS")
         }
-    ) {
-        Text("HOLD FOR 2 SECONDS — PREPARE SOS")
+        LinearProgressIndicator(
+            progress = progress.value,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            if (isHolding) "Panatilihing nakadiin nang 2 segundo. Bitawan para kanselahin."
+            else "Kailangan ng tuloy-tuloy na 2-second hold; ang maagang pagbitaw ay kanselado."
+        )
     }
 }
