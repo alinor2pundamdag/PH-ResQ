@@ -20,18 +20,19 @@ import org.maplibre.android.offline.*
 import java.util.concurrent.TimeUnit
 private const val STYLE_URL="https://tiles.openfreemap.org/styles/liberty"
 private const val MAX_BYTES=40L*1024L*1024L
-private const val MAX_TILES=3000L
+private const val MAX_TILES_PER_REGION=3000L
+private const val DEVICE_TILE_LIMIT=6000L
 @Composable fun OfflineMapPanel(modifier:Modifier=Modifier){
  val context=LocalContext.current;val owner=LocalLifecycleOwner.current
  var mapView by remember{mutableStateOf<MapView?>(null)};var ready by remember{mutableStateOf(false)}
  var downloading by remember{mutableStateOf(false)};var progress by remember{mutableFloatStateOf(0f)}
  var saved by remember{mutableIntStateOf(0)};var regionItems by remember{mutableStateOf(emptyList<OfflineRegion>())};var status by remember{mutableStateOf("Pan and zoom to the area you want to save.")}
  val manager=remember(context){
-  val dispatcher=Dispatcher().apply{maxRequests=4;maxRequestsPerHost=4}
+  val dispatcher=Dispatcher().apply{maxRequests=3;maxRequestsPerHost=3}
   val client=OkHttpClient.Builder().dispatcher(dispatcher).connectTimeout(20,TimeUnit.SECONDS).readTimeout(30,TimeUnit.SECONDS)
    .addInterceptor{chain->chain.proceed(chain.request().newBuilder().header("User-Agent","PH-ResQ-Android/0.1 (offline-map-client)").build())}.build()
   HttpRequestUtil.setOkHttpClient(client);MapLibre.getInstance(context)
-  OfflineManager.getInstance(context).also{it.setOfflineMapboxTileCountLimit(MAX_TILES)}
+  OfflineManager.getInstance(context).also{it.setOfflineMapboxTileCountLimit(DEVICE_TILE_LIMIT)}
  }
  fun refresh(){manager.listOfflineRegions(object:OfflineManager.ListOfflineRegionsCallback{
   override fun onList(regions:Array<OfflineRegion>?){regionItems=regions?.toList().orEmpty();saved=regionItems.size}
@@ -62,7 +63,7 @@ private const val MAX_TILES=3000L
       region.setObserver(object:OfflineRegion.OfflineRegionObserver{
        override fun onStatusChanged(s:OfflineRegionStatus){
         val bytes=s.completedResourceSize
-        if(bytes>MAX_BYTES){region.setDownloadState(OfflineRegion.STATE_INACTIVE);downloading=false;status="Stopped at 50-MB provider limit. Zoom closer and retry.";refresh();return}
+        if(bytes>MAX_BYTES || s.completedTileCount>MAX_TILES_PER_REGION){region.setDownloadState(OfflineRegion.STATE_INACTIVE);downloading=false;status="Stopped at the 40-MB safety / 3,000-tile per-region cap. Zoom closer and retry.";refresh();return}
         progress=if(s.requiredResourceCount>0)(s.completedResourceCount.toFloat()/s.requiredResourceCount).coerceIn(0f,1f)else 0f
         if(s.isComplete){region.setDownloadState(OfflineRegion.STATE_INACTIVE);downloading=false;status="Saved offline • ${s.completedTileCount} tiles • ${bytes/1048576} MB";refresh()}
         else status="Downloading ${s.completedTileCount} tiles • ${bytes/1048576} MB"
@@ -91,6 +92,6 @@ private const val MAX_TILES=3000L
    }
   }
   Text("© OpenFreeMap · © OpenMapTiles · © OpenStreetMap contributors",style=MaterialTheme.typography.labelSmall)
-  Text("Per download: maximum 3,000 tiles or 50 MB; maximum four parallel requests. This is regional coverage, not a preloaded nationwide basemap.")
+  Text("Per download: maximum 3,000 tiles or 50 MB; maximum three parallel requests. This is regional coverage, not a preloaded nationwide basemap.")
  }
 }
