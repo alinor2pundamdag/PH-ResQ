@@ -59,11 +59,18 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.LinearProgressIndicator
@@ -85,6 +92,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
@@ -192,12 +200,12 @@ private fun ResQRoot() {
     }
 }
 
-private enum class HomeSection(val label: String, val icon: String) {
-    EMERGENCY("Emergency", "🚨"),
-    DIRECTORY("Directory", "🗺️"),
-    PEOPLE("People", "👥"),
-    DEVICE("Device", "📡"),
-    SETTINGS("Settings", "⚙️")
+private enum class HomeSection(val label: String, val icon: ImageVector) {
+    EMERGENCY("Emergency", Icons.Filled.Warning),
+    DIRECTORY("Directory", Icons.Filled.Map),
+    PEOPLE("People", Icons.Filled.People),
+    DEVICE("Device", Icons.Filled.Devices),
+    SETTINGS("Settings", Icons.Filled.Settings)
 }
 
 @Composable
@@ -1237,7 +1245,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 NavigationRailItem(
                     selected = selectedSection == section,
                     onClick = { selectedSection = section },
-                    icon = { Text(section.icon) },
+                    icon = { Icon(imageVector = section.icon, contentDescription = section.label) },
                     label = { Text(section.label) },
                     alwaysShowLabel = false
                 )
