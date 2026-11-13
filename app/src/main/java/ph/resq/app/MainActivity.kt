@@ -649,7 +649,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         }
         Text("Emergency-first • offline-aware • early build")
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("SOS", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Text("Pindutin at hawakan nang 2 segundo upang ihanda ang SMS. Bubuksan ang messaging app; kailangan mong i-review at ipadala.")
@@ -714,7 +714,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         }
         if (selectedSection == HomeSection.DEVICE) {
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("DEVICE COMPATIBILITY", style = MaterialTheme.typography.titleLarge)
                 Text("${capabilityProfile.manufacturer} ${capabilityProfile.model} • Android ${capabilityProfile.androidRelease} (API ${capabilityProfile.sdkInt})")
@@ -757,7 +757,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         if (selectedSection == HomeSection.DIRECTORY) {
         }
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Offline national emergency contacts", style = MaterialTheme.typography.titleLarge)
                 Text("Source: Philippine Government Emergency Hotlines portal; reviewed 2026-10-27. Ang 911 ang national emergency hotline.")
@@ -825,7 +825,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         if (selectedSection == HomeSection.PEOPLE) {
         }
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Emergency contacts", style = MaterialTheme.typography.titleLarge)
                 Text("Ilagay ang hanggang 10 numero. Nasa device lang ang listahan.")
@@ -911,7 +911,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         if (selectedSection == HomeSection.DEVICE) {
         }
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Last-known location", style = MaterialTheme.typography.titleLarge)
                 Text(locationLine)
@@ -933,7 +933,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         if (selectedSection == HomeSection.DEVICE) {
         }
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Nearby BLE devices", style = MaterialTheme.typography.titleLarge)
                 Text("15-second low-power discovery window. This only detects nearby BLE advertisements; it does not send SOS packets or implement multi-hop mesh.")
@@ -951,7 +951,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         if (selectedSection == HomeSection.PEOPLE) {
         }
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Voice note", style = MaterialTheme.typography.titleLarge)
                 Text("Hanggang 10 segundo; naka-encrypt sa local app storage. Ang share action ay magde-decrypt sa temporary cache at magbubukas ng system chooser; pumili ng app/recipient at kumpirmahin ang pagpapadala. Hindi ito auto-send at walang delivery confirmation.")
@@ -997,7 +997,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         if (selectedSection == HomeSection.PEOPLE) {
         }
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Ligtas Ako check-in", style = MaterialTheme.typography.titleLarge)
                 Text("Local status lamang; wala pang network relay o family delivery.")
@@ -1020,7 +1020,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         if (selectedSection == HomeSection.PEOPLE) {
         }
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Offline Medical ID QR", style = MaterialTheme.typography.titleLarge)
                 Text("Gumawa lamang ng QR kapag pinili mong ibahagi ang impormasyon. Hindi naka-encrypt ang QR: maaaring mabasa ng sinumang makakita o kumuha ng larawan nito. Huwag ilagay ang impormasyong ayaw mong ibunyag.")
@@ -1047,7 +1047,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         if (selectedSection == HomeSection.DEVICE) {
         }
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Low-battery snapshot", style = MaterialTheme.typography.titleLarge)
                 Text(batterySnapshot)
@@ -1056,7 +1056,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         if (selectedSection == HomeSection.DIRECTORY) {
         }
-        Card(Modifier.fillMaxWidth()) {
+        PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 NationwideOfflineMapPanel(modifier = Modifier.fillMaxWidth())
                 OfflineMapPanel(database = database, modifier = Modifier.fillMaxWidth())
