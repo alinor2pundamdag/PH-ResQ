@@ -62,14 +62,33 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
   database.readableDatabase.rawQuery(sql,args).use{c->while(c.moveToNext())out.add(BarangayReference(c.getString(0),c.getString(1),c.getString(2),c.getString(3),c.getString(4),if(c.isNull(5))null else c.getString(5)))}
   return out
  }
+ private fun isValidPublicPhone(phone:String):Boolean =
+  phone in setOf("911","122","117","143","136","1342","7890","1627","1626") ||
+   phone.matches(Regex("[+0-9() .,-]{5,40}"))
+
  fun addPublicContact(c:PublicEmergencyContact){
   require(c.id.isNotBlank()&&c.id.length<=160&&(c.psgcCode==null||c.psgcCode.matches(Regex("\\d{10}"))))
   require(c.scope in setOf("BARANGAY","CITY_MUNICIPALITY","PROVINCE","REGIONAL","NATIONAL"))
   require(c.category in setOf("BARANGAY_HALL","DRRMO","POLICE","FIRE","AMBULANCE","HOSPITAL","COAST_GUARD","RESCUE","OTHER"))
-  require(c.officeName.isNotBlank()&&(c.phone=="911" || c.phone=="122" || c.phone.matches(Regex("[+0-9() .,-]{5,40}")))&&c.sourceUrl.startsWith("https://")&&c.sourceTitle.isNotBlank())
+  require(c.officeName.isNotBlank()&&isValidPublicPhone(c.phone)&&c.sourceUrl.startsWith("https://")&&c.sourceTitle.isNotBlank())
   val resolvedPsgc=c.psgcCode ?: if(c.scope=="BARANGAY") resolveBarangayPsgc(c.officeName) else null
   val v=ContentValues().apply{put("contact_id",c.id);put("psgc_code",resolvedPsgc);put("scope",c.scope);put("category",c.category);put("office_name",c.officeName.trim());put("phone",c.phone.trim());put("source_url",c.sourceUrl);put("source_title",c.sourceTitle);put("verification",c.verification.name);if(c.verifiedAt==null)putNull("verified_at")else put("verified_at",c.verifiedAt);if(c.expiresAt==null)putNull("expires_at")else put("expires_at",c.expiresAt);put("updated_at",System.currentTimeMillis())}
-  database.writableDatabase.insertWithOnConflict("public_emergency_contacts",null,v,SQLiteDatabase.CONFLICT_REPLACE)
+  val rowId=database.writableDatabase.insertWithOnConflict("public_emergency_contacts",null,v,SQLiteDatabase.CONFLICT_REPLACE)
+  check(rowId!=-1L){"Could not store public contact ${c.id}."}
+ }
+ fun addPublicContacts(records:List<PublicEmergencyContact>):Int{
+  require(records.size in 1..100_000)
+  require(records.map{it.id}.distinct().size==records.size){"Duplicate public contact IDs in import."}
+  val db=database.writableDatabase;db.beginTransaction()
+  try{
+   records.forEachIndexed{index,record->
+    try{addPublicContact(record)}catch(error:Exception){
+     throw IllegalArgumentException("Contact record ${index+1} (${record.id}) rejected: ${error.message}",error)
+    }
+   }
+   db.setTransactionSuccessful()
+  }finally{db.endTransaction()}
+  return records.size
  }
  fun searchContacts(query:String,limit:Int=100):List<PublicEmergencyContact>{
   val q=query.trim().take(120);val n=limit.coerceIn(1,500)
@@ -85,7 +104,22 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
   require(c.capacity==null||c.capacity in 1..1_000_000);require(c.capacityUnit in setOf("PERSONS","FAMILIES","HOUSEHOLDS","UNKNOWN"));require(c.operationalStatus in setOf("OPEN","LIMITED","FULL","CLOSED","UNKNOWN","UNDER_CONSTRUCTION"))
   val resolvedCode=c.psgcCode?:resolveBarangayPsgc(c.address)
   val v=ContentValues().apply{put("center_id",c.id);put("psgc_code",resolvedCode);put("name",c.name);put("address",c.address);put("facility_type",c.facilityType);if(c.latitude==null)putNull("latitude")else put("latitude",c.latitude);if(c.longitude==null)putNull("longitude")else put("longitude",c.longitude);if(c.capacity==null)putNull("capacity")else put("capacity",c.capacity);put("capacity_unit",c.capacityUnit);put("operational_status",c.operationalStatus);put("source_url",c.sourceUrl);put("source_title",c.sourceTitle);put("verification",c.verification.name);if(c.verifiedAt==null)putNull("verified_at")else put("verified_at",c.verifiedAt);put("updated_at",System.currentTimeMillis())}
-  database.writableDatabase.insertWithOnConflict("national_evacuation_centers",null,v,SQLiteDatabase.CONFLICT_REPLACE)
+  val rowId=database.writableDatabase.insertWithOnConflict("national_evacuation_centers",null,v,SQLiteDatabase.CONFLICT_REPLACE)
+  check(rowId!=-1L){"Could not store evacuation center ${c.id}."}
+ }
+ fun addEvacuationCenters(records:List<NationalEvacuationCenter>):Int{
+  require(records.size in 1..50_000)
+  require(records.map{it.id}.distinct().size==records.size){"Duplicate evacuation center IDs in import."}
+  val db=database.writableDatabase;db.beginTransaction()
+  try{
+   records.forEachIndexed{index,record->
+    try{addEvacuationCenter(record)}catch(error:Exception){
+     throw IllegalArgumentException("Evacuation record ${index+1} (${record.id}) rejected: ${error.message}",error)
+    }
+   }
+   db.setTransactionSuccessful()
+  }finally{db.endTransaction()}
+  return records.size
  }
 
  fun searchEvacuationCenters(query:String,limit:Int=100):List<NationalEvacuationCenter>{
@@ -103,7 +137,7 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
 
  fun coverage():NationalCoverageSnapshot{
   fun count(sql:String)=database.readableDatabase.rawQuery(sql,null).use{if(it.moveToFirst())it.getInt(0)else 0}
-  val loaded=count("SELECT COUNT(*) FROM barangay_reference");val contactBarangays=count("SELECT COUNT(DISTINCT psgc_code) FROM public_emergency_contacts WHERE psgc_code IS NOT NULL")
+  val loaded=count("SELECT COUNT(*) FROM barangay_reference");val contactBarangays=count("SELECT COUNT(DISTINCT psgc_code) FROM public_emergency_contacts WHERE psgc_code IS NOT NULL AND scope='BARANGAY'")
   val centers=count("SELECT COUNT(*) FROM national_evacuation_centers");val geocoded=count("SELECT COUNT(*) FROM national_evacuation_centers WHERE latitude IS NOT NULL AND longitude IS NOT NULL")
   val verified=count("SELECT COUNT(*) FROM public_emergency_contacts WHERE verification IN ('CROSS_CHECKED','VERIFIED_BY_CALL')")
   return NationalCoverageSnapshot(EXPECTED_BARANGAYS_Q3_2026,loaded,contactBarangays,centers,geocoded,verified,(loaded.toDouble()/EXPECTED_BARANGAYS_Q3_2026*100.0).coerceAtMost(100.0))
