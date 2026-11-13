@@ -78,6 +78,18 @@ private const val MAX_TILES=3000L
   },modifier=Modifier.fillMaxWidth()){Text(if(downloading)"DOWNLOADING…" else "SAVE VISIBLE AREA OFFLINE")}
   if(downloading)LinearProgressIndicator(progress=progress,modifier=Modifier.fillMaxWidth())
   Text(status,style=MaterialTheme.typography.bodySmall);Text("Saved map regions: $saved")
+  regionItems.forEach { region ->
+   Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
+    Text("Offline map #\${region.id}",modifier=Modifier.weight(1f))
+    Button(onClick={
+     region.setDownloadState(OfflineRegion.STATE_INACTIVE)
+     region.delete(object:OfflineRegion.OfflineRegionDeleteCallback{
+      override fun onDelete(){status="Offline map #\${region.id} deleted.";refresh()}
+      override fun onError(error:String){status="Could not delete map: $error"}
+     })
+    }){Text("DELETE")}
+   }
+  }
   Text("© OpenFreeMap · © OpenMapTiles · © OpenStreetMap contributors",style=MaterialTheme.typography.labelSmall)
   Text("Per download: maximum 3,000 tiles or 50 MB; maximum four parallel requests. This is regional coverage, not a preloaded nationwide basemap.")
  }
