@@ -326,6 +326,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
     }
     var checkIn by remember { mutableStateOf(runCatching { database.latestFamilyCheckin() }.getOrNull() ?: prefs.getString("checkin", "Hindi pa naitala") ?: "Hindi pa naitala") }
+    var showCheckInShareDialog by remember { mutableStateOf(false) }
+    val checkInRecipients = remember(contactsRaw) { ContactList.parse(contactsRaw) }
     var hotlineQuery by remember { mutableStateOf("") }
     var recentSearches by remember { mutableStateOf(runCatching { database.recentSearches() }.getOrDefault(emptyList())) }
     var savedBookmarks by remember { mutableStateOf(runCatching { database.bookmarks() }.getOrDefault(emptyList())) }
@@ -1031,6 +1033,32 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Text("Ligtas Ako check-in", style = MaterialTheme.typography.titleLarge)
                 Text("Local status lamang; wala pang network relay o family delivery.")
                 Text("Status: " + checkIn)
+                Button(enabled = checkInRecipients.isNotEmpty() && checkIn != "Hindi pa naitala", onClick = { showCheckInShareDialog = true }, modifier = Modifier.fillMaxWidth()) { Text("SHARE CHECK-IN VIA SMS") }
+                if (showCheckInShareDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showCheckInShareDialog = false },
+                        title = { Text("Choose an emergency contact") },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Choose a recipient. Your SMS app opens with a draft; review and send it yourself. PH-ResQ cannot confirm delivery.")
+                                checkInRecipients.forEach { recipient ->
+                                    Button(onClick = {
+                                        val message = "PH-ResQ safety check-in: $checkIn. Please reply to confirm. This message was prepared by PH-ResQ; delivery is not confirmed."
+                                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                            data = Uri.parse("smsto:$recipient")
+                                            putExtra("sms_body", message)
+                                        }
+                                        val opened = runCatching { context.startActivity(intent) }
+                                        if (opened.isSuccess) Toast.makeText(context, "SMS composer opened. Review and send manually.", Toast.LENGTH_LONG).show()
+                                        else Toast.makeText(context, "No SMS app is available on this device.", Toast.LENGTH_LONG).show()
+                                        showCheckInShareDialog = false
+                                    }, modifier = Modifier.fillMaxWidth()) { Text(recipient) }
+                                }
+                            }
+                        },
+                        confirmButton = { Button(onClick = { showCheckInShareDialog = false }) { Text("CLOSE") } }
+                    )
+                }
                 Text("Pending encrypted local outbox items: " + pendingQueueCount + " • walang network sync/ack sa build na ito.")
                 Button(onClick = {
                     val nextStatus = "Naitala locally • " + System.currentTimeMillis()
