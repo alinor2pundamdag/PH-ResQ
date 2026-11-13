@@ -53,8 +53,16 @@ object NationalDatasetImporter{
  }
  fun importEvacuationCentersJson(context:Context,uri:Uri,repository:NationalReferenceRepository):Int =
   importEvacuationPayload(readText(context,uri),repository)
- fun importBundledEvacuationCenters(context:Context,repository:NationalReferenceRepository):Int =
-  importEvacuationPayload(context.assets.open("data/bay_evacuation_centers.json").bufferedReader().use{it.readText()},repository)
+ fun importBundledEvacuationCenters(context:Context,repository:NationalReferenceRepository):Int{
+  val merged=JSONArray()
+  listOf("data/bay_evacuation_centers.json","data/qc_evacuation_centers.json").forEach{asset->
+   val root=JSONObject(context.assets.open(asset).bufferedReader().use{it.readText()})
+   require(root.optString("type")=="evacuation_centers"){"Invalid bundled evacuation dataset: $asset"}
+   val records=root.optJSONArray("records")?:error("Missing records in $asset")
+   for(i in 0 until records.length())merged.put(records.getJSONObject(i))
+  }
+  return importEvacuationPayload(JSONObject().put("type","evacuation_centers").put("records",merged).toString(),repository)
+ }
  private fun importEvacuationPayload(payload:String,repository:NationalReferenceRepository):Int{
   val root=JSONObject(payload);require(root.optString("type")=="evacuation_centers"){"Expected evacuation_centers dataset."}
   val records=root.optJSONArray("records")?:error("Missing records array.");require(records.length() in 1..50_000);var imported=0
