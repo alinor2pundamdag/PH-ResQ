@@ -640,16 +640,12 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         )
         Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = Color(red = visibleColorPhase, green = 0f, blue = 1f - visibleColorPhase))
         if (selectedSection == HomeSection.EMERGENCY) {
-        if (selectedSection == HomeSection.EMERGENCY) {
-        if (selectedSection == HomeSection.EMERGENCY) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Emergency cell broadcasts", style = MaterialTheme.typography.titleLarge)
                 Text("Ang government/carrier emergency alerts ay pinamamahalaan ng Android at mobile network. Hindi inaangking binabasa o hinaharang ng PH-ResQ ang lahat ng cell broadcasts.")
                 Text("Suriin ang Emergency alerts / Wireless emergency alerts sa system settings ng device at panatilihing naka-enable ang mga alertong naaangkop sa iyong lugar.")
             }
-        }
-        }
         }
         }
         Text("Emergency-first • offline-aware • early build")
@@ -718,8 +714,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         }
         if (selectedSection == HomeSection.DEVICE) {
-        if (selectedSection == HomeSection.DEVICE) {
-        if (selectedSection == HomeSection.DEVICE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("DEVICE COMPATIBILITY", style = MaterialTheme.typography.titleLarge)
@@ -761,8 +755,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }
             }
         }
-        if (selectedSection == HomeSection.DIRECTORY) {
         }
+        }
+        if (selectedSection == HomeSection.DIRECTORY) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Offline national emergency contacts", style = MaterialTheme.typography.titleLarge)
@@ -829,8 +824,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Text("Kailangan ng network/phone service. Ang pag-open ng dialer o SMS app ay hindi patunay ng koneksyon, delivery, o pagsagot.")
             }
         }
-        if (selectedSection == HomeSection.PEOPLE) {
         }
+        }
+        if (selectedSection == HomeSection.PEOPLE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Emergency contacts", style = MaterialTheme.typography.titleLarge)
@@ -915,8 +911,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Text(if (pinVaultEnabled) "PIN-derived AES-GCM. Walang PIN recovery o duress mode; pagkawala ng PIN ay maaaring permanenteng mawala ang contacts." else "Default: Android Keystore AES-GCM. Optional PIN vault adds a PIN-derived encryption layer.")
             }
         }
-        if (selectedSection == HomeSection.DEVICE) {
         }
+        }
+        if (selectedSection == HomeSection.DEVICE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Last-known location", style = MaterialTheme.typography.titleLarge)
@@ -937,8 +934,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }) { Text("Request permission and read last-known location") }
             }
         }
-        if (selectedSection == HomeSection.DEVICE) {
         }
+        }
+        if (selectedSection == HomeSection.DEVICE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Nearby BLE devices", style = MaterialTheme.typography.titleLarge)
@@ -955,8 +953,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 blePeers.take(10).forEach { peer -> Text(peer.label + " • RSSI " + peer.rssi + " dBm (approximate proximity only)") }
             }
         }
-        if (selectedSection == HomeSection.PEOPLE) {
         }
+        }
+        if (selectedSection == HomeSection.PEOPLE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Voice note", style = MaterialTheme.typography.titleLarge)
@@ -1001,8 +1000,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }
             }
         }
-        if (selectedSection == HomeSection.PEOPLE) {
         }
+        }
+        if (selectedSection == HomeSection.PEOPLE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Ligtas Ako check-in", style = MaterialTheme.typography.titleLarge)
@@ -1024,8 +1024,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }) { Text("Save check-in locally") }
             }
         }
-        if (selectedSection == HomeSection.PEOPLE) {
         }
+        }
+        if (selectedSection == HomeSection.PEOPLE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Offline Medical ID QR", style = MaterialTheme.typography.titleLarge)
@@ -1051,8 +1052,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }
             }
         }
-        if (selectedSection == HomeSection.DEVICE) {
         }
+        }
+        if (selectedSection == HomeSection.DEVICE) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Low-battery snapshot", style = MaterialTheme.typography.titleLarge)
@@ -1060,8 +1062,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Text("Best-effort: naitatala kapag bukas ang app at nakatanggap ito ng battery broadcast; hindi ito kapalit ng OS-level guaranteed callback.")
             }
         }
-        if (selectedSection == HomeSection.DIRECTORY) {
         }
+        }
+        if (selectedSection == HomeSection.DIRECTORY) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 NationwideOfflineMapPanel(modifier = Modifier.fillMaxWidth())
@@ -1103,7 +1106,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             Text(record.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Text(record.category + (record.phone?.let { " • $it" } ?: ""))
             if (record.latitude != null && record.longitude != null) Text("Coordinates: ${record.latitude}, ${record.longitude}")
-        }
         }
         }
         Text("Evacuation centers (local cache)", style = MaterialTheme.typography.titleMedium)
