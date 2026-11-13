@@ -78,6 +78,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -94,6 +96,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import ph.resq.app.core.ContactList
 import ph.resq.app.core.MedicalIdQr
+import ph.resq.app.core.MedicalIdStore
+import ph.resq.app.core.MedicalIdProfile
 import ph.resq.app.core.LastKnownLocation
 import ph.resq.app.core.FreshLocationProvider
 import ph.resq.app.core.LocalVault
@@ -226,11 +230,18 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
         onDispose { runCatching { context.unregisterReceiver(receiver) } }
     }
-    var medicalName by remember { mutableStateOf("") }
-    var medicalBloodType by remember { mutableStateOf("") }
-    var medicalAllergies by remember { mutableStateOf("") }
-    var medicalMedications by remember { mutableStateOf("") }
-    var medicalEmergencyContact by remember { mutableStateOf("") }
+    val medicalIdStore = remember { MedicalIdStore(context) }
+    val loadedMedicalId = remember { runCatching { medicalIdStore.load() }.getOrNull() }
+    var medicalProfileUnreadable by remember { mutableStateOf(medicalIdStore.hasStoredProfile() && loadedMedicalId == null) }
+    var medicalProfileStored by remember { mutableStateOf(medicalIdStore.hasStoredProfile()) }
+    var medicalProfileSaved by remember { mutableStateOf(loadedMedicalId != null) }
+    var medicalStoreStatus by remember { mutableStateOf(when { loadedMedicalId != null -> "Encrypted Medical ID restored from this device."; medicalProfileUnreadable -> "Encrypted profile exists but cannot be decrypted. Delete only if you accept permanent loss."; else -> "No saved Medical ID on this device." }) }
+    var confirmMedicalIdDelete by remember { mutableStateOf(false) }
+    var medicalName by remember { mutableStateOf(loadedMedicalId?.name.orEmpty()) }
+    var medicalBloodType by remember { mutableStateOf(loadedMedicalId?.bloodType.orEmpty()) }
+    var medicalAllergies by remember { mutableStateOf(loadedMedicalId?.allergies.orEmpty()) }
+    var medicalMedications by remember { mutableStateOf(loadedMedicalId?.medications.orEmpty()) }
+    var medicalEmergencyContact by remember { mutableStateOf(loadedMedicalId?.emergencyContact.orEmpty()) }
     var medicalQrBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var medicalQrStatus by remember { mutableStateOf("Walang QR na ginawa.") }
     val settings = remember { SettingsRepository(context) }
@@ -630,7 +641,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     val visibleColorPhase = animationValues.second
     BoxWithConstraints(Modifier.fillMaxSize().safeContentPadding()) {
     val availableWidth = maxWidth
-    var selectedSection by remember { mutableStateOf(HomeSection.EMERGENCY) }
+    var selectedSection by rememberSaveable { mutableStateOf(HomeSection.EMERGENCY) }
     val adaptiveContentWidth = if (availableWidth >= 900.dp) 820.dp else 720.dp
     val adaptiveLayoutLabel = when { availableWidth >= 900.dp -> "EXPANDED TABLET"; availableWidth >= 600.dp -> "MEDIUM"; else -> "COMPACT PHONE" }
     Column(Modifier.fillMaxWidth().widthIn(max = adaptiveContentWidth).align(Alignment.TopCenter).padding(start = if (availableWidth >= 600.dp) 88.dp else 0.dp).animateContentSize().verticalScroll(rememberScrollState()).padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 104.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
