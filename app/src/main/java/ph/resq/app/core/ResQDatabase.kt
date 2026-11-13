@@ -84,8 +84,23 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
             version = 7
         }
         if (version < 8 && newVersion >= 8) {
+            // Some early v6 fixtures/installations may have a user_version but no SOS table.
+            // Repair the missing table without dropping any existing data.
+            val hasSosTable = db.rawQuery(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='sos_events'",
+                null
+            ).use { it.moveToFirst() }
+            if (!hasSosTable) {
+                db.execSQL("CREATE TABLE sos_events (id INTEGER PRIMARY KEY AUTOINCREMENT, event_id TEXT NOT NULL, state TEXT NOT NULL, created_at INTEGER NOT NULL, draft_ciphertext TEXT, recipients_ciphertext TEXT, location_ciphertext TEXT)")
+            } else {
+                val hasEventId = db.rawQuery("PRAGMA table_info('sos_events')", null).use { cursor ->
+                    var found = false
+                    while (cursor.moveToNext()) if (cursor.getString(1) == "event_id") found = true
+                    found
+                }
+                if (!hasEventId) db.execSQL("ALTER TABLE sos_events ADD COLUMN event_id TEXT")
+            }
             // Legacy transition rows cannot safely be grouped into one event; assign independent IDs.
-            db.execSQL("ALTER TABLE sos_events ADD COLUMN event_id TEXT")
             val legacyIds = mutableListOf<Long>()
             db.rawQuery("SELECT id FROM sos_events WHERE event_id IS NULL", null).use { cursor ->
                 while (cursor.moveToNext()) legacyIds.add(cursor.getLong(0))
