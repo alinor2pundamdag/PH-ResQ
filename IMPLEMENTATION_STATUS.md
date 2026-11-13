@@ -12,6 +12,15 @@ Audit target at initial architecture review: PR #1 head `0ef2401d0cdfb71ed34c6db
 
 ## Automated evidence
 
+### Exact-head CI evidence — 2026-11-13
+- PR #1 head: `0f36250beffb00dda7296bc2f92b20c39c0775da`.
+- Successful workflow: [run 43411656696](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/43411656696), with identical `head_sha`.
+- Verified job steps: `lintDebug`, `testDebugUnitTest`, `assembleDebug`, and `assembleRelease` all completed; Gradle reported `BUILD SUCCESSFUL`.
+- CI wrote `BUILD_METADATA.txt` with source and checkout commit fields, generated `SHA256SUMS` for the APKs, and uploaded both APKs plus evidence.
+- Artifact: `ph-resq-apk-builds`, ID `14030410499`, 15,985,130 bytes; archive SHA-256 `12fc2b32f1debc5f69256b2efa05a70248dd28bb136925004e216510729f6bb9`; expires 2026-11-27.
+- Download through the [workflow artifact page](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/43411656696/artifacts/14030410499). Verify the included metadata and APK checksums after download. Release APK is unsigned.
+- This proves build/test pipeline success for this exact commit only. It does not prove physical-device behavior, operational mesh, nationwide data coverage, emergency delivery, or production readiness.
+
 - **Validation rule:** check the current PR head and latest successful workflow run together; use no artifact whose metadata source commit differs from the desired SHA.
 - **Current-head validation:** use the latest successful [PR #1 Actions run](https://github.com/alinor2pundamdag/PH-ResQ/actions) and compare its `head_sha` with the open PR head. Do not use historical parent artifacts for a changed source SHA.
 - **Artifact contents:** canonical debug/release APK filenames, `BUILD_METADATA.txt`, and `SHA256SUMS`; the release APK is unsigned. Verify the archive and both APK checksums before installation.
