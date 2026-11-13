@@ -186,6 +186,7 @@ private fun ResQRoot() {
                 )
             } else {
                 HomeScreen(
+                    highContrast = highContrast,
                     onToggleHighContrast = {
                         highContrast = !highContrast
                         settings.setHighContrast(highContrast)
@@ -209,7 +210,7 @@ private enum class HomeSection(val label: String, val icon: ImageVector) {
 }
 
 @Composable
-private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> Unit) {
+private fun HomeScreen(highContrast: Boolean, onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> Unit) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -677,7 +678,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             Modifier.fillMaxWidth().height(8.dp).graphicsLayer(rotationZ = visibleWave)
                 .background(Brush.horizontalGradient(listOf(Color.Blue, Color.Red, Color.White, Color.Yellow, Color.White, Color.Red, Color.Blue)))
         )
-        Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = Color(red = visibleColorPhase, green = 0f, blue = 1f - visibleColorPhase))
+        Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = if (highContrast) MaterialTheme.colorScheme.primary else Color(red = visibleColorPhase, green = 0f, blue = 1f - visibleColorPhase))
         if (selectedSection == HomeSection.EMERGENCY) {
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -687,7 +688,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             }
         }
         }
-        Text("Emergency-first • offline-aware • early build")
+        Text("OFFLINE-FIRST • EMERGENCY TOOLS • BETA")
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("SOS", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
@@ -1270,8 +1271,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             end = 24.dp,
             bottom = if (availableWidth >= 600.dp) 24.dp else 92.dp
         ),
-        containerColor = Color(0xFFE53935),
-        contentColor = Color.White
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
     ) { Text("SOS", fontWeight = FontWeight.Bold) }
     }
 }
@@ -1282,11 +1283,11 @@ private fun PremiumCard(content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().border(
             width = 1.dp,
-            brush = Brush.linearGradient(listOf(Color(0xFF4B769B), Color(0xFF17283D), Color(0xFF31506D))),
+            brush = Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.secondary)),
             shape = shape
         ),
         shape = shape,
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF101D2E)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) { content() }
 }
