@@ -97,6 +97,7 @@ import ph.resq.app.core.OfflineDatasetImporter
 import ph.resq.app.core.SafeVolumePolicy
 import ph.resq.app.core.DeviceCapabilityProfile
 import ph.resq.app.core.CapabilityState
+import ph.resq.app.core.SettingsRepository
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 
@@ -112,8 +113,8 @@ private fun ResQRoot() {
     val context = LocalContext.current
     val consentStore = remember { ConsentStore(context) }
     var consentAccepted by remember { mutableStateOf(consentStore.isAccepted()) }
-    val appPrefs = remember { context.getSharedPreferences("ph_resq_local", Context.MODE_PRIVATE) }
-    var highContrast by remember { mutableStateOf(appPrefs.getBoolean("high_contrast", false)) }
+    val settings = remember { SettingsRepository(context) }
+    var highContrast by remember { mutableStateOf(settings.highContrast) }
     val colors = if (highContrast) darkColorScheme(
         primary = Color.Yellow, onPrimary = Color.Black,
         secondary = Color.Cyan, onSecondary = Color.Black,
@@ -134,7 +135,7 @@ private fun ResQRoot() {
                 HomeScreen(
                     onToggleHighContrast = {
                         highContrast = !highContrast
-                        appPrefs.edit().putBoolean("high_contrast", highContrast).apply()
+                        settings.setHighContrast(highContrast)
                     },
                     onReviewPrivacy = {
                         consentStore.setAccepted(false)
@@ -165,8 +166,9 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     var medicalEmergencyContact by remember { mutableStateOf("") }
     var medicalQrBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var medicalQrStatus by remember { mutableStateOf("Walang QR na ginawa.") }
+    val settings = remember { SettingsRepository(context) }
     val prefs = remember { context.getSharedPreferences("ph_resq_local", Context.MODE_PRIVATE) }
-    var reduceMotion by remember { mutableStateOf(prefs.getBoolean("reduce_motion", false)) }
+    var reduceMotion by remember { mutableStateOf(settings.reduceMotion) }
     val vault = remember { LocalVault(context) }
     val pinVault = remember { PinProtectedVault(context) }
     var pinVaultEnabled by remember { mutableStateOf(prefs.getBoolean("pin_vault_enabled", false) || pinVault.isConfigured()) }
@@ -253,7 +255,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     }
     var voiceRecording by remember { mutableStateOf(false) }
     var voiceStatus by remember { mutableStateOf("Wala pang voice note") }
-    var voicePlaybackVolume by remember { mutableStateOf(runCatching { SafeVolumePolicy.clamp(prefs.getFloat("voice_playback_volume", SafeVolumePolicy.DEFAULT)) }.getOrDefault(SafeVolumePolicy.DEFAULT)) }
+    var voicePlaybackVolume by remember { mutableStateOf(settings.voicePlaybackVolume) }
     var savedVoiceNotes by remember { mutableStateOf(voiceRecorder.listSaved(context)) }
     var voicePlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var voicePlaybackTemp by remember { mutableStateOf<File?>(null) }
@@ -524,6 +526,12 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         Button(onClick = onToggleHighContrast, modifier = Modifier.fillMaxWidth()) {
             Text("HIGH CONTRAST: " + if (MaterialTheme.colorScheme.background == Color.Black) "ON — tap to disable" else "OFF — tap to enable")
         }
+        Button(onClick = {
+            reduceMotion = !reduceMotion
+            settings.setReduceMotion(reduceMotion)
+        }, modifier = Modifier.fillMaxWidth()) {
+            Text("REDUCE MOTION: " + if (reduceMotion) "ON — tap to disable" else "OFF — tap to enable")
+        }
         Button(onClick = onReviewPrivacy, modifier = Modifier.fillMaxWidth()) {
             Text("REVIEW PRIVACY NOTICE")
         }
@@ -781,7 +789,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Slider(
                     value = voicePlaybackVolume,
                     onValueChange = { voicePlaybackVolume = SafeVolumePolicy.clamp(it) },
-                    onValueChangeFinished = { prefs.edit().putFloat("voice_playback_volume", voicePlaybackVolume).apply() },
+                    onValueChangeFinished = { settings.setVoicePlaybackVolume(voicePlaybackVolume) },
                     valueRange = SafeVolumePolicy.MIN..SafeVolumePolicy.MAX,
                     steps = 5
                 )

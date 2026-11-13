@@ -1,6 +1,6 @@
 # PH-ResQ Settings, Device Capabilities & Integration Contracts
 
-**Status:** Partial implementation: the capability provider is wired to a lifecycle-refreshed device-status card with explicit permission/hardware states and manual refresh. Typed SettingsRepository/FeaturePolicyCoordinator ownership and full preference migration remain open.
+**Status:** Partial implementation: the capability provider is wired to a lifecycle-refreshed device-status card; typed `SettingsRepository` now owns persistent high-contrast, reduce-motion and safe voice-playback-gain preferences. FeaturePolicyCoordinator, OS-level accessibility preference integration, full permission event refresh and physical-device validation remain open.
 **Related:** `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md`, `PERSISTENCE_RECOVERY_ARCHITECTURE.md`, `SYSTEM_ARCHITECTURE.md`, `FEATURE_TRACEABILITY.md`.
 
 ## 1. Three authorities
