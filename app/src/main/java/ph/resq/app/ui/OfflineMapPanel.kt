@@ -19,7 +19,7 @@ import org.maplibre.android.module.http.HttpRequestUtil
 import org.maplibre.android.offline.*
 import java.util.concurrent.TimeUnit
 private const val STYLE_URL="https://tiles.openfreemap.org/styles/liberty"
-private const val MAX_BYTES=50L*1024L*1024L
+private const val MAX_BYTES=40L*1024L*1024L
 private const val MAX_TILES=3000L
 @Composable fun OfflineMapPanel(modifier:Modifier=Modifier){
  val context=LocalContext.current;val owner=LocalLifecycleOwner.current
