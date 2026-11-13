@@ -14,7 +14,6 @@ Last reviewed: 2026-11-13
 - Marinduque emergency contacts: https://marinduque.gov.ph/emergency-contacts/ — official provincial page with province and municipal DRRMO, police and fire numbers; seeded as review-due.
 - Lapuyan emergency contacts: https://www.lapuyan.gov.ph/contact-us/ — official municipal page with police, RHU, fire, DRRMO and Coast Guard numbers; seeded as review-due.
 - Bay evacuation inventory: https://bay.gov.ph/wp-content/uploads/2025/12/Ecological-Profile-2025-CDP-BAY.pdf — Table 130, 28 listed facilities, capacity in families, as of December 2024; coordinates are not supplied and operating status is not current-verified.
-- Geofabrik Philippines OSM extract: https://download.geofabrik.de/asia/philippines.html
 
 ## Verification policy
 A PSGC row proves administrative identity only. It does not prove a public phone number or evacuation facility exists. Contact entries require public office number, source URL/title and explicit verification state. Public social posts are discovery leads only; keep UNVERIFIED_SOCIAL until corroborated by an official government source or completed call. Never scrape private groups, personal profiles or personal mobile numbers.
@@ -24,7 +23,9 @@ Evacuation records retain facility name/type, PSGC, address, coordinates/capacit
 UTF-8 columns: psgc_code,region,province,city_municipality,barangay,urban_rural,source_url,source_version. Every row must identify the official PSA PSGC URL and Q3 2026 release. Importer accepts only a complete 42,010-row Q3-2026 snapshot with unique 10-digit PSGC codes; partial imports are rejected.
 
 ## Offline maps
-PH-ResQ uses MapLibre Native and OpenFreeMap Liberty. User-triggered downloads obey current limits: <=3,000 tiles or 50 MB per download, <=3 parallel requests; PH-ResQ stops conservatively at 40 MB, unique app User-Agent. Attribution stays visible. Do not bulk-download the Philippines from the public tile service. Nationwide basemap requires separately licensed and built extract/package.
+PH-ResQ uses MapLibre Native and OpenFreeMap Liberty for user-selected regional offline packs. User-triggered downloads obey the provider's current limits: <=3,000 tiles or 50 MB per download, <=3 parallel requests; PH-ResQ stops conservatively at 40 MB and uses a unique app User-Agent. Attribution stays visible. Do not bulk-download the Philippines from the public tile service.
+
+The nationwide vector basemap uses the official Mapsforge v5 prebuilt Philippines map: https://download.mapsforge.org/maps/v5/asia/philippines.map (the public index listed 563 MB and a 2026-10-06 modification date when audited). GitHub Actions downloads it over HTTPS, computes a PH-ResQ SHA-256 sidecar, and publishes a replaceable `offline-map-latest` release. The Android app downloads the release asset, verifies SHA-256 before installation, and renders it with Mapsforge 0.25.0. The map is OSM basemap data under ODbL; it is not an authoritative barangay-boundary or emergency-facility dataset. Refresh workflow is monthly.
 
 ## Acceptance
 1. PSGC count and unique codes match PSA.
