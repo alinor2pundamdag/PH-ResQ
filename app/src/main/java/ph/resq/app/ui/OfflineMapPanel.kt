@@ -124,6 +124,6 @@ private const val DEVICE_TILE_LIMIT=6000L
    }
   }
   Text("© OpenFreeMap · © OpenMapTiles · © OpenStreetMap contributors",style=MaterialTheme.typography.labelSmall)
-  Text("Per download: maximum 3,000 tiles or 50 MB; maximum three parallel requests. This is regional coverage, not a preloaded nationwide basemap.")
+  Text("Per download: maximum 3,000 tiles or 40 MB; maximum three parallel requests. This is regional coverage, not a preloaded nationwide basemap.")
  }
 }
