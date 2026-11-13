@@ -50,11 +50,16 @@ Audit target: PR #1 head `0ef2401d0cdfb71ed34c6dbe4e3b3f746aee6f5d`. GitHub repo
 A manifest permission, UI card, schema table, utility, or successful build is not proof that a complete feature works. Do not distribute this early build as a dependable emergency service.
 
 
-## P0 SOS durability correction — candidate 49af483e560f97f5922ce9bc4edfcca5098f38c1
+## P0 SOS durability correction — candidate 0e2a8afe3d1e5af7ceb29dc534726aefebc155b4
 
 - `prepareSos()` now validates recipients and builds the exact draft before queueing. It persists `QUEUED` with the encrypted draft, recipient snapshot and location before attempting any external activity.
 - The event is moved to `SENDING` in a separate persisted transition before the messaging-app launch. `HANDED_OFF` is recorded only after Android successfully launches the target activity; this still does not mean SMS was sent or delivered.
 - `sos_events` now stores a stable UUID `event_id` across transitions for one SOS event. Schema version 8 adds the field and assigns independent IDs to legacy transition rows without deleting them.
 - The database enforces valid per-event transitions. Generic code cannot mark an event `DELIVERED` or `ACKNOWLEDGED` because no trusted delivery-receipt/recipient-ack transport exists.
 - Added Robolectric tests for encrypted SOS snapshot readback, stable event IDs across `QUEUED` → `SENDING`, rejection of unverified delivery/acknowledgement, and schema v7 migration.
-- Current candidate CI run for source commit `49af483e560f97f5922ce9bc4edfcca5098f38c1` has not yet been dispatched/verified at this snapshot. Do not use older CI or APK artifacts as evidence for this commit.
+- Current candidate CI must be dispatched and verified against the exact final PR-head SHA after documentation consistency updates. Earlier runs on parent commits do not validate this candidate. Do not use older CI or APK artifacts as evidence for this commit.
+
+
+## Current candidate compile correction — 0e2a8afe3d1e5af7ceb29dc534726aefebc155b4
+
+A previous compile attempt found a missing explicit return in the block-bodied Compose setSosState helper. The helper now returns false when durable persistence fails and true only after the SQLite event write succeeds. The candidate's final CI still needs to prove compilation, tests, lint and both APK assemblies.

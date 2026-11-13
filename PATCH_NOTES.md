@@ -89,3 +89,5 @@ The collection does not replace or delete `PHASE_1_INIT_CONSENT.md` through `PHA
 - Enforced legal per-event state transitions at the database boundary.
 - Generic transitions now reject DELIVERED and ACKNOWLEDGED until trusted delivery/recipient-ack evidence exists.
 - Added Robolectric coverage for snapshot persistence, stable IDs, receipt-state rejection and schema migration. Current-SHA CI and device acceptance remain required.
+
+- Follow-up compile correction: explicit Boolean return from the Compose SOS persistence helper; failed SQLite writes now abort the external handoff path.
