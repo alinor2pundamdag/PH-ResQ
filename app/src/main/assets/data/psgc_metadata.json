@@ -10,7 +10,7 @@
     "duplicate_psgc_codes": 0
   },
   "official_source": "https://psa.gov.ph/classification/psgc",
-  "official_q3_release": "https://psa.gov.ph/content/third-quarter-2026-psgc-updates-correction-name-one-barangay",
+  "official_q3_release": "https://psa.gov.ph/classification/psgc",
   "official_q3_workbook": "https://psa.gov.ph/system/files/scd/PSGC-3Q-2026-Publication-Datafile.xlsx",
   "derived_from_repository": "https://github.com/Tenasia/ph-psgc/tree/2026-Q2",
   "derived_from_commit": "3d7528b6625e4e7990ac1b96d89505a6bab157ec",
