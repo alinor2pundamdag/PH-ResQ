@@ -107,6 +107,7 @@ import ph.resq.app.core.CapabilityState
 import ph.resq.app.core.SettingsRepository
 import ph.resq.app.core.FeaturePolicyCoordinator
 import ph.resq.app.ui.NationalDataPanel
+import ph.resq.app.ui.NationwideOfflineMapPanel
 import ph.resq.app.ui.OfflineMapPanel
 import ph.resq.app.core.FeatureAvailability
 import kotlinx.coroutines.Dispatchers
@@ -1006,7 +1007,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OfflineMapPanel(modifier = Modifier.fillMaxWidth())
+                NationwideOfflineMapPanel(modifier = Modifier.fillMaxWidth())
+                OfflineMapPanel(database = database, modifier = Modifier.fillMaxWidth())
                 NationalDataPanel(database = database, modifier = Modifier.fillMaxWidth())
                 Text("Offline directory and local hazard cache", style = MaterialTheme.typography.titleLarge)
         Text("Hinahanap lamang nito ang data na na-import na sa device. Walang live PAGASA/LGU feed at hindi ito nangangahulugang kumpleto ang nationwide coverage.")
