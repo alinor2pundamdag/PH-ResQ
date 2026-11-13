@@ -1126,83 +1126,80 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         }
         if (selectedSection == HomeSection.DIRECTORY) {
-        PremiumCard {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                NationwideOfflineMapPanel(modifier = Modifier.fillMaxWidth())
-                OfflineMapPanel(database = database, modifier = Modifier.fillMaxWidth())
-                NationalDataPanel(database = database, modifier = Modifier.fillMaxWidth())
-                Text("Offline directory and local hazard cache", style = MaterialTheme.typography.titleLarge)
-        Text("Hinahanap lamang nito ang data na na-import na sa device. Walang live PAGASA/LGU feed at hindi ito nangangahulugang kumpleto ang nationwide coverage.")
-        Text("Ang JSON metadata ay hindi digital signature. I-import lamang ang file matapos mong beripikahin ang opisyal na source, lisensya at petsa; walang live download na ginagawa.")
-        Button(enabled = !offlineImporting, onClick = { offlineImportLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) {
-            Text(if (offlineImporting) "IMPORTING — PLEASE WAIT" else "IMPORT OFFLINE JSON")
-        }
-        }
-        if (offlineImporting) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        Text(offlineImportStatus)
-        OutlinedTextField(value = offlineQuery, onValueChange = { offlineQuery = it.take(120) }, label = { Text("Barangay, lugar, agency o evacuation center") }, modifier = Modifier.fillMaxWidth())
-        Button(enabled = !offlineSearching && !offlineImporting, onClick = {
-            uiScope.launch {
-                offlineSearching = true
-                try {
-                    val result = withContext(Dispatchers.IO) {
-                        val location = LastKnownLocation.read(context)
-                        if (location == null) null else offlineDataRepository.searchNearby(location.latitude, location.longitude, radiusKm = 25.0, limit = 100).map { it.record }
+            PremiumCard {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    NationwideOfflineMapPanel(modifier = Modifier.fillMaxWidth())
+                    OfflineMapPanel(database = database, modifier = Modifier.fillMaxWidth())
+                    NationalDataPanel(database = database, modifier = Modifier.fillMaxWidth())
+                    Text("Offline directory and local hazard cache", style = MaterialTheme.typography.titleLarge)
+                    Text("Hinahanap lamang nito ang data na na-import na sa device. Walang live PAGASA/LGU feed at hindi ito nangangahulugang kumpleto ang nationwide coverage.")
+                    Text("Ang JSON metadata ay hindi digital signature. I-import lamang ang file matapos mong beripikahin ang opisyal na source, lisensya at petsa; walang live download na ginagawa.")
+                    Button(enabled = !offlineImporting, onClick = { offlineImportLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(if (offlineImporting) "IMPORTING — PLEASE WAIT" else "IMPORT OFFLINE JSON")
                     }
-                    if (result == null) Toast.makeText(context, "Walang huling lokasyon. I-enable ang location permission at kumuha muna ng fix.", Toast.LENGTH_LONG).show()
-                    else {
-                        directoryResults = result
-                        if (result.isEmpty()) Toast.makeText(context, "Walang imported directory record na may coordinates sa loob ng 25 km.", Toast.LENGTH_LONG).show()
+                    if (offlineImporting) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    Text(offlineImportStatus)
+                    OutlinedTextField(value = offlineQuery, onValueChange = { offlineQuery = it.take(120) }, label = { Text("Barangay, lugar, agency o evacuation center") }, modifier = Modifier.fillMaxWidth())
+                    Button(enabled = !offlineSearching && !offlineImporting, onClick = {
+                        uiScope.launch {
+                            offlineSearching = true
+                            try {
+                                val result = withContext(Dispatchers.IO) {
+                                    val location = LastKnownLocation.read(context)
+                                    if (location == null) null else offlineDataRepository.searchNearby(location.latitude, location.longitude, radiusKm = 25.0, limit = 100).map { it.record }
+                                }
+                                if (result == null) Toast.makeText(context, "Walang huling lokasyon. I-enable ang location permission at kumuha muna ng fix.", Toast.LENGTH_LONG).show()
+                                else {
+                                    directoryResults = result
+                                    if (result.isEmpty()) Toast.makeText(context, "Walang imported directory record na may coordinates sa loob ng 25 km.", Toast.LENGTH_LONG).show()
+                                }
+                            } finally { offlineSearching = false }
+                        }
+                    }, modifier = Modifier.fillMaxWidth()) { Text("SEARCH NEAR LAST-KNOWN LOCATION (25 KM)") }
+                    Text("Gumagamit lamang ito ng huling kilalang lokasyon; maaaring luma ang fix. Hindi ito nagsisimula ng bagong GPS request.")
+                    Button(enabled = !offlineSearching && !offlineImporting, onClick = {
+                        uiScope.launch {
+                            offlineSearching = true
+                            try {
+                                directoryResults = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList()) }
+                                directoryMetadata = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.datasetMetadata() }.getOrNull() }
+                                evacuationItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList()) }
+                                advisoryItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList()) }
+                                if (directoryResults.isEmpty() && evacuationItems.isEmpty() && advisoryItems.isEmpty()) {
+                                    Toast.makeText(context, "Walang local directory/advisory data na available. Hindi nag-download ng data.", Toast.LENGTH_LONG).show()
+                                }
+                            } finally { offlineSearching = false }
+                        }
+                    }, modifier = Modifier.fillMaxWidth()) { Text(if (offlineSearching) "SEARCHING…" else "SEARCH SAVED OFFLINE DATA") }
+                    if (offlineSearching) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    directoryMetadata?.let { meta ->
+                        Text("Directory dataset: ${meta["version"] ?: "unknown"} • records: ${meta["recordCount"] ?: "unknown"}")
+                        Text("Source: ${meta["sourceUrl"] ?: "unknown"} • license: ${meta["license"] ?: "unknown"}")
+                        Text("Source-reported verification time: ${meta["verifiedAt"] ?: "unknown"} • imported at: ${meta["importedAt"] ?: "unknown"}")
+                    } ?: Text("Walang imported directory dataset. Mag-import lamang ng data mula sa beripikadong source at may malinaw na lisensya.")
+                    directoryResults.take(30).forEach { record ->
+                        Text(record.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        Text(record.category + (record.phone?.let { " • $it" } ?: ""))
+                        if (record.latitude != null && record.longitude != null) Text("Coordinates: ${record.latitude}, ${record.longitude}")
                     }
-                } finally { offlineSearching = false }
-            }
-        }, modifier = Modifier.fillMaxWidth()) { Text("SEARCH NEAR LAST-KNOWN LOCATION (25 KM)") }
-        Text("Gumagamit lamang ito ng huling kilalang lokasyon; maaaring luma ang fix. Hindi ito nagsisimula ng bagong GPS request.")
-        Button(enabled = !offlineSearching && !offlineImporting, onClick = {
-            uiScope.launch {
-                offlineSearching = true
-                try {
-                    directoryResults = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList()) }
-                    directoryMetadata = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.datasetMetadata() }.getOrNull() }
-                    evacuationItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList()) }
-                    advisoryItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList()) }
-                    if (directoryResults.isEmpty() && evacuationItems.isEmpty() && advisoryItems.isEmpty()) {
-                        Toast.makeText(context, "Walang local directory/advisory data na available. Hindi nag-download ng data.", Toast.LENGTH_LONG).show()
+                    Text("Evacuation centers (local cache)", style = MaterialTheme.typography.titleMedium)
+                    if (evacuationItems.isEmpty()) Text("Walang matching imported evacuation-center records.")
+                    evacuationItems.take(30).forEach { (center, stale) ->
+                        Text(center.name + if (stale) " • STALE / VERIFY LOCALLY" else " • status: ${center.status}", style = MaterialTheme.typography.titleMedium)
+                        Text(center.address)
+                        Text("Source: ${center.sourceUrl} • verified: ${center.verifiedAt}")
                     }
-                } finally { offlineSearching = false }
+                    Text("Cached advisories", style = MaterialTheme.typography.titleMedium)
+                    if (advisoryItems.isEmpty()) Text("Walang cached advisories. Walang live feed request na ginawa.")
+                    advisoryItems.take(10).forEach { (item, stale) ->
+                        Text(item.title + if (stale) " • STALE / EXPIRED" else " • ${item.severity}", style = MaterialTheme.typography.titleMedium)
+                        Text(item.body)
+                        Text("Source: ${item.sourceUrl} • published: ${item.publishedAt} • expires: ${item.expiresAt}")
+                    }
+                    Text("Directory, maps, mesh and vault", style = MaterialTheme.typography.titleLarge)
+                    Text("The nationwide offline map is downloaded and checksum-verified before use. BLE currently discovers nearby devices only—no emergency payload transport or Wi-Fi Direct mesh is implemented. Family check-in is locally queued, not remotely delivered. PIN-vault recovery and duress mode remain in progress.")
+                }
             }
-        }, modifier = Modifier.fillMaxWidth()) { Text(if (offlineSearching) "SEARCHING…" else "SEARCH SAVED OFFLINE DATA") }
-        if (offlineSearching) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        directoryMetadata?.let { meta ->
-            Text("Directory dataset: ${meta["version"] ?: "unknown"} • records: ${meta["recordCount"] ?: "unknown"}")
-            Text("Source: ${meta["sourceUrl"] ?: "unknown"} • license: ${meta["license"] ?: "unknown"}")
-            Text("Source-reported verification time: ${meta["verifiedAt"] ?: "unknown"} • imported at: ${meta["importedAt"] ?: "unknown"}")
-        } ?: Text("Walang imported directory dataset. Mag-import lamang ng data mula sa beripikadong source at may malinaw na lisensya.")
-        directoryResults.take(30).forEach { record ->
-            Text(record.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            Text(record.category + (record.phone?.let { " • $it" } ?: ""))
-            if (record.latitude != null && record.longitude != null) Text("Coordinates: ${record.latitude}, ${record.longitude}")
-        }
-        }
-        Text("Evacuation centers (local cache)", style = MaterialTheme.typography.titleMedium)
-        if (evacuationItems.isEmpty()) Text("Walang matching imported evacuation-center records.")
-        evacuationItems.take(30).forEach { (center, stale) ->
-            Text(center.name + if (stale) " • STALE / VERIFY LOCALLY" else " • status: ${center.status}", style = MaterialTheme.typography.titleMedium)
-            Text(center.address)
-            Text("Source: ${center.sourceUrl} • verified: ${center.verifiedAt}")
-        }
-        Text("Cached advisories", style = MaterialTheme.typography.titleMedium)
-        if (advisoryItems.isEmpty()) Text("Walang cached advisories. Walang live feed request na ginawa.")
-        advisoryItems.take(10).forEach { (item, stale) ->
-            Text(item.title + if (stale) " • STALE / EXPIRED" else " • ${item.severity}", style = MaterialTheme.typography.titleMedium)
-            Text(item.body)
-            Text("Source: ${item.sourceUrl} • published: ${item.publishedAt} • expires: ${item.expiresAt}")
-        }
-
-        Text("Directory, maps, mesh and vault", style = MaterialTheme.typography.titleLarge)
-                Text("Available ang nationwide offline-map package for download; actual rendering and airplane-mode operation still need your device verification. BLE currently discovers nearby devices only—no emergency payload transport or Wi-Fi Direct mesh is implemented. Family check-in is locally queued, not remotely delivered. The PIN vault still needs recovery/backup and a documented threat-model review.")
-            }
-        }
         }
         Text("Ang SMS handoff ay hindi patunay ng delivery. Sa agarang panganib, gamitin ang available na opisyal na emergency channel.")
     }
