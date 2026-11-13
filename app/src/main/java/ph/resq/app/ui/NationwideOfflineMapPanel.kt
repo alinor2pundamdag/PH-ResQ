@@ -41,13 +41,44 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
     val scope=rememberCoroutineScope()
     val mapFile=remember(context){File(context.getExternalFilesDir(null)?:context.filesDir,"maps/philippines.map")}
     val checksumFile=remember(context){File(mapFile.parentFile,"philippines.map.sha256")}
-    var available by remember{mutableStateOf(mapFile.exists()&&mapFile.length()>100_000_000L&&checksumFile.exists())}
+    val verificationMarker=remember(context){File(mapFile.parentFile,"philippines.map.verified")}
+    var available by remember{mutableStateOf(false)}
+    var checkingExisting by remember{mutableStateOf(true)}
     var downloading by remember{mutableStateOf(false)}
     var progress by remember{mutableFloatStateOf(0f)}
     var status by remember{mutableStateOf("Nationwide map package is published by the PH-ResQ map release workflow.")}
     var mapView by remember{mutableStateOf<MapsforgeMapView?>(null)}
     var mapLoaded by remember{mutableStateOf(false)}
     val client=remember{OkHttpClient.Builder().connectTimeout(30,TimeUnit.SECONDS).readTimeout(0,TimeUnit.MILLISECONDS).build()}
+
+    // Verify an installed map once per file version. The marker is tied to the file size,
+    // modification time and published SHA-256; any changed file is re-hashed before use.
+    LaunchedEffect(mapFile, checksumFile, verificationMarker){
+        val valid=withContext(Dispatchers.IO){
+            runCatching{
+                if(!mapFile.isFile || mapFile.length()<=100_000_000L || !checksumFile.isFile) return@runCatching false
+                val expected=checksumFile.readText().trim().split(Regex("\\s+")).firstOrNull()
+                    ?.takeIf{it.matches(Regex("[a-fA-F0-9]{64}"))}?:return@runCatching false
+                val markerValue="${mapFile.length()}|${mapFile.lastModified()}|${expected.lowercase()}"
+                if(verificationMarker.isFile && verificationMarker.readText().trim()==markerValue) return@runCatching true
+                val digest=MessageDigest.getInstance("SHA-256")
+                FileInputStream(mapFile).use{input->
+                    val buffer=ByteArray(1024*1024)
+                    while(true){val count=input.read(buffer);if(count<0)break;digest.update(buffer,0,count)}
+                }
+                val actual=digest.digest().joinToString(""){"%02x".format(it)}
+                if(!actual.equals(expected,ignoreCase=true)){
+                    mapFile.delete();checksumFile.delete();verificationMarker.delete()
+                    return@runCatching false
+                }
+                verificationMarker.writeText(markerValue)
+                true
+            }.getOrDefault(false)
+        }
+        available=valid
+        checkingExisting=false
+        status=if(valid)"Installed nationwide map integrity verified." else "No verified nationwide map is installed. Download the signed-by-checksum release to enable offline rendering."
+    }
 
     DisposableEffect(mapView){
         val view=mapView
@@ -58,7 +89,8 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
         Text("NATIONWIDE PHILIPPINES OFFLINE MAP",style=MaterialTheme.typography.titleLarge)
         Text("Full-country vector basemap from the official Mapsforge v5 Philippines map. It is separate from the smaller MapLibre area packs.")
         if(!available){
-            Button(enabled=!downloading,onClick={
+            if(checkingExisting) Text("Checking the installed map file…",style=MaterialTheme.typography.bodySmall)
+            Button(enabled=!downloading&&!checkingExisting,onClick={
                 scope.launch{
                     downloading=true;progress=0f;status="Checking map release, checksum and available storage…"
                     val result=runCatching{
@@ -104,7 +136,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                         }
                     }
                     status=result.fold({"Nationwide map downloaded and SHA-256 verified."},{"Download failed: ${it.message}"})
-                    available=result.isSuccess&&mapFile.exists()
+                    available=result.isSuccess&&mapFile.exists()&&checksumFile.exists()&&verificationMarker.exists()
                     downloading=false
                     mapLoaded=false
                 }
@@ -142,7 +174,7 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                 mapView?.layerManager?.layers?.clear()
                 mapLoaded=false
                 available=false
-                mapFile.delete();checksumFile.delete()
+                mapFile.delete();checksumFile.delete();verificationMarker.delete()
                 status="Nationwide map deleted from app storage."
             },modifier=Modifier.fillMaxWidth()){Text("DELETE NATIONWIDE MAP AND FREE STORAGE")}
         }
