@@ -41,14 +41,14 @@ class NationalDatasetImporterTest{
    "911","https://example.gov.ph/ambiguous","Synthetic ambiguity test",ContactVerification.NEEDS_REVIEW
   )
   repository.addPublicContact(ambiguous)
-  assertNull(repository.searchContacts("",10).single{it.id=="ambiguous-burgos-poblacion"}.psgcCode)
+  assertNull(repository.searchContacts("Burgos",100).single{it.id=="ambiguous-burgos-poblacion"}.psgcCode)
 
   val explicit=ambiguous.copy(
    id="explicit-ilocos-norte-burgos-poblacion",
    officeName="Barangay Poblacion, Burgos, Ilocos Norte"
   )
   repository.addPublicContact(explicit)
-  assertEquals("0102806011",repository.searchContacts("",10).single{it.id=="explicit-ilocos-norte-burgos-poblacion"}.psgcCode)
+  assertEquals("0102806011",repository.searchContacts("Burgos",100).single{it.id=="explicit-ilocos-norte-burgos-poblacion"}.psgcCode)
  }
 
  @Test fun publicContactAndEvacuationImportsRollbackAllRowsWhenAnyRecordIsInvalid(){

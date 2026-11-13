@@ -37,31 +37,49 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
    .replace(Regex("\\bquirino 3b claro\\b"),"claro")
    .let { if(it=="pasong putik") "pasong putik proper" else it }
  }
+ private fun normalizeProvince(value:String):String {
+  val normalized=normalizeLabel(value)
+  return when(normalized){
+   "metro manila","ncr","national capital region" -> "no province independent city"
+   "philippines" -> ""
+   else -> normalized
+  }
+ }
+ private fun cityVariants(rawCity:String):List<String> {
+  val city=rawCity.trim()
+  val base=city.replace(Regex("^(City|Municipality) of\\s+",RegexOption.IGNORE_CASE),"")
+   .replace(Regex("\\s+(City|Municipality)$",RegexOption.IGNORE_CASE),"").trim()
+  return when {
+   city.startsWith("City of ",ignoreCase=true) -> listOf(city,"$base City")
+   city.endsWith(" City",ignoreCase=true) -> listOf(city,"City of $base")
+   city.startsWith("Municipality of ",ignoreCase=true) -> listOf(city,"$base Municipality")
+   city.endsWith(" Municipality",ignoreCase=true) -> listOf(city,"Municipality of $base")
+   else -> listOf(city,"City of $city","$city City","Municipality of $city")
+  }.distinct()
+ }
  private fun resolveBarangayPsgc(label:String):String? {
-  // Addresses may include "Barangay X, City/Municipality, Province". Use the
-  // province when supplied; without it, never choose arbitrarily among duplicate
-  // city/barangay names elsewhere in the Philippines.
-  val matches=Regex("Barangay\\s+([^,]+),\\s*([^,]+)(?:,\\s*([^,]+))?",RegexOption.IGNORE_CASE).findAll(label)
+  // Lookahead allows a second Barangay token inside an address prefix, e.g.
+  // "Barangay hall, Barangay San Antonio, Bay, Laguna, Philippines".
+  val matches=Regex("(?=(Barangay\\s+([^,]+),\\s*([^,]+)(?:,\\s*([^,]+))?))",RegexOption.IGNORE_CASE).findAll(label)
   for(match in matches){
-   val barangay=normalizeLabel(match.groupValues[1])
-   val rawCity=match.groupValues[2].trim()
-   val rawProvince=match.groupValues.getOrNull(3)?.trim().orEmpty()
-   val baseCity=rawCity.replace(Regex("^(City|Municipality) of\\s+",RegexOption.IGNORE_CASE),"")
-    .replace(Regex("\\s+(City|Municipality)$",RegexOption.IGNORE_CASE),"").trim()
-   val cityVariants=listOf(rawCity,baseCity,"City of $baseCity","$baseCity City","Municipality of $baseCity").distinct()
-   val normalizedCities=cityVariants.map(::normalizeLabel).toSet()
-   val placeholders=cityVariants.joinToString(","){"?"}
+   val barangay=normalizeLabel(match.groupValues[2])
+   val rawCity=match.groupValues[3].trim()
+   val rawProvince=match.groupValues.getOrNull(4)?.trim().orEmpty()
+   val variants=cityVariants(rawCity)
+   val normalizedCities=variants.map(::normalizeLabel).toSet()
+   val province=normalizeProvince(rawProvince)
+   val placeholders=variants.joinToString(","){"?"}
    val candidates=database.readableDatabase.rawQuery(
     "SELECT psgc_code,province,city_municipality,barangay FROM barangay_reference WHERE city_municipality IN ($placeholders)",
-    cityVariants.toTypedArray()
+    variants.toTypedArray()
    )
    val matchedCodes=linkedSetOf<String>()
    candidates.use { c ->
     while(c.moveToNext()){
-     val storedProvince=normalizeLabel(c.getString(1))
+     val storedProvince=normalizeProvince(c.getString(1))
      val storedCity=normalizeLabel(c.getString(2))
      val storedBarangay=normalizeLabel(c.getString(3))
-     val provinceMatches=rawProvince.isBlank()||storedProvince==normalizeLabel(rawProvince)
+     val provinceMatches=province.isBlank()||storedProvince==province
      if(provinceMatches&&storedBarangay==barangay&&storedCity in normalizedCities)matchedCodes.add(c.getString(0))
     }
    }
