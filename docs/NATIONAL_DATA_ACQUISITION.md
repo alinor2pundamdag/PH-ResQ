@@ -44,3 +44,15 @@ These replies conflict on the custodian and demonstrate that there is no single 
 ## Starter records committed with this branch
 - 80 public office numbers from Pasig City (2024), Marinduque provincial/LGU page, and Lapuyan municipal page. All carry source links and are review-due; none is represented as verified by a phone call.
 - 28 evacuation-center records from Bay, Laguna Table 130 (as of December 2024). Capacity unit is explicitly FAMILIES; coordinates are null and operational status is UNKNOWN.
+
+
+## Bundled national PSGC identity reference (implemented)
+The app now ships 12 CSV shards under `app/src/main/assets/data/psgc_q3_part_01.csv` through `psgc_q3_part_12.csv`, plus `psgc_metadata.json`.
+- 42,010 rows, 42,010 unique 10-digit PSGC codes, zero duplicates, all 18 regions.
+- Lineage: pinned third-party PSA-derived snapshot `Tenasia/ph-psgc@2026-Q2` (commit `3d7528b6625e4e7990ac1b96d89505a6bab157ec`), with PSA's sole Q3 2026 name correction applied: PSGC `1001322005`, Cabanglasan, Bukidnon, `Lambangan` → `Lambagan` (PSA ref. 2026-331).
+- Official release: https://psa.gov.ph/classification/psgc ; official Q3 workbook: https://psa.gov.ph/system/files/scd/PSGC-3Q-2026-Publication-Datafile.xlsx
+- The bundle is for administrative identity and hierarchy. The Q3 workbook also updates urban/rural classifications using the 2024 Census; that field is intentionally null in this bundle because the exact Q3 classification column has not yet been imported. Do not treat the urban/rural field as complete.
+- The source is a third-party PSA-derived distributor, not an official PSA API. PSA remains the authority; attribution is retained in the asset metadata.
+- The app installs the full reference into SQLite in a background coroutine and links existing barangay office contacts to PSGC codes using normalized name + city matching.
+
+This is **100% barangay identity/code coverage** for the published count, not 100% emergency-contact coverage, evacuation-center coverage, or polygon-boundary coverage.
