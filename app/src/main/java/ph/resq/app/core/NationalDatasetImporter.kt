@@ -19,19 +19,28 @@ object NationalDatasetImporter{
   return repository.replaceBarangays(records,NationalReferenceRepository.PSA_SOURCE,version)
  }
 
- fun importPublicContactsJson(context:Context,uri:Uri,repository:NationalReferenceRepository):Int{
-  val root=JSONObject(readText(context,uri));require(root.optString("type")=="emergency_contacts"){"Expected emergency_contacts dataset."}
+ fun importPublicContactsJson(context:Context,uri:Uri,repository:NationalReferenceRepository):Int =
+  importContactsPayload(readText(context,uri),repository)
+ fun importBundledPublicContacts(context:Context,repository:NationalReferenceRepository):Int =
+  importContactsPayload(context.assets.open("data/public_emergency_contacts.json").bufferedReader().use{it.readText()},repository)
+ private fun importContactsPayload(payload:String,repository:NationalReferenceRepository):Int{
+  val root=JSONObject(payload);require(root.optString("type")=="emergency_contacts"){"Expected emergency_contacts dataset."}
   val records=root.optJSONArray("records")?:error("Missing records array.");require(records.length() in 1..100_000);var imported=0
   for(i in 0 until records.length()){
    val o=records.getJSONObject(i)
    fun required(k:String)=o.optString(k,"").trim().also{require(it.isNotBlank()){"Record ${i+1} missing $k"}}
    val source=required("source_url");val host=runCatching{android.net.Uri.parse(source).host.orEmpty().lowercase()}.getOrDefault("")
    val verification=if(host.endsWith(".gov.ph")||host=="gov.ph")ContactVerification.OFFICIAL_GOVERNMENT_SOURCE else ContactVerification.UNVERIFIED_SOCIAL
-   repository.addPublicContact(PublicEmergencyContact(required("id"),o.optString("psgc_code").takeIf{it.isNotBlank()},required("scope").uppercase(),required("category").uppercase(),required("office_name"),required("phone"),source,required("source_title"),verification,null,null));imported++
+   val expiry=o.optLong("expires_at",-1L).takeIf{it>=0}
+   repository.addPublicContact(PublicEmergencyContact(required("id"),o.optString("psgc_code").takeIf{it.isNotBlank()},required("scope").uppercase(),required("category").uppercase(),required("office_name"),required("phone"),source,required("source_title"),verification,null,expiry));imported++
   };return imported
  }
- fun importEvacuationCentersJson(context:Context,uri:Uri,repository:NationalReferenceRepository):Int{
-  val root=JSONObject(readText(context,uri));require(root.optString("type")=="evacuation_centers"){"Expected evacuation_centers dataset."}
+ fun importEvacuationCentersJson(context:Context,uri:Uri,repository:NationalReferenceRepository):Int =
+  importEvacuationPayload(readText(context,uri),repository)
+ fun importBundledEvacuationCenters(context:Context,repository:NationalReferenceRepository):Int =
+  importEvacuationPayload(context.assets.open("data/bay_evacuation_centers.json").bufferedReader().use{it.readText()},repository)
+ private fun importEvacuationPayload(payload:String,repository:NationalReferenceRepository):Int{
+  val root=JSONObject(payload);require(root.optString("type")=="evacuation_centers"){"Expected evacuation_centers dataset."}
   val records=root.optJSONArray("records")?:error("Missing records array.");require(records.length() in 1..50_000);var imported=0
   for(i in 0 until records.length()){
    val o=records.getJSONObject(i)
@@ -39,9 +48,10 @@ object NationalDatasetImporter{
    val source=required("source_url");val host=runCatching{android.net.Uri.parse(source).host.orEmpty().lowercase()}.getOrDefault("")
    val verification=if(host.endsWith(".gov.ph")||host=="gov.ph")ContactVerification.OFFICIAL_GOVERNMENT_SOURCE else ContactVerification.NEEDS_REVIEW
    val lat=if(o.isNull("latitude"))null else o.getDouble("latitude");val lon=if(o.isNull("longitude"))null else o.getDouble("longitude")
-   val capacity=if(o.isNull("capacity"))null else o.getInt("capacity");val capacityUnit=o.optString("capacity_unit","UNKNOWN").uppercase().takeIf{it in setOf("PERSONS","FAMILIES","HOUSEHOLDS","UNKNOWN")}?:"UNKNOWN"
+   val capacity=if(o.isNull("capacity"))null else o.getInt("capacity")
+   val capacityUnit=o.optString("capacity_unit","UNKNOWN").uppercase().takeIf{it in setOf("PERSONS","FAMILIES","HOUSEHOLDS","UNKNOWN")}?:"UNKNOWN"
    val status=o.optString("operational_status","UNKNOWN").uppercase().takeIf{it in setOf("OPEN","LIMITED","FULL","CLOSED","UNKNOWN","UNDER_CONSTRUCTION")}?:"UNKNOWN"
-   repository.addEvacuationCenter(NationalEvacuationCenter(required("id"),o.optString("psgc_code").takeIf{it.isNotBlank()},required("name"),required("address"),o.optString("facility_type").takeIf{it.isNotBlank()},lat,lon,capacity,status,source,required("source_title"),verification,null));imported++
+   repository.addEvacuationCenter(NationalEvacuationCenter(required("id"),o.optString("psgc_code").takeIf{it.isNotBlank()},required("name"),required("address"),o.optString("facility_type").takeIf{it.isNotBlank()},lat,lon,capacity,capacityUnit,status,source,required("source_title"),verification,null));imported++
   };return imported
  }
  private fun readText(context:Context,uri:Uri):String{
