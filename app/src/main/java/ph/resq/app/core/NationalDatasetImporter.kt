@@ -84,7 +84,15 @@ object NationalDatasetImporter{
    val capacity=if(o.isNull("capacity"))null else o.getInt("capacity")
    val capacityUnit=o.optString("capacity_unit","UNKNOWN").uppercase().takeIf{it in setOf("PERSONS","FAMILIES","HOUSEHOLDS","UNKNOWN")}?:"UNKNOWN"
    val status=o.optString("operational_status","UNKNOWN").uppercase().takeIf{it in setOf("OPEN","LIMITED","FULL","CLOSED","UNKNOWN","UNDER_CONSTRUCTION")}?:"UNKNOWN"
-   repository.addEvacuationCenter(NationalEvacuationCenter(required("id"),o.optString("psgc_code").takeIf{it.isNotBlank()},required("name"),required("address"),o.optString("facility_type").takeIf{it.isNotBlank()},lat,lon,capacity,capacityUnit,status,source,required("source_title"),verification,null));imported++
+   // JSONObject.NULL may be coerced to the literal string "null" by optString().
+   // Normalize explicit JSON null and blank values before PSGC validation.
+   val rawPsgc = if (o.isNull("psgc_code")) null else o.optString("psgc_code").trim().takeIf { it.isNotEmpty() && !it.equals("null", ignoreCase = true) }
+   try {
+    repository.addEvacuationCenter(NationalEvacuationCenter(required("id"),rawPsgc,required("name"),required("address"),o.optString("facility_type").takeIf{it.isNotBlank()},lat,lon,capacity,capacityUnit,status,source,required("source_title"),verification,null))
+   } catch (error: IllegalArgumentException) {
+    throw IllegalArgumentException("Evacuation record " + (i+1) + " (" + o.optString("id") + ") rejected: " + error.message, error)
+   }
+   imported++
   };return imported
  }
  private fun readText(context:Context,uri:Uri):String{
