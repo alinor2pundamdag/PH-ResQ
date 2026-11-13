@@ -69,7 +69,7 @@ This map ensures every retained requirement has at least one planned acceptance 
 | F-002 | T-019, T-034 | Nationwide coverage and source licensing require a separate data audit. |
 | F-003 | T-020, T-011 | Tile integrity is not equivalent to a licensed renderer or nationwide coverage. |
 | F-004 | T-004, T-005 | Hold duration, cancellation and haptics require device/UI evidence. |
-| F-005 | T-006, T-007 | Messaging handoff is not delivery confirmation. |
+| F-005 | T-006, T-007, T-055 | Durable intent precedes handoff; messaging handoff is not delivery confirmation. |
 | F-006 | T-030 | User-selected app/recipient and delivery limitations must be explicit. |
 | F-007 | T-010, T-013, T-025, T-036, T-039–T-042, T-049–T-053 | All six persistence areas need recovery/migration coverage. |
 | F-008 | T-024 | Low-battery snapshot is best effort; critical state must already be persisted. |
@@ -97,7 +97,7 @@ This map ensures every retained requirement has at least one planned acceptance 
 | F-030 | T-023 | Animation must respect reduce-motion and never block emergency controls. |
 | F-031 | T-014, T-038, T-045–T-047, T-054 | Scan-window compliance and battery measurement are separate assertions. |
 | F-032 | T-036, T-039–T-040 | Search history/bookmarks require persistence, clear/delete and UI tests. |
-| F-033 | T-007, T-015, T-017 | Distinguish queued, handed-off, received, acknowledged and delivered states. |
+| F-033 | T-007, T-015, T-017, T-055 | Distinguish queued, handed-off, received, acknowledged and delivered states; receipt-less delivery writes are rejected. |
 | F-034 | T-011, T-020, T-021, T-034 | Signed manifests/update/rollback and nationwide coverage remain open. |
 | T-039 | Search history repeated with different casing, then cleared | One distinct query remains; clear action removes all saved queries | Robolectric database test | P2 |
 | T-040 | Save, update and remove a hotline bookmark | One row per item ID; list order stable; removal persists | Robolectric database test | P2 |
@@ -110,3 +110,6 @@ This map ensures every retained requirement has at least one planned acceptance 
 - **Release candidate:** all P0 passed; all P1 passed or explicitly accepted as documented limitations; reproducible build and complete evidence bundle available.
 
 A failed, skipped, unexecuted, or unreported test is not a pass. Older successful builds do not validate a newer revision.
+
+
+| T-055 | SOS event intent is committed before external messaging handoff; event UUID remains stable across QUEUED → SENDING → HANDED_OFF/FAILED; schema v7 records migrate without deletion; unverified DELIVERED/ACKNOWLEDGED writes are rejected | Robolectric database tests + exact-SHA CI; instrumented process-death test remains required | P0 |

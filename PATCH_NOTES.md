@@ -81,3 +81,11 @@ The collection does not replace or delete `PHASE_1_INIT_CONSENT.md` through `PHA
 - Added six-domain persistence, key lifecycle, migration, retention and recovery architecture.
 - Updated collection index, master plan, system architecture, ADRs, roadmap, work rules and status snapshot. All 34 retained feature IDs remain in scope.
 - Audit SHA: `0ef2401d0cdfb71ed34c6dbe4e3b3f746aee6f5d`. No source runtime behavior changed in this documentation pass.
+
+
+## 2026-11-13 — SOS event durability and receipt-state hardening
+- Persisted the exact encrypted SOS draft, recipient snapshot and location in QUEUED before launching the messaging app; persisted SENDING before the external side effect.
+- Added stable UUID event IDs and a non-destructive schema v7 → v8 migration that assigns separate IDs to legacy rows.
+- Enforced legal per-event state transitions at the database boundary.
+- Generic transitions now reject DELIVERED and ACKNOWLEDGED until trusted delivery/recipient-ack evidence exists.
+- Added Robolectric coverage for snapshot persistence, stable IDs, receipt-state rejection and schema migration. Current-SHA CI and device acceptance remain required.

@@ -1,6 +1,6 @@
 # PH-ResQ SOS State Machine
 
-**Status:** Normative behavior specification. The Kotlin enum and transition guard are a partial implementation; persistent transition orchestration, SMS delivery receipts, and physical-device acceptance remain incomplete.
+**Status:** Normative behavior specification. Current source persists an encrypted draft/recipient/location snapshot before messaging handoff, assigns a stable UUID per SOS event, records QUEUED/SENDING/HANDED_OFF/FAILED transitions, and blocks generic DELIVERED/ACKNOWLEDGED writes without trusted receipt evidence. Event-scoped recovery, trusted receipts, and physical-device acceptance remain incomplete.
 **Related:** `MASTER_PLAN.md`, `ARCHITECTURE_DECISIONS.md`, `FEATURE_TRACEABILITY.md`, `TEST_AND_ACCEPTANCE_PLAN.md`.
 
 ## 1. Design rules
@@ -26,20 +26,20 @@
 | CANCELLED | User cancelled before irreversible dispatch | Cancelled |
 | FAILED | Attempt cannot proceed without recovery or user action | Not sent / failed; explain reason |
 
-The current app uses `SosState` and `SosStateMachine` for a subset of legal transitions. It does not yet provide a complete transport-backed delivery-receipt pipeline. Do not display DELIVERED unless that pipeline exists and is tested.
+The current app uses `SosState`, `SosStateMachine`, and schema-v8 `event_id` to persist an event snapshot before external handoff. Generic transition writes cannot set DELIVERED or ACKNOWLEDGED. The app has no transport-backed delivery-receipt pipeline; do not display either state unless a trusted receipt/acknowledgement adapter is implemented and tested.
 
 ## 3. Legal transitions
 
 - IDLE → QUEUED or CANCELLED
 - QUEUED → SENDING, HANDED_OFF, CANCELLED, or FAILED
 - SENDING → HANDED_OFF, DELIVERED, RETRY_PENDING, FAILED, or CANCELLED
-- HANDED_OFF → DELIVERED, ACKNOWLEDGED, or FAILED only when evidence supports the transition; handoff alone cannot advance to delivery
-- DELIVERED → ACKNOWLEDGED or FAILED
+- HANDED_OFF → FAILED in the current implementation. A future trusted transport may add receipt-backed delivery/acknowledgement transitions only through a separate evidence-verifying API.
+- DELIVERED and ACKNOWLEDGED are retained as domain states but are unreachable through the generic current transition API.
 - RETRY_PENDING → SENDING, CANCELLED, or FAILED
 - FAILED → QUEUED only after explicit retry/recovery
 - ACKNOWLEDGED and CANCELLED are terminal for that event; a new emergency creates a new event ID
 
-Every attempted transition must be checked against the transition table and persisted transactionally with timestamp and non-sensitive reason code. Reject unknown transitions and log no message body, phone number, PIN, or precise location.
+Every attempted transition must be checked against the transition table and persisted transactionally with timestamp and non-sensitive reason code. Current schema v8 associates transitions with a stable UUID event_id; legacy rows receive independent IDs during migration because their historical grouping cannot be inferred safely. Reject unknown transitions and log no message body, phone number, PIN, or precise location.
 
 ## 4. SOS payload and privacy
 
