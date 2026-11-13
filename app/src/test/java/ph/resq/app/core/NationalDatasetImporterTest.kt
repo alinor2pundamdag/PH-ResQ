@@ -55,7 +55,7 @@ class NationalDatasetImporterTest{
   assertEquals("1001322005",corrected.psgcCode)
   assertEquals("Lambagan",corrected.barangay)
 
-  assertEquals(192,NationalDatasetImporter.importBundledPublicContacts(context,repository))
+  assertEquals(201,NationalDatasetImporter.importBundledPublicContacts(context,repository))
   assertTrue(repository.searchContacts("911",10).any{it.phone=="911"})
   assertTrue(repository.searchContacts("122",10).any{it.phone=="122"})
   assertTrue(repository.searchContacts("117",10).any{it.phone=="117"})
@@ -63,10 +63,11 @@ class NationalDatasetImporterTest{
   assertTrue(repository.searchContacts("136",10).any{it.phone=="136"})
   assertTrue(repository.searchContacts("Quezon",100).any{it.officeName=="Quezon Provincial DRRMO"})
   val contactRows=repository.searchContacts("",250)
-  assertEquals(192,contactRows.size)
+  assertEquals(201,contactRows.size)
   assertTrue(contactRows.all{it.expiresAt==0L})
   assertTrue(contactRows.any{it.sourceUrl=="https://ehotlines.e.gov.ph/" && it.verification==ContactVerification.OFFICIAL_GOVERNMENT_SOURCE})
   assertTrue(contactRows.any{it.sourceUrl=="https://quezon.gov.ph/quezon-province-emergency-hotlines/" && it.scope=="CITY_MUNICIPALITY"})
+  assertTrue(repository.searchContacts("MDRRMO Siniloan",10).any{it.phone=="0929 630 3715"})
   assertEquals(0,repository.coverage().verifiedContacts)
   assertTrue(repository.coverage().contactBarangays>0)
 
