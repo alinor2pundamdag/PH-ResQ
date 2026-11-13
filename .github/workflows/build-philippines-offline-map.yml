@@ -1,4 +1,4 @@
-name: Build Philippines Nationwide Offline Map
+name: Publish Philippines Nationwide Offline Map
 
 on:
   workflow_dispatch:
@@ -8,21 +8,21 @@ on:
     paths:
       - .github/workflows/build-philippines-offline-map.yml
   schedule:
-    - cron: "30 2 * * 1"
+    - cron: "30 2 1 * *"
 
 permissions:
   contents: write
 
 concurrency:
   group: ph-resq-nationwide-map
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  build-philippines-map:
+  publish-philippines-map:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 90
     steps:
-      - name: Checkout map build configuration
+      - name: Checkout map release configuration
         uses: actions/checkout@v4
 
       - name: Set up Java 17
@@ -31,96 +31,35 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Install Osmosis
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/osmosis" "$RUNNER_TEMP/osmosis-tmp"
-          curl -fL --retry 4 --retry-all-errors \
-            https://github.com/openstreetmap/osmosis/releases/download/0.49.2/osmosis-0.49.2.tar \
-            -o "$RUNNER_TEMP/osmosis.tar"
-          tar -xf "$RUNNER_TEMP/osmosis.tar" -C "$RUNNER_TEMP/osmosis"
-          OSMOSIS_BIN="$(find "$RUNNER_TEMP/osmosis" -type f -path '*/bin/osmosis' | head -n 1)"
-          test -x "$OSMOSIS_BIN"
-          echo "OSMOSIS_BIN=$OSMOSIS_BIN" >> "$GITHUB_ENV"
-          mkdir -p "$HOME/.openstreetmap/osmosis/plugins"
-          cat > "$RUNNER_TEMP/map-writer-pom.xml" <<'POM'
-          <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-            <modelVersion>4.0.0</modelVersion>
-            <groupId>ph.resq</groupId><artifactId>offline-map-writer</artifactId><version>1.0</version>
-            <dependencies>
-              <dependency><groupId>org.mapsforge</groupId><artifactId>mapsforge-map-writer</artifactId><version>0.25.0</version></dependency>
-              <dependency><groupId>net.sf.trove4j</groupId><artifactId>trove4j</artifactId><version>3.0.3</version></dependency>
-            </dependencies>
-          </project>
-          POM
-          mvn -q -f "$RUNNER_TEMP/map-writer-pom.xml" dependency:copy-dependencies \
-            -DincludeScope=runtime \
-            -DoutputDirectory="$HOME/.openstreetmap/osmosis/plugins"
-          PLUGIN_DIR="$HOME/.openstreetmap/osmosis/plugins"
-          FAT_DIR="$RUNNER_TEMP/mapsforge-plugin-fat"
-          mkdir -p "$FAT_DIR"
-          for dependency in "$PLUGIN_DIR"/*.jar; do (cd "$FAT_DIR" && jar xf "$dependency"); done
-          rm -f "$FAT_DIR"/META-INF/*.SF "$FAT_DIR"/META-INF/*.RSA "$FAT_DIR"/META-INF/*.DSA "$FAT_DIR"/META-INF/MANIFEST.MF
-          rm -f "$PLUGIN_DIR"/*.jar
-          jar cf "$PLUGIN_DIR/mapsforge-map-writer-0.25.0.jar" -C "$FAT_DIR" .
-          ls -lh "$PLUGIN_DIR"
-
-      - name: Download and verify current Geofabrik Philippines extract
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl -fL --retry 4 --retry-all-errors \
-            https://download.geofabrik.de/asia/philippines-latest.osm.pbf \
-            -o "$RUNNER_TEMP/philippines.osm.pbf"
-          curl -fL --retry 4 --retry-all-errors \
-            https://download.geofabrik.de/asia/philippines-latest.osm.pbf.md5 \
-            -o "$RUNNER_TEMP/philippines.osm.pbf.md5"
-          cd "$RUNNER_TEMP"
-          expected_md5="$(awk '{print $1}' philippines.osm.pbf.md5)"
-          echo "$expected_md5  philippines.osm.pbf" | md5sum -c -
-
-      - name: Generate Mapsforge country map
-        shell: bash
-        env:
-          JAVACMD_OPTIONS: "-Xmx5G -Djava.io.tmpdir=${{ runner.temp }}/osmosis-tmp"
-        run: |
-          set -euo pipefail
-          "$OSMOSIS_BIN" \
-            --read-pbf file="$RUNNER_TEMP/philippines.osm.pbf" \
-            --mapfile-writer file="$RUNNER_TEMP/philippines.map" \
-              type=hd \
-              map-start-position=12.8797,121.7740 \
-              map-start-zoom=5 \
-              preferred-languages=en,tl \
-              comment="PH-ResQ nationwide offline map; OpenStreetMap contributors" \
-              progress-logs=true \
-              threads=2
-          test -s "$RUNNER_TEMP/philippines.map"
-          test "$(stat -c%s "$RUNNER_TEMP/philippines.map")" -gt 100000000
-
-      - name: Write map metadata and checksum
+      - name: Download official Mapsforge v5 Philippines map
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p release
-          cp "$RUNNER_TEMP/philippines.map" release/philippines.map
-          cd release
-          sha256sum philippines.map > philippines.map.sha256
-          cat > map-metadata.json <<EOF
+          MAP_URL="https://download.mapsforge.org/maps/v5/asia/philippines.map"
+          curl -fL --retry 4 --retry-all-errors "$MAP_URL" -o release/philippines.map
+          size="$(stat -c%s release/philippines.map)"
+          test "$size" -gt 100000000
+          last_modified="$(curl -fsSI "$MAP_URL" | awk 'BEGIN{IGNORECASE=1} /^Last-Modified:/{sub(/\r$/,""); sub(/^[^:]*:[[:space:]]*/,""); print; exit}')"
+          sha256sum release/philippines.map > release/philippines.map.sha256
+          cat > release/map-metadata.json <<EOF
           {
             "name": "PH-ResQ Philippines nationwide offline basemap",
-            "source": "Geofabrik Philippines OpenStreetMap PBF extract",
-            "source_url": "https://download.geofabrik.de/asia/philippines.html",
-            "generated_at_utc": "$(date -u +%FT%TZ)",
-            "format": "Mapsforge .map",
+            "source": "Official Mapsforge v5 Asia prebuilt Philippines map",
+            "source_url": "$MAP_URL",
+            "source_last_modified": "${last_modified:-unknown}",
+            "downloaded_at_utc": "$(date -u +%FT%TZ)",
+            "size_bytes": $size,
+            "format": "Mapsforge v5 .map",
             "attribution": "© OpenStreetMap contributors",
             "license": "Open Database License (ODbL)",
             "coverage": "Philippines country extract",
-            "verification": "Build succeeded; field coverage remains dependent on OpenStreetMap contributions."
+            "verification": "Downloaded over HTTPS from the official Mapsforge server; PH-ResQ SHA-256 is computed for app-side download integrity."
           }
           EOF
-          du -h philippines.map
+          du -h release/philippines.map
+          cat release/philippines.map.sha256
+          cat release/map-metadata.json
 
       - name: Publish replaceable offline map release
         uses: softprops/action-gh-release@v2
@@ -130,7 +69,7 @@ jobs:
           name: PH-ResQ Nationwide Offline Map
           target_commitish: ${{ github.sha }}
           body: |
-            Automatically generated from the current Geofabrik Philippines OpenStreetMap extract.
+            Official Mapsforge v5 Philippines country map.
             Map data © OpenStreetMap contributors, ODbL.
             This is a basemap, not an authoritative source for barangay boundaries, emergency contacts, or evacuation-centre status.
           files: |
