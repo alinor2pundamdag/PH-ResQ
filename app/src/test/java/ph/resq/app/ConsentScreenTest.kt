@@ -42,6 +42,7 @@ class ConsentScreenTest {
         val coverageHeading = composeRule.onNodeWithText("DATA COVERAGE AT LIMITASYON")
         coverageHeading.performScrollTo()
         coverageHeading.assertIsDisplayed()
+        composeRule.onNodeWithText("Sa 48 barangay-contact records, 48 ang may PSGC barangay link. Sa 429 evacuation records, 423 ang may PSGC barangay link at 6 ang hindi pa ma-link nang ligtas. Ang PSGC link ay address/name matching lamang—hindi ito eksaktong coordinates o patunay na bukas ang pasilidad.").assertIsDisplayed()
         accept.assertIsDisplayed()
         decline.assertIsDisplayed()
         assertFalse(accepted)

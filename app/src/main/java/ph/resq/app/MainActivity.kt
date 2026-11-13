@@ -1,5 +1,6 @@
 package ph.resq.app
 
+import androidx.activity.compose.BackHandler
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.location.LocationManager
@@ -679,6 +680,9 @@ private fun HomeScreen(highContrast: Boolean, onToggleHighContrast: () -> Unit, 
     BoxWithConstraints(Modifier.fillMaxSize().safeContentPadding()) {
     val availableWidth = maxWidth
     var selectedSection by rememberSaveable { mutableStateOf(HomeSection.EMERGENCY) }
+    BackHandler(enabled = selectedSection != HomeSection.EMERGENCY) {
+        selectedSection = HomeSection.EMERGENCY
+    }
     val adaptiveContentWidth = if (availableWidth >= 900.dp) 820.dp else 720.dp
     val adaptiveLayoutLabel = when { availableWidth >= 900.dp -> "EXPANDED TABLET"; availableWidth >= 600.dp -> "MEDIUM"; else -> "COMPACT PHONE" }
     Column(Modifier.fillMaxWidth().widthIn(max = adaptiveContentWidth).align(Alignment.TopCenter).padding(start = if (availableWidth >= 600.dp) 88.dp else 0.dp).animateContentSize().verticalScroll(rememberScrollState()).padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 104.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
