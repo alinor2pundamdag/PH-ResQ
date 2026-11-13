@@ -17,6 +17,17 @@ import kotlinx.coroutines.withContext
 import ph.resq.app.core.NationalDatasetImporter
 import ph.resq.app.core.NationalReferenceRepository
 import ph.resq.app.core.ResQDatabase
+import ph.resq.app.core.BarangayReference
+import ph.resq.app.core.PublicEmergencyContact
+import ph.resq.app.core.NationalEvacuationCenter
+import ph.resq.app.core.NationalCoverageSnapshot
+
+private data class NationalPanelSnapshot(
+ val coverage:NationalCoverageSnapshot,
+ val barangays:List<BarangayReference>,
+ val contacts:List<PublicEmergencyContact>,
+ val centers:List<NationalEvacuationCenter>
+)
 
 @Composable
 fun NationalDataPanel(database:ResQDatabase,modifier:Modifier=Modifier){
@@ -26,19 +37,15 @@ fun NationalDataPanel(database:ResQDatabase,modifier:Modifier=Modifier){
  var importing by remember{mutableStateOf(false)}
  var query by remember{mutableStateOf("")}
  var status by remember{mutableStateOf("Install the bundled PSGC reference and review the separately sourced contact and evacuation records.")}
- var coverage by remember{mutableStateOf(runCatching{repository.coverage()}.getOrNull())}
- var results by remember{mutableStateOf(emptyList<ph.resq.app.core.BarangayReference>())}
- var contacts by remember{mutableStateOf(emptyList<ph.resq.app.core.PublicEmergencyContact>())}
- var centers by remember{mutableStateOf(emptyList<ph.resq.app.core.NationalEvacuationCenter>())}
+ var snapshot by remember{mutableStateOf(runCatching{NationalPanelSnapshot(repository.coverage(),emptyList(),emptyList(),emptyList())}.getOrNull())}
+ val results=snapshot?.barangays.orEmpty()
+ val contacts=snapshot?.contacts.orEmpty()
+ val centers=snapshot?.centers.orEmpty()
 
- suspend fun refreshData(){
-  val snapshot=withContext(Dispatchers.IO){
-   listOf(repository.coverage(),repository.searchBarangays(query,50),repository.searchContacts(query,50),repository.searchEvacuationCenters(query,50))
+  suspend fun refreshData(){
+  snapshot=withContext(Dispatchers.IO){
+   NationalPanelSnapshot(repository.coverage(),repository.searchBarangays(query,50),repository.searchContacts(query,50),repository.searchEvacuationCenters(query,50))
   }
-  coverage=snapshot[0] as ph.resq.app.core.NationalCoverageSnapshot
-  results=snapshot[1] as List<ph.resq.app.core.BarangayReference>
-  contacts=snapshot[2] as List<ph.resq.app.core.PublicEmergencyContact>
-  centers=snapshot[3] as List<ph.resq.app.core.NationalEvacuationCenter>
  }
 
  val contactsLauncher=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->
@@ -103,7 +110,7 @@ fun NationalDataPanel(database:ResQDatabase,modifier:Modifier=Modifier){
     }
    },modifier=Modifier.fillMaxWidth()){Text("LOAD STARTER CONTACTS + BAY / QUEZON CITY EVACUATION SITES")}
    Text(status,style=MaterialTheme.typography.bodySmall)
-   coverage?.let{
+   snapshot?.coverage?.let{
     Text("PSGC-derived reference: ${it.loadedBarangays} / ${it.expectedBarangays} barangays (${String.format("%.2f",it.barangayCoveragePercent)}%)")
     Text("Barangays with public contact records: ${it.contactBarangays}")
     Text("Evacuation facilities: ${it.evacuationCenters} • with coordinates: ${it.geocodedCenters}")
@@ -111,10 +118,7 @@ fun NationalDataPanel(database:ResQDatabase,modifier:Modifier=Modifier){
    }
    OutlinedTextField(value=query,onValueChange={query=it.take(120)},label={Text("Search barangay, PSGC code, office or evacuation site")},modifier=Modifier.fillMaxWidth())
    Button(enabled=!importing,onClick={scope.launch{
-    val data=withContext(Dispatchers.IO){listOf(repository.searchBarangays(query,50),repository.searchContacts(query,50),repository.searchEvacuationCenters(query,50))}
-    results=data[0] as List<ph.resq.app.core.BarangayReference>
-    contacts=data[1] as List<ph.resq.app.core.PublicEmergencyContact>
-    centers=data[2] as List<ph.resq.app.core.NationalEvacuationCenter>
+    refreshData()
    }},modifier=Modifier.fillMaxWidth()){Text("SEARCH NATIONAL REFERENCE DATA")}
    results.take(20).forEach{Text("${it.barangay} • ${it.cityMunicipality}, ${it.province} • PSGC ${it.psgcCode}",style=MaterialTheme.typography.bodySmall)}
    contacts.take(20).forEach{contact->
