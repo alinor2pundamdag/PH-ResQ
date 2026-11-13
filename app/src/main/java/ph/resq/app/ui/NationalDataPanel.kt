@@ -60,7 +60,7 @@ import ph.resq.app.core.NationalDatasetImporter
     Text("Contacts cross-checked or verified by call: ${it.verifiedContacts}")
    }
    OutlinedTextField(value=query,onValueChange={query=it.take(120)},label={Text("Search barangay, PSGC code or office")},modifier=Modifier.fillMaxWidth())
-   Button(onClick={results=runCatching{repository.searchBarangays(query,50)}.getOrDefault(emptyList());contacts=runCatching{repository.searchContacts(query,50)}.getOrDefault(emptyList())},modifier=Modifier.fillMaxWidth()){Text("SEARCH NATIONAL REFERENCE DATA")}
+   Button(onClick={results=runCatching{repository.searchBarangays(query,50)}.getOrDefault(emptyList());contacts=runCatching{repository.searchContacts(query,50)}.getOrDefault(emptyList());centers=runCatching{repository.searchEvacuationCenters(query,50)}.getOrDefault(emptyList())},modifier=Modifier.fillMaxWidth()){Text("SEARCH NATIONAL REFERENCE DATA")}
    results.take(20).forEach{Text("${it.barangay} • ${it.cityMunicipality}, ${it.province} • PSGC ${it.psgcCode}",style=MaterialTheme.typography.bodySmall)}
    contacts.take(20).forEach{Text("${it.officeName} • ${it.phone} • ${it.verification}",style=MaterialTheme.typography.bodySmall);Text("${it.sourceTitle} • ${it.sourceUrl}",style=MaterialTheme.typography.labelSmall)}
    centers.take(20).forEach{Text("${it.name} • ${it.operationalStatus} • ${it.verification}",style=MaterialTheme.typography.bodySmall);Text("${it.address} • ${it.sourceTitle}",style=MaterialTheme.typography.labelSmall)}
