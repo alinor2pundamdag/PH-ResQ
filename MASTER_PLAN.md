@@ -231,6 +231,10 @@ When documents conflict, do not choose whichever statement is more convenient: p
 
 `MASTER_PLAN.md` → `WORK_RULES.md` + `features_update.md` → architecture decisions and Phase 1–6/domain specifications → `FEATURE_TRACEABILITY.md` → `TEST_ACCEPTANCE_MATRIX.md` + `TEST_AND_ACCEPTANCE_PLAN.md` → `IMPLEMENTATION_ROADMAP.md` → implementation status/release checklist. This is a dependency map, not permission to skip a lower-level specification. Any change to a requirement must propagate to its dependent design, test, and status records in the same documentation change.
 
+- `CRITICAL_ARCHITECTURE_AUDIT.md` — evidence-based source/document map, critical defects, dependency order, and definition of completeness.
+- `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md` — tested Android support tiers and capability-based adaptation; universal compatibility is not promised.
+- `SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md` — typed settings ownership, device capability state, feature policy, and UI integration.
+- `PERSISTENCE_RECOVERY_ARCHITECTURE.md` — six persistence domains, transactional state, key lifecycle, migration, retention, and recovery.
 ### Required companion documents
 
 Maintain these documents alongside this master plan and keep them mutually consistent:

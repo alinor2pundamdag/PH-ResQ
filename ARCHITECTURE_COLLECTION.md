@@ -1,10 +1,10 @@
 # PH-ResQ Architecture Collection
 
-**Collection version:** 1.1  
+**Collection version:** 1.2  
 **Project:** PH-ResQ Vanguard 2026  
 **Platform baseline:** Native Android — Kotlin, Jetpack Compose, Android lifecycle APIs  
 **Status:** Consolidated architecture reference for a partially implemented project. This collection is not a declaration of feature completion, emergency-service certification, nationwide data coverage, or release readiness.  
-**Updated:** 2026-11-02
+**Updated:** 2026-11-13
 
 ## Purpose
 
@@ -34,6 +34,10 @@ See [SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md) for component boundaries, d
 
 ## Document map
 
+- [CRITICAL_ARCHITECTURE_AUDIT.md](CRITICAL_ARCHITECTURE_AUDIT.md) — source/document map, P0/P1/P2 findings, dependencies, and definition of completeness.
+- [ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md](ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md) — Android API support tiers, runtime capability profile, adaptive behavior, and device matrix.
+- [SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md](SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md) — settings, capability provider, feature-policy coordinator, and UI/platform integration contracts.
+- [PERSISTENCE_RECOVERY_ARCHITECTURE.md](PERSISTENCE_RECOVERY_ARCHITECTURE.md) — six persistence domains, repositories, key lifecycle, migration, retention, and recovery.
 ### Architecture and decisions
 - [SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md) — end-to-end component model, boundaries, SOS/data/mesh flows, failure semantics.
 - [ARCHITECTURE_DECISIONS.md](ARCHITECTURE_DECISIONS.md) — accepted platform and behavioral decisions (ADRs).
@@ -91,10 +95,10 @@ A successful compile does not prove radio interoperability, SMS delivery, nation
 - **Accessibility:** reduced motion, contrast, text scaling, TalkBack, large targets, and emergency-action priority are acceptance requirements, not decorative extras.
 - **Release:** current-head CI must match the exact candidate SHA. Device/data/security acceptance is tracked separately and must not be inferred from CI.
 
-## Current implementation boundary (2026-11-02)
+## Current implementation boundary (audit SHA 0ef2401d0cdfb71ed34c6dbe4e3b3f746aee6f5d; 2026-11-13)
 
-The repository contains a native Android scaffold and partial implementations including versioned consent/privacy UI, SOS preparation and messaging-app handoff, local persistence, selected encrypted fields and PIN vault, location helpers, voice-note handling, local directory/advisory/evacuation caches and bounded JSON import, map-tile cache metadata, BLE discovery, mesh packet/queue primitives, and a visible SOS handoff status service. The consent notice has an independently scrollable body with a fixed Accept/Decline action area, safe-drawing insets, explicit policy-version acceptance, and a main-screen privacy-review/withdraw-consent control. The current candidate adds Robolectric consent-store tests; compact-screen, large-font, landscape, TalkBack, and real-device UI acceptance remain pending. The last successful pre-consent-change CI was commit `90dbcf76d04c925e7734d035cb294c6350351264`, run [41387038466](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41387038466), with lint, unit tests, debug/release assembly, exact-SHA verification and APK/evidence upload. Artifact `ph-resq-apk-builds` ID `13116156450` contains both APK variants and build evidence; it expires 2026-11-16. The current consent/UI candidate is `232f4093bf8d8c8ba11398b8ce67d6ccb6e3561f`; its CI run is pending/in progress and no APK from that candidate is approved yet. The Android manifest and launcher resources reference the canonical PH-ResQ label/icon resources; physical installer/launcher verification remains part of device acceptance. This is not physical-device acceptance.
+The repository contains a native Android scaffold and partial implementations including versioned consent/privacy UI, SOS preparation and messaging-app handoff, local persistence, selected encrypted fields and PIN vault, location helpers, voice-note handling, local directory/advisory/evacuation caches and bounded JSON import, map-tile cache metadata, BLE discovery, mesh packet/queue primitives, and a visible SOS handoff status service. The consent notice has an independently scrollable body with a fixed Accept/Decline action area, safe-drawing insets, explicit policy-version acceptance, and a main-screen privacy-review/withdraw-consent control. The current candidate adds Robolectric consent-store tests; compact-screen, large-font, landscape, TalkBack, and real-device UI acceptance remain pending. The last successful pre-consent-change CI was commit `90dbcf76d04c925e7734d035cb294c6350351264`, run [41387038466](https://github.com/alinor2pundamdag/PH-ResQ/actions/runs/41387038466), with lint, unit tests, debug/release assembly, exact-SHA verification and APK/evidence upload. Artifact `ph-resq-apk-builds` ID `13116156450` contains both APK variants and build evidence; it expires 2026-11-16. The current PR head at this audit is `0ef2401d0cdfb71ed34c6dbe4e3b3f746aee6f5d`; GitHub reports its `build-and-test` check completed successfully. The artifact's exact source metadata and contents still require separate inspection before declaring a testable APK ready. The Android manifest and launcher resources reference the canonical PH-ResQ label/icon resources; physical installer/launcher verification remains part of device acceptance. This is not physical-device acceptance.
 
-The following remain incomplete or unverified: complete six-area persistence/recovery, nationwide authoritative directory, licensed offline map package and renderer, live PAGASA/LGU ingestion, signed dataset manifest/update/rollback, SMS delivery receipt, authenticated peer-key establishment, BLE payload transport, Wi-Fi Direct, multi-hop mesh, remote family sync, duress vault, full accessibility/security/legal review, and physical-device acceptance.
+The following remain incomplete or unverified: complete six-area persistence/recovery, central device capability registry/adaptive policy, nationwide authoritative directory, licensed offline map package and renderer, live PAGASA/LGU ingestion, signed dataset manifest/update/rollback, SMS delivery receipt, authenticated peer-key establishment, BLE payload transport, Wi-Fi Direct, multi-hop mesh, remote family sync, duress vault, full accessibility/security/legal review, and physical-device acceptance.
 
 Update this section whenever the evidence in `IMPLEMENTATION_STATUS.md` changes. Keep the PR open and do not merge or publish a production release without explicit authorization.

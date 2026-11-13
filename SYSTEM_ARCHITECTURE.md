@@ -165,7 +165,15 @@ Current implementation includes BLE discovery and local packet/queue/ACK/replay 
 
 **Not yet operational end-to-end:** nationwide datasets, licensed offline map renderer, live official feed ingestion, signed dataset update pipeline, remote family sync, SMS delivery receipts, authenticated mesh peer keys, BLE packet exchange, Wi-Fi Direct, multi-hop relay, complete key recovery, duress mode, and physical-device acceptance.
 
-## 9. Required architecture acceptance
+## 9A. Device capability and settings integration
+
+The runtime must load persisted user settings, build a fresh device capability profile, and derive effective feature policies. Settings express user intent; the Android capability provider reports actual hardware/permission/system state; the feature-policy coordinator combines them. UI observes effective state and fallback reason. See `SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md` and `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md`. Do not infer hardware availability from a setting or device model name.
+
+## 9B. Persistence and recovery
+
+The six persistence domains are logical aggregates in one local data layer, not six isolated databases. Critical state is committed before external side effects. Process death/reboot recovery must be idempotent and must not repeat a possibly user-sent SMS handoff. See `PERSISTENCE_RECOVERY_ARCHITECTURE.md`; SQLite schema v7 is the inspected baseline, not a claim that recovery is complete.
+
+## 10. Required architecture acceptance
 
 1. All 34 feature IDs remain in `FEATURE_TRACEABILITY.md`.
 2. Every feature has implementation links, current-SHA tests, and residual-risk notes.

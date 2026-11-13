@@ -38,6 +38,15 @@ The first scaffold uses ACTION_SENDTO so the user can review and send the SMS. I
 ## ADR-011 — Local persistence is incremental and evidence-gated
 The current source has SQLite schema version 7 with SOS, location, search/bookmark, directory, map metadata, advisories, evacuation centres, mesh queue/replay cache, family check-ins, and pending-action tables. A user-selected JSON importer handles directory/advisory/evacuation datasets; repository coverage and all migrations are not yet fully accepted. Consent and selected preferences use SharedPreferences; SOS draft/recipient/location fields use encrypted columns; the optional PIN vault and encrypted mesh outbox exist as partial components. This does not prove all six persistence layers, sync, retention, backup/recovery, or key lifecycle are production-complete. Migration fixtures, transactional invariants, key-loss behavior and physical-device recovery must pass before release.
 
+## ADR-012 — Capability-based Android compatibility
+The app targets API 26+ under the current minSdk. Universal compatibility across every Android device/version is not technically supportable. Use a versioned capability profile and tested support tiers; preserve each feature goal through safe fallback or explicit unsupported state. API 26 and later are not automatically certified: future API/OEM combinations require tests. See `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md`.
+
+## ADR-013 — Settings and capability authority are separate
+Persist user preferences in a typed SettingsRepository. Query hardware, OS, permissions and system restrictions through a DeviceCapabilityProvider. Derive effective feature behavior in a FeaturePolicyCoordinator. UI must show why a feature is limited; settings cannot grant permissions or create hardware. See `SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md`.
+
+## ADR-014 — Persistence and recovery are transition-driven
+SQLite schema v7 is the current inspected baseline. Critical state must be persisted before external side effects, and process recovery must not duplicate a possibly user-sent action. No destructive migration or plaintext fallback is permitted. Key-loss, backup, retention, deletion and recovery policy are release gates. See `PERSISTENCE_RECOVERY_ARCHITECTURE.md`.
+
 ## Open implementation decisions
 - Complete SOS transition persistence and transport-backed delivery/acknowledgement evidence
 - Authenticated peer-key establishment and real BLE/Wi-Fi Direct transport

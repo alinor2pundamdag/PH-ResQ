@@ -3,6 +3,20 @@
 **Status:** Ordered plan, not a claim that every phase is complete. Preserve all feature IDs in `FEATURE_TRACEABILITY.md`; update this roadmap whenever implementation evidence changes.
 **Execution policy:** Work in small auditable commits on the feature branch. Do not merge or publish a production release without authorization.
 
+## Gate 0A — Device and integration architecture
+- Implement the capability profile and settings/capability/policy ownership from the new integration contracts.
+- Publish API 26+ support tiers; test representative API levels and OEMs; define graceful fallback for absent hardware and denied/revoked permissions.
+- Do not claim all Android devices or all future API levels are compatible.
+
+**Exit evidence:** capability-state tests, permission revocation tests, version/OEM matrix, and UI fallback tests.
+
+## Gate 0B — Persistence and recovery foundation
+- Map every setting and data field to one owner, sensitivity class, retention policy, repository and recovery behavior.
+- Add sequential migration fixtures, key-loss/reinstall handling, transaction invariants and process-death recovery.
+- Persist SOS intent and each state transition before platform side effects; never auto-repeat ambiguous external handoffs.
+
+**Exit evidence:** six-domain inventory, migration matrix, transaction/recovery tests, and security review.
+
 ## Gate 0 — Source-of-truth and consistency
 - Reconcile this collection with `MASTER_PLAN.md`, `WORK_RULES.md`, the six phase files, `FEATURE_TRACEABILITY.md`, `TEST_ACCEPTANCE_MATRIX.md`, `DATA_SOURCES_AND_RISKS.md`, and implementation status.
 - Resolve stale statements about existing source (PIN vault, voice-note, mesh queue, dataset import, foreground notification) without promoting utilities to complete end-to-end features.

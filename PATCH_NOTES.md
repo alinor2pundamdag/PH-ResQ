@@ -72,3 +72,12 @@ The collection does not replace or delete `PHASE_1_INIT_CONSENT.md` through `PHA
 2. Run current-head CI and ensure artifact metadata/checksum match the exact PR head.
 3. Execute P0 physical-device tests for consent, SOS, permissions, process death and messaging handoff.
 4. Complete source licensing/coverage, security/privacy, accessibility, and mesh interoperability audits.
+
+
+## 2026-11-13 — Architecture collection expansion and audit
+- Added a source/document audit and explicit P0/P1/P2 remediation register.
+- Added Android capability-based compatibility and adaptive runtime policy; clarified API 26+ baseline and non-universal OEM behavior.
+- Added settings/device capability/policy integration contracts.
+- Added six-domain persistence, key lifecycle, migration, retention and recovery architecture.
+- Updated collection index, master plan, system architecture, ADRs, roadmap, work rules and status snapshot. All 34 retained feature IDs remain in scope.
+- Audit SHA: `0ef2401d0cdfb71ed34c6dbe4e3b3f746aee6f5d`. No source runtime behavior changed in this documentation pass.

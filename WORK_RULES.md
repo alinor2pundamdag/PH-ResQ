@@ -18,6 +18,9 @@ These rules govern architecture documentation and implementation. The repository
 - Every completion claim must link to the relevant code, command/test output, commit SHA, and device/environment where applicable.
 - A skipped or unexecuted test is not a pass.
 
+- Universal compatibility across every Android device is not a valid acceptance claim. Use `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md` support tiers and a tested API/OEM/hardware matrix; preserve feature intent through safe fallback.
+- Keep user preferences, actual device capability, and effective feature policy separate as defined in `SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md`.
+- Maintain six-domain persistence/recovery invariants in `PERSISTENCE_RECOVERY_ARCHITECTURE.md`; no destructive migration, silent data reset, or plaintext fallback.
 ## 3. Android-first architecture
 
 - Use Android APIs for permissions, lifecycle, location, SMS, notifications, foreground services, BLE, Wi-Fi Direct, and Keystore.
@@ -59,7 +62,7 @@ These rules govern architecture documentation and implementation. The repository
 ## 8. Testing and release
 
 - Maintain `FEATURE_TRACEABILITY.md`, `TEST_ACCEPTANCE_MATRIX.md`, `TEST_AND_ACCEPTANCE_PLAN.md`, `DATA_SOURCES_AND_RISKS.md`, `SOS_STATE_MACHINE.md`, `DATABASE_SPEC.md`, `SECURITY_MODEL.md`, and `MESH_PROTOCOL.md` in sync with code.
-- The core Architecture Collection is the 11-file set listed in `PATCH_NOTES.md`; companion phase files and audit ledgers remain in scope and must not be deleted to force the set to exactly eleven files.
+- The architecture collection is the complete indexed document set in `ARCHITECTURE_COLLECTION.md`; phase files, audit ledgers, and integration specifications remain in scope and must not be deleted to force an arbitrary file count.
 - For conflicting statements, preserve the feature goal and update the outdated document; record technical impossibility or accepted trade-offs in `ARCHITECTURE_DECISIONS.md`. Never use an older status statement to override newer verified code or test evidence.
 - Test denied permissions, no internet, no signal/SIM, stale GPS, process death, reboot, storage exhaustion, corrupt data, interrupted migrations, duplicate/out-of-order packets, and device incompatibilities.
 - Release requires reproducible build evidence, current-revision test reports, physical-device validation for critical paths, source/license audits, and documented residual risks.
