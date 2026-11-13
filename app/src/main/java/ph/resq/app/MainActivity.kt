@@ -132,7 +132,13 @@ private fun ResQRoot() {
         secondary = Color.Cyan, onSecondary = Color.Black,
         background = Color.Black, onBackground = Color.White,
         surface = Color.Black, onSurface = Color.White
-    ) else lightColorScheme()
+    ) else darkColorScheme(
+        primary = Color(0xFFFF5268), onPrimary = Color.Black,
+        secondary = Color(0xFF7DB7FF), onSecondary = Color.Black,
+        background = Color(0xFF07111F), onBackground = Color.White,
+        surface = Color(0xFF101D2E), onSurface = Color.White,
+        error = Color(0xFFFF6B6B), onError = Color.Black
+    )
     MaterialTheme(colorScheme = colors) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             if (!consentAccepted) {
@@ -594,6 +600,56 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             }
         }
         Text("Emergency-first • offline-aware • early build")
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("SOS", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text("Pindutin at hawakan nang 2 segundo upang ihanda ang SMS. Bubuksan ang messaging app; kailangan mong i-review at ipadala.")
+                Text(sosNotificationStatus)
+                Button(
+                    onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                                android.content.pm.PackageManager.PERMISSION_GRANTED
+                        ) {
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) {
+                            sosNotificationStatus = "Notifications are blocked in Android settings. Enable them for PH-ResQ."
+                            Toast.makeText(context, "I-enable ang Notifications sa Android App info para sa PH-ResQ.", Toast.LENGTH_LONG).show()
+                        } else {
+                            sosNotificationStatus = "SOS status notifications are enabled."
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("ENABLE SOS STATUS NOTIFICATIONS") }
+                SosHoldButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onConfirmed = { prepareSos() }
+                )
+                Text("Kung hindi kayang gamitin ang press-and-hold, piliin ang accessible alternative at kumpirmahin sa susunod na hakbang.")
+                Button(onClick = { showAccessibleSosConfirm = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text("ACCESSIBLE SOS ALTERNATIVE")
+                }
+                if (showAccessibleSosConfirm) {
+                    AlertDialog(
+                        onDismissRequest = { showAccessibleSosConfirm = false },
+                        title = { Text("Ihanda ang SOS?") },
+                        text = { Text("Magbubukas ang messaging app para ma-review mo ang mensahe. Hindi ito awtomatikong magpapadala at walang delivery guarantee.") },
+                        confirmButton = {
+                            Button(onClick = {
+                                showAccessibleSosConfirm = false
+                                prepareSos()
+                            }) { Text("IHANDA ANG SOS") }
+                        },
+                        dismissButton = {
+                            Button(onClick = { showAccessibleSosConfirm = false }) { Text("Kanselahin") }
+                        }
+                    )
+                }
+                Text("SOS status: " + state.label)
+                sosRecoveryNotice?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                OutlinedTextField(value = messageNote, onValueChange = { messageNote = it.take(240) }, label = { Text("Optional na mensahe") }, modifier = Modifier.fillMaxWidth())
+            }
+        }
         Button(onClick = onToggleHighContrast, modifier = Modifier.fillMaxWidth()) {
             Text("HIGH CONTRAST: " + if (MaterialTheme.colorScheme.background == Color.Black) "ON — tap to disable" else "OFF — tap to enable")
         }
@@ -711,56 +767,6 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                     }
                 }
                 Text("Kailangan ng network/phone service. Ang pag-open ng dialer o SMS app ay hindi patunay ng koneksyon, delivery, o pagsagot.")
-            }
-        }
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("SOS", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text("Pindutin at hawakan nang 2 segundo upang ihanda ang SMS. Bubuksan ang messaging app; kailangan mong i-review at ipadala.")
-                Text(sosNotificationStatus)
-                Button(
-                    onClick = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
-                                android.content.pm.PackageManager.PERMISSION_GRANTED
-                        ) {
-                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        } else if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) {
-                            sosNotificationStatus = "Notifications are blocked in Android settings. Enable them for PH-ResQ."
-                            Toast.makeText(context, "I-enable ang Notifications sa Android App info para sa PH-ResQ.", Toast.LENGTH_LONG).show()
-                        } else {
-                            sosNotificationStatus = "SOS status notifications are enabled."
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("ENABLE SOS STATUS NOTIFICATIONS") }
-                SosHoldButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    onConfirmed = { prepareSos() }
-                )
-                Text("Kung hindi kayang gamitin ang press-and-hold, piliin ang accessible alternative at kumpirmahin sa susunod na hakbang.")
-                Button(onClick = { showAccessibleSosConfirm = true }, modifier = Modifier.fillMaxWidth()) {
-                    Text("ACCESSIBLE SOS ALTERNATIVE")
-                }
-                if (showAccessibleSosConfirm) {
-                    AlertDialog(
-                        onDismissRequest = { showAccessibleSosConfirm = false },
-                        title = { Text("Ihanda ang SOS?") },
-                        text = { Text("Magbubukas ang messaging app para ma-review mo ang mensahe. Hindi ito awtomatikong magpapadala at walang delivery guarantee.") },
-                        confirmButton = {
-                            Button(onClick = {
-                                showAccessibleSosConfirm = false
-                                prepareSos()
-                            }) { Text("IHANDA ANG SOS") }
-                        },
-                        dismissButton = {
-                            Button(onClick = { showAccessibleSosConfirm = false }) { Text("Kanselahin") }
-                        }
-                    )
-                }
-                Text("SOS status: " + state.label)
-                sosRecoveryNotice?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-                OutlinedTextField(value = messageNote, onValueChange = { messageNote = it.take(240) }, label = { Text("Optional na mensahe") }, modifier = Modifier.fillMaxWidth())
             }
         }
         Card(Modifier.fillMaxWidth()) {
