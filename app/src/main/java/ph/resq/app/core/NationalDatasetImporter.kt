@@ -42,7 +42,7 @@ object NationalDatasetImporter{
   importContactsPayload(context.assets.open("data/public_emergency_contacts.json").bufferedReader().use{it.readText()},repository)
  private fun importContactsPayload(payload:String,repository:NationalReferenceRepository):Int{
   val root=JSONObject(payload);require(root.optString("type")=="emergency_contacts"){"Expected emergency_contacts dataset."}
-  val records=root.optJSONArray("records")?:error("Missing records array.");require(records.length() in 1..100_000);var imported=0
+  val records=root.optJSONArray("records")?:error("Missing records array.");require(records.length() in 1..100_000);val parsed=ArrayList<PublicEmergencyContact>(records.length())
   for(i in 0 until records.length()){
    val o=records.getJSONObject(i)
    fun required(k:String)=o.optString(k,"").trim().also{require(it.isNotBlank()){"Record ${i+1} missing $k"}}
@@ -52,13 +52,9 @@ object NationalDatasetImporter{
    val recordId=required("id")
    val rawPsgc=o.optString("psgc_code","").trim()
    val psgc=rawPsgc.takeIf{it.isNotBlank()&&!it.equals("null",ignoreCase=true)}
-   try{
-    repository.addPublicContact(PublicEmergencyContact(recordId,psgc,required("scope").uppercase(),required("category").uppercase(),required("office_name"),required("phone"),source,required("source_title"),verification,null,expiry))
-   }catch(error:IllegalArgumentException){
-    throw IllegalArgumentException("Contact record ${i+1} ($recordId) rejected: ${error.message}",error)
-   }
-   imported++
-  };return imported
+   parsed.add(PublicEmergencyContact(recordId,psgc,required("scope").uppercase(),required("category").uppercase(),required("office_name"),required("phone"),source,required("source_title"),verification,null,expiry))
+  }
+  return repository.addPublicContacts(parsed)
  }
  fun importEvacuationCentersJson(context:Context,uri:Uri,repository:NationalReferenceRepository):Int =
   importEvacuationPayload(readText(context,uri),repository)
@@ -74,7 +70,7 @@ object NationalDatasetImporter{
  }
  private fun importEvacuationPayload(payload:String,repository:NationalReferenceRepository):Int{
   val root=JSONObject(payload);require(root.optString("type")=="evacuation_centers"){"Expected evacuation_centers dataset."}
-  val records=root.optJSONArray("records")?:error("Missing records array.");require(records.length() in 1..50_000);var imported=0
+  val records=root.optJSONArray("records")?:error("Missing records array.");require(records.length() in 1..50_000);val parsed=ArrayList<NationalEvacuationCenter>(records.length())
   for(i in 0 until records.length()){
    val o=records.getJSONObject(i)
    fun required(k:String)=o.optString(k,"").trim().also{require(it.isNotBlank()){"Record ${i+1} missing $k"}}
@@ -87,13 +83,9 @@ object NationalDatasetImporter{
    // JSONObject.NULL may be coerced to the literal string "null" by optString().
    // Normalize explicit JSON null and blank values before PSGC validation.
    val rawPsgc = if (o.isNull("psgc_code")) null else o.optString("psgc_code").trim().takeIf { it.isNotEmpty() && !it.equals("null", ignoreCase = true) }
-   try {
-    repository.addEvacuationCenter(NationalEvacuationCenter(required("id"),rawPsgc,required("name"),required("address"),o.optString("facility_type").takeIf{it.isNotBlank()},lat,lon,capacity,capacityUnit,status,source,required("source_title"),verification,null))
-   } catch (error: IllegalArgumentException) {
-    throw IllegalArgumentException("Evacuation record " + (i+1) + " (" + o.optString("id") + ") rejected: " + error.message, error)
-   }
-   imported++
-  };return imported
+   parsed.add(NationalEvacuationCenter(required("id"),rawPsgc,required("name"),required("address"),o.optString("facility_type").takeIf{it.isNotBlank()},lat,lon,capacity,capacityUnit,status,source,required("source_title"),verification,null))
+  }
+  return repository.addEvacuationCenters(parsed)
  }
  private fun readText(context:Context,uri:Uri):String{
   val input=context.contentResolver.openInputStream(uri)?:error("Cannot open selected file.")
