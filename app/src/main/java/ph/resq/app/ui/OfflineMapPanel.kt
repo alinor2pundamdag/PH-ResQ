@@ -18,12 +18,22 @@ import org.maplibre.android.maps.MapView
 import org.maplibre.android.module.http.HttpRequestUtil
 import org.maplibre.android.offline.*
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.annotations.MarkerOptions
+import ph.resq.app.core.NationalReferenceRepository
+import ph.resq.app.core.NationalEvacuationCenter
+import ph.resq.app.core.ResQDatabase
 private const val STYLE_URL="https://tiles.openfreemap.org/styles/liberty"
 private const val MAX_BYTES=40L*1024L*1024L
 private const val MAX_TILES_PER_REGION=3000L
 private const val DEVICE_TILE_LIMIT=6000L
-@Composable fun OfflineMapPanel(modifier:Modifier=Modifier){
- val context=LocalContext.current;val owner=LocalLifecycleOwner.current
+@Composable fun OfflineMapPanel(database:ResQDatabase,modifier:Modifier=Modifier){
+ val context=LocalContext.current;val owner=LocalLifecycleOwner.current;val scope=rememberCoroutineScope()
+ var activeMap by remember{mutableStateOf<MapLibreMap?>(null)}
+ var evacCenters by remember{mutableStateOf(emptyList<NationalEvacuationCenter>())}
  var mapView by remember{mutableStateOf<MapView?>(null)};var ready by remember{mutableStateOf(false)}
  var downloading by remember{mutableStateOf(false)};var progress by remember{mutableFloatStateOf(0f)}
  var saved by remember{mutableIntStateOf(0)};var regionItems by remember{mutableStateOf(emptyList<OfflineRegion>())};var status by remember{mutableStateOf("Pan and zoom to the area you want to save.")}
@@ -34,6 +44,9 @@ private const val DEVICE_TILE_LIMIT=6000L
   HttpRequestUtil.setOkHttpClient(client);MapLibre.getInstance(context)
   OfflineManager.getInstance(context).also{it.setOfflineMapboxTileCountLimit(DEVICE_TILE_LIMIT)}
  }
+ suspend fun refreshEvacuationPins(){evacCenters=withContext(Dispatchers.IO){NationalReferenceRepository(database).searchEvacuationCenters("",500).filter{it.latitude!=null&&it.longitude!=null}}}
+ LaunchedEffect(database){refreshEvacuationPins()}
+ LaunchedEffect(activeMap,evacCenters){val map=activeMap;if(map!=null){map.removeAnnotations();evacCenters.forEach{center->map.addMarker(MarkerOptions().position(LatLng(center.latitude!!,center.longitude!!)).title(center.name).snippet("${center.operationalStatus} • ${center.verification}"))}}}
  fun refresh(){manager.listOfflineRegions(object:OfflineManager.ListOfflineRegionsCallback{
   override fun onList(regions:Array<OfflineRegion>?){regionItems=regions?.toList().orEmpty();saved=regionItems.size}
   override fun onError(error:String){status="Cannot read saved map regions: $error"}
@@ -50,8 +63,10 @@ private const val DEVICE_TILE_LIMIT=6000L
   Text("Move the map to your target area. Download only the visible region; saved packs work without internet.")
   AndroidView(modifier=Modifier.fillMaxWidth().height(280.dp),factory={ctx->MapView(ctx).apply{
    onCreate(null);mapView=this
-   getMapAsync{map->map.setStyle(STYLE_URL){map.cameraPosition=CameraPosition.Builder().target(LatLng(14.5995,120.9842)).zoom(10.5).build();ready=true;refresh()}}
+   getMapAsync{map->map.setStyle(STYLE_URL){map.cameraPosition=CameraPosition.Builder().target(LatLng(14.5995,120.9842)).zoom(10.5).build();activeMap=map;ready=true;refresh()}}
   }})
+  Text("Evacuation-centre map pins with coordinates: ${evacCenters.size}")
+  Button(enabled=true,onClick={scope.launch{refreshEvacuationPins()}},modifier=Modifier.fillMaxWidth()){Text("REFRESH EVACUATION-CENTRE PINS")}
   Button(enabled=ready&&!downloading,onClick={
    val view=mapView;if(view==null){status="Map is not ready.";return@Button}
    view.getMapAsync{map->
