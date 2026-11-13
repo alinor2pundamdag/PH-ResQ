@@ -45,7 +45,7 @@ class SosStatusForegroundService : Service() {
             return START_NOT_STICKY
         }
         startForeground(NOTIFICATION_ID, buildNotification())
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     private fun buildNotification(): Notification {
@@ -65,7 +65,7 @@ class SosStatusForegroundService : Service() {
         return builder
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
             .setContentTitle("PH-ResQ • SOS handoff")
-            .setContentText("Review and send the SOS in your messaging app. Delivery is not confirmed.")
+            .setContentText("Check your messaging app. Delivery is not confirmed.")
             .setCategory(Notification.CATEGORY_STATUS)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
