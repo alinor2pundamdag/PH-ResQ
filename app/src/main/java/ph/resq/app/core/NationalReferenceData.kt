@@ -57,7 +57,7 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
   require(c.id.isNotBlank()&&c.id.length<=160&&(c.psgcCode==null||c.psgcCode.matches(Regex("\\d{10}"))))
   require(c.scope in setOf("BARANGAY","CITY_MUNICIPALITY","PROVINCE","REGIONAL","NATIONAL"))
   require(c.category in setOf("BARANGAY_HALL","DRRMO","POLICE","FIRE","AMBULANCE","HOSPITAL","COAST_GUARD","RESCUE","OTHER"))
-  require(c.officeName.isNotBlank()&&(c.phone=="911" || c.phone.matches(Regex("[+0-9() .,-]{5,40}")))&&c.sourceUrl.startsWith("https://")&&c.sourceTitle.isNotBlank())
+  require(c.officeName.isNotBlank()&&(c.phone=="911" || c.phone=="122" || c.phone.matches(Regex("[+0-9() .,-]{5,40}")))&&c.sourceUrl.startsWith("https://")&&c.sourceTitle.isNotBlank())
   val resolvedPsgc=c.psgcCode ?: if(c.scope=="BARANGAY") resolveBarangayPsgc(c.officeName) else null
   val v=ContentValues().apply{put("contact_id",c.id);put("psgc_code",resolvedPsgc);put("scope",c.scope);put("category",c.category);put("office_name",c.officeName.trim());put("phone",c.phone.trim());put("source_url",c.sourceUrl);put("source_title",c.sourceTitle);put("verification",c.verification.name);if(c.verifiedAt==null)putNull("verified_at")else put("verified_at",c.verifiedAt);if(c.expiresAt==null)putNull("expires_at")else put("expires_at",c.expiresAt);put("updated_at",System.currentTimeMillis())}
   database.writableDatabase.insertWithOnConflict("public_emergency_contacts",null,v,SQLiteDatabase.CONFLICT_REPLACE)
