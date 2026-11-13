@@ -5,7 +5,7 @@ enum class ContactVerification { NEEDS_REVIEW, OFFICIAL_GOVERNMENT_SOURCE, CROSS
 data class BarangayReference(val psgcCode:String,val region:String,val province:String,val cityMunicipality:String,val barangay:String,val urbanRural:String?=null)
 data class PublicEmergencyContact(val id:String,val psgcCode:String?,val scope:String,val category:String,val officeName:String,val phone:String,val sourceUrl:String,val sourceTitle:String,val verification:ContactVerification,val verifiedAt:Long?=null,val expiresAt:Long?=null)
 data class NationalEvacuationCenter(val id:String,val psgcCode:String?,val name:String,val address:String,val facilityType:String?,val latitude:Double?,val longitude:Double?,val capacity:Int?,val capacityUnit:String,val operationalStatus:String,val sourceUrl:String,val sourceTitle:String,val verification:ContactVerification,val verifiedAt:Long?=null)
-data class NationalCoverageSnapshot(val expectedBarangays:Int,val loadedBarangays:Int,val contactBarangays:Int,val evacuationCenters:Int,val geocodedCenters:Int,val verifiedContacts:Int,val barangayCoveragePercent:Double,val publicContactRecords:Int=0,val barangayContactRecords:Int=0,val cityMunicipalityContactRecords:Int=0,val provinceContactRecords:Int=0,val regionalContactRecords:Int=0,val nationalContactRecords:Int=0)
+data class NationalCoverageSnapshot(val expectedBarangays:Int,val loadedBarangays:Int,val contactBarangays:Int,val evacuationCenters:Int,val geocodedCenters:Int,val verifiedContacts:Int,val barangayCoveragePercent:Double,val publicContactRecords:Int=0,val barangayContactRecords:Int=0,val cityMunicipalityContactRecords:Int=0,val provinceContactRecords:Int=0,val regionalContactRecords:Int=0,val nationalContactRecords:Int=0,val linkedBarangayContactRecords:Int=0,val unlinkedBarangayContactRecords:Int=0,val linkedEvacuationCenters:Int=0,val unlinkedEvacuationCenters:Int=0)
 class NationalReferenceRepository(private val database:ResQDatabase) {
  companion object { const val EXPECTED_BARANGAYS_Q3_2026=42_010; const val PSA_SOURCE="https://psa.gov.ph/classification/psgc" }
  fun replaceBarangays(records:List<BarangayReference>,sourceUrl:String,sourceVersion:String):Int {
@@ -24,21 +24,36 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
   linkEvacuationCentersToBarangays()
   return records.size
  }
- private fun normalizeLabel(value:String):String =
-  value.trim().lowercase().replace(Regex("^sta\\.?\\s+"),"santa ").replace(Regex("^sto\\.?\\s+"),"santo ")
-   .replace("kapitoly","kapitolyo").replace("ñ","n").replace(Regex("[^a-z0-9]+")," ").trim()
+ private fun normalizeLabel(value:String):String {
+  val normalized=value.trim().lowercase()
+   .replace(Regex("^sta\\.?\\s+"),"santa ").replace(Regex("^sto\\.?\\s+"),"santo ")
+   .replace(Regex("^st\\.?\\s+"),"saint ").replace("kapitoly","kapitolyo").replace("siena","sienna").replace("ñ","n")
+   .replace(Regex("[^a-z0-9]+")," ").trim()
+  return normalized
+   .replace(Regex("\\bquirino\\s+([23])\\s+([ac])\\b"),"quirino $1$2")
+   .replace(Regex("\\bescopa\\s+i\\b"),"escopa 1").replace(Regex("\\bescopa\\s+ii\\b"),"escopa 2")
+   .replace(Regex("\\bescopa\\s+iii\\b"),"escopa 3").replace(Regex("\\bescopa\\s+iv\\b"),"escopa 4")
+   .replace(Regex("\\bu\\s+p\\s+(campus|village)\\b"),"up $1")
+   .replace(Regex("\\bquirino 3b claro\\b"),"claro")
+   .let { if(it=="pasong putik") "pasong putik proper" else it }
+ }
  private fun resolveBarangayPsgc(label:String):String? {
-  val match=Regex("^Barangay\\s+(.+?),\\s+(.+)$",RegexOption.IGNORE_CASE).matchEntire(label.trim()) ?: return null
-  val barangay=normalizeLabel(match.groupValues[1])
-  val city=normalizeLabel(match.groupValues[2])
-  val cityVariants=listOf(match.groupValues[2].trim(),"City of "+match.groupValues[2].trim().removeSuffix(" City"),match.groupValues[2].trim().removePrefix("City of ")+" City").distinct()
-  val placeholders=cityVariants.joinToString(","){"?"}
-  val candidates=database.readableDatabase.rawQuery("SELECT psgc_code,city_municipality,barangay FROM barangay_reference WHERE city_municipality IN ($placeholders)",cityVariants.toTypedArray())
-  candidates.use { c ->
-   while(c.moveToNext()){
-    val stored=normalizeLabel(c.getString(1))
-    val storedBarangay=normalizeLabel(c.getString(2))
-    if(storedBarangay==barangay && (stored==city || stored in cityVariants.map(::normalizeLabel))) return c.getString(0)
+  val matches=Regex("(?=(Barangay\\s+([^,]+),\\s+([^,]+)))",RegexOption.IGNORE_CASE).findAll(label)
+  for(match in matches){
+   val barangay=normalizeLabel(match.groupValues[2])
+   val rawCity=match.groupValues[3].trim()
+   val baseCity=rawCity.replace(Regex("^(City|Municipality) of\\s+",RegexOption.IGNORE_CASE),"")
+    .replace(Regex("\\s+(City|Municipality)$",RegexOption.IGNORE_CASE),"").trim()
+   val cityVariants=listOf(rawCity,baseCity,"City of $baseCity","$baseCity City","Municipality of $baseCity").distinct()
+   val normalizedCities=cityVariants.map(::normalizeLabel).toSet()
+   val placeholders=cityVariants.joinToString(","){"?"}
+   val candidates=database.readableDatabase.rawQuery("SELECT psgc_code,city_municipality,barangay FROM barangay_reference WHERE city_municipality IN ($placeholders)",cityVariants.toTypedArray())
+   candidates.use { c ->
+    while(c.moveToNext()){
+     val stored=normalizeLabel(c.getString(1))
+     val storedBarangay=normalizeLabel(c.getString(2))
+     if(storedBarangay==barangay && stored in normalizedCities) return c.getString(0)
+    }
    }
   }
   return null
@@ -146,6 +161,8 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
   val provinceContactRecords=count("SELECT COUNT(*) FROM public_emergency_contacts WHERE scope='PROVINCE'")
   val regionalContactRecords=count("SELECT COUNT(*) FROM public_emergency_contacts WHERE scope='REGIONAL'")
   val nationalContactRecords=count("SELECT COUNT(*) FROM public_emergency_contacts WHERE scope='NATIONAL'")
-  return NationalCoverageSnapshot(EXPECTED_BARANGAYS_Q3_2026,loaded,contactBarangays,centers,geocoded,verified,(loaded.toDouble()/EXPECTED_BARANGAYS_Q3_2026*100.0).coerceAtMost(100.0),publicContacts,barangayContactRecords,cityMunicipalityContactRecords,provinceContactRecords,regionalContactRecords,nationalContactRecords)
+  val linkedBarangayContacts=count("SELECT COUNT(*) FROM public_emergency_contacts WHERE scope='BARANGAY' AND psgc_code IS NOT NULL")
+  val linkedEvacuationCenters=count("SELECT COUNT(*) FROM national_evacuation_centers WHERE psgc_code IS NOT NULL")
+  return NationalCoverageSnapshot(EXPECTED_BARANGAYS_Q3_2026,loaded,contactBarangays,centers,geocoded,verified,(loaded.toDouble()/EXPECTED_BARANGAYS_Q3_2026*100.0).coerceAtMost(100.0),publicContacts,barangayContactRecords,cityMunicipalityContactRecords,provinceContactRecords,regionalContactRecords,nationalContactRecords,linkedBarangayContacts,barangayContactRecords-linkedBarangayContacts,linkedEvacuationCenters,centers-linkedEvacuationCenters)
  }
 }

@@ -116,6 +116,8 @@ fun NationalDataPanel(database:ResQDatabase,modifier:Modifier=Modifier){
     Text("Barangays with public contact records: ${it.contactBarangays}")
     Text("Public contact records: ${it.publicContactRecords} • barangay: ${it.barangayContactRecords}")
     Text("City/municipality: ${it.cityMunicipalityContactRecords} • province: ${it.provinceContactRecords} • regional: ${it.regionalContactRecords} • national: ${it.nationalContactRecords}")
+    Text("Barangay contact PSGC links: ${it.linkedBarangayContactRecords} linked • ${it.unlinkedBarangayContactRecords} unlinked")
+    Text("Evacuation-center PSGC links: ${it.linkedEvacuationCenters}/${it.evacuationCenters} linked • ${it.unlinkedEvacuationCenters} unlinked")
     Text("Evacuation facilities: ${it.evacuationCenters} • with coordinates: ${it.geocodedCenters}")
     Text("Contacts cross-checked or call-verified: ${it.verifiedContacts}")
    }
