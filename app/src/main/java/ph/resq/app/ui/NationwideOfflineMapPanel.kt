@@ -48,7 +48,6 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
     var mapView by remember{mutableStateOf<MapsforgeMapView?>(null)}
     var mapLoaded by remember{mutableStateOf(false)}
     val client=remember{OkHttpClient.Builder().connectTimeout(30,TimeUnit.SECONDS).readTimeout(0,TimeUnit.MILLISECONDS).build()}
-    remember(context){MapsforgeGraphicsRuntime.initialize(context);Unit}
 
     DisposableEffect(mapView){
         val view=mapView
@@ -110,12 +109,13 @@ fun NationwideOfflineMapPanel(modifier:Modifier=Modifier){
                     mapLoaded=false
                 }
             },modifier=Modifier.fillMaxWidth()){Text(if(downloading)"DOWNLOADING NATIONWIDE MAP…" else "DOWNLOAD FULL PHILIPPINES MAP (WI-FI RECOMMENDED)")}
-            if(downloading)LinearProgressIndicator(progress=progress,modifier=Modifier.fillMaxWidth())
+            if(downloading)LinearProgressIndicator(progress={progress},modifier=Modifier.fillMaxWidth())
         }else{
             Text("Installed map size: ${mapFile.length()/1048576L} MB")
             AndroidView(
                 modifier=Modifier.fillMaxWidth().height(340.dp),
                 factory={ctx->
+                    MapsforgeGraphicsRuntime.initialize(ctx)
                     MapsforgeMapView(ctx).apply{
                         mapView=this
                         setBuiltInZoomControls(true)
