@@ -66,3 +66,13 @@ The starter contact pack was expanded from 80 to 102 records. Added:
 - National Unified 911 reference from the DILG press release carried by PIA.
 
 All added records remain review-due until independently call-tested. The Quezon City 122 short code is explicitly accepted by the phone validator.
+
+
+## Quezon City evacuation facilities (implemented)
+The bundled evacuation seed now combines:
+- Bay, Laguna: 28 official-listed facilities from the municipal source table.
+- Quezon City: 401 distinct barangay/facility pairs from the Quezon City Government's "QC Evacuation Centers for Flood and Fire" page, covering 140 barangay labels across districts 1–6. Exact duplicate barangay/facility pairs were removed.
+
+The Quezon City page states it was last updated on 2026-02-19. It supplies facility names grouped by barangay, but does not publish capacities, coordinates, or current operational status. The app therefore stores the barangay as a locator, leaves coordinates and capacity null, sets operational status to UNKNOWN, and leaves verifiedAt null. These entries are official-source-listed, not call-verified or confirmed open.
+
+Combined bundled evacuation seed: 429 records across two LGUs. This is not nationwide coverage. Repeated identical facility names in a barangay may represent separate sites that the source does not distinguish; the deduplication rule may therefore undercount those ambiguous duplicates.
