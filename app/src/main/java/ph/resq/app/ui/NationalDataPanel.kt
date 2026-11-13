@@ -113,6 +113,8 @@ fun NationalDataPanel(database:ResQDatabase,modifier:Modifier=Modifier){
    snapshot?.coverage?.let{
     Text("PSGC-derived reference: ${it.loadedBarangays} / ${it.expectedBarangays} barangays (${String.format("%.2f",it.barangayCoveragePercent)}%)")
     Text("Barangays with public contact records: ${it.contactBarangays}")
+    Text("Public contact records: ${it.publicContactRecords} • barangay: ${it.barangayContactRecords}")
+    Text("City/municipality: ${it.cityMunicipalityContactRecords} • province: ${it.provinceContactRecords} • regional: ${it.regionalContactRecords} • national: ${it.nationalContactRecords}")
     Text("Evacuation facilities: ${it.evacuationCenters} • with coordinates: ${it.geocodedCenters}")
     Text("Contacts cross-checked or call-verified: ${it.verifiedContacts}")
    }
