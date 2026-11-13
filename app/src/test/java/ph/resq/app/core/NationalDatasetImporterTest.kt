@@ -63,5 +63,6 @@ class NationalDatasetImporterTest{
   assertTrue(centers.any{it.address.contains("Bay")})
   assertTrue(centers.all{it.verifiedAt==null})
   assertTrue(centers.any{it.psgcCode!=null})
+  assertTrue(centers.all{it.psgcCode==null || it.psgcCode.matches(Regex("\\d{10}"))})
  }
 }
