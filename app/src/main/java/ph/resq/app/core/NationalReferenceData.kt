@@ -5,7 +5,7 @@ enum class ContactVerification { NEEDS_REVIEW, OFFICIAL_GOVERNMENT_SOURCE, CROSS
 data class BarangayReference(val psgcCode:String,val region:String,val province:String,val cityMunicipality:String,val barangay:String,val urbanRural:String?=null)
 data class PublicEmergencyContact(val id:String,val psgcCode:String?,val scope:String,val category:String,val officeName:String,val phone:String,val sourceUrl:String,val sourceTitle:String,val verification:ContactVerification,val verifiedAt:Long?=null,val expiresAt:Long?=null)
 data class NationalEvacuationCenter(val id:String,val psgcCode:String?,val name:String,val address:String,val facilityType:String?,val latitude:Double?,val longitude:Double?,val capacity:Int?,val capacityUnit:String,val operationalStatus:String,val sourceUrl:String,val sourceTitle:String,val verification:ContactVerification,val verifiedAt:Long?=null)
-data class NationalCoverageSnapshot(val expectedBarangays:Int,val loadedBarangays:Int,val contactBarangays:Int,val evacuationCenters:Int,val geocodedCenters:Int,val verifiedContacts:Int,val barangayCoveragePercent:Double)
+data class NationalCoverageSnapshot(val expectedBarangays:Int,val loadedBarangays:Int,val contactBarangays:Int,val evacuationCenters:Int,val geocodedCenters:Int,val verifiedContacts:Int,val barangayCoveragePercent:Double,val publicContactRecords:Int=0,val barangayContactRecords:Int=0,val cityMunicipalityContactRecords:Int=0,val provinceContactRecords:Int=0,val regionalContactRecords:Int=0,val nationalContactRecords:Int=0)
 class NationalReferenceRepository(private val database:ResQDatabase) {
  companion object { const val EXPECTED_BARANGAYS_Q3_2026=42_010; const val PSA_SOURCE="https://psa.gov.ph/classification/psgc" }
  fun replaceBarangays(records:List<BarangayReference>,sourceUrl:String,sourceVersion:String):Int {
@@ -140,6 +140,12 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
   val loaded=count("SELECT COUNT(*) FROM barangay_reference");val contactBarangays=count("SELECT COUNT(DISTINCT psgc_code) FROM public_emergency_contacts WHERE psgc_code IS NOT NULL AND scope='BARANGAY'")
   val centers=count("SELECT COUNT(*) FROM national_evacuation_centers");val geocoded=count("SELECT COUNT(*) FROM national_evacuation_centers WHERE latitude IS NOT NULL AND longitude IS NOT NULL")
   val verified=count("SELECT COUNT(*) FROM public_emergency_contacts WHERE verification IN ('CROSS_CHECKED','VERIFIED_BY_CALL')")
-  return NationalCoverageSnapshot(EXPECTED_BARANGAYS_Q3_2026,loaded,contactBarangays,centers,geocoded,verified,(loaded.toDouble()/EXPECTED_BARANGAYS_Q3_2026*100.0).coerceAtMost(100.0))
+  val publicContacts=count("SELECT COUNT(*) FROM public_emergency_contacts")
+  val barangayContactRecords=count("SELECT COUNT(*) FROM public_emergency_contacts WHERE scope='BARANGAY'")
+  val cityMunicipalityContactRecords=count("SELECT COUNT(*) FROM public_emergency_contacts WHERE scope='CITY_MUNICIPALITY'")
+  val provinceContactRecords=count("SELECT COUNT(*) FROM public_emergency_contacts WHERE scope='PROVINCE'")
+  val regionalContactRecords=count("SELECT COUNT(*) FROM public_emergency_contacts WHERE scope='REGIONAL'")
+  val nationalContactRecords=count("SELECT COUNT(*) FROM public_emergency_contacts WHERE scope='NATIONAL'")
+  return NationalCoverageSnapshot(EXPECTED_BARANGAYS_Q3_2026,loaded,contactBarangays,centers,geocoded,verified,(loaded.toDouble()/EXPECTED_BARANGAYS_Q3_2026*100.0).coerceAtMost(100.0),publicContacts,barangayContactRecords,cityMunicipalityContactRecords,provinceContactRecords,regionalContactRecords,nationalContactRecords)
  }
 }
