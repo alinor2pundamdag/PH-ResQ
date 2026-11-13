@@ -10,7 +10,7 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
  companion object { const val EXPECTED_BARANGAYS_Q3_2026=42_010; const val PSA_SOURCE="https://psa.gov.ph/classification/psgc" }
  fun replaceBarangays(records:List<BarangayReference>,sourceUrl:String,sourceVersion:String):Int {
   require(sourceUrl==PSA_SOURCE); require(sourceVersion.isNotBlank()&&sourceVersion.length<=80)
-  require(records.size==EXPECTED_BARANGAYS_Q3_2026){"Expected 42,010 Q3-2026 barangays; received \${records.size}."}
+  require(records.size==EXPECTED_BARANGAYS_Q3_2026){"Expected 42,010 Q3-2026 barangays; received ${records.size}."}
   require(records.map{it.psgcCode}.distinct().size==records.size)
   records.forEach{require(it.psgcCode.matches(Regex("\\d{10}")));require(listOf(it.region,it.province,it.cityMunicipality,it.barangay).all(String::isNotBlank))}
   val db=database.writableDatabase;db.beginTransaction()
