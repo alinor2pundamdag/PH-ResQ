@@ -106,6 +106,8 @@ import ph.resq.app.core.DeviceCapabilityProfile
 import ph.resq.app.core.CapabilityState
 import ph.resq.app.core.SettingsRepository
 import ph.resq.app.core.FeaturePolicyCoordinator
+import ph.resq.app.ui.NationalDataPanel
+import ph.resq.app.ui.OfflineMapPanel
 import ph.resq.app.core.FeatureAvailability
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -1004,6 +1006,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OfflineMapPanel(modifier = Modifier.fillMaxWidth())
+                NationalDataPanel(database = database, modifier = Modifier.fillMaxWidth())
                 Text("Offline directory and local hazard cache", style = MaterialTheme.typography.titleLarge)
         Text("Hinahanap lamang nito ang data na na-import na sa device. Walang live PAGASA/LGU feed at hindi ito nangangahulugang kumpleto ang nationwide coverage.")
         Text("Ang JSON metadata ay hindi digital signature. I-import lamang ang file matapos mong beripikahin ang opisyal na source, lisensya at petsa; walang live download na ginagawa.")
