@@ -330,6 +330,54 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
         }
     }
 
+
+    /**
+     * Reconcile an interrupted external SMS handoff without retrying it.
+     * SENDING is ambiguous after process death: Android may have opened the messaging composer
+     * before the app was killed. Preserve the original encrypted snapshot and require user review.
+     */
+    fun reconcileInterruptedSosHandoff(): String? {
+        val db = writableDatabase
+        var recoveredEventId: String? = null
+        db.beginTransaction()
+        try {
+            val interrupted = db.rawQuery(
+                "SELECT event_id, state, draft_ciphertext, recipients_ciphertext, location_ciphertext FROM sos_events ORDER BY id DESC LIMIT 1",
+                null
+            ).use { cursor ->
+                if (!cursor.moveToFirst() || cursor.getString(1) != SosState.SENDING.name) {
+                    null
+                } else {
+                    arrayOf(
+                        cursor.getString(0),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getString(4)
+                    )
+                }
+            }
+            if (interrupted != null) {
+                val eventId = interrupted[0] as String
+                check(SosStateMachine.canTransition(SosState.SENDING, SosState.HANDOFF_UNCONFIRMED))
+                val values = ContentValues().apply {
+                    put("event_id", eventId)
+                    put("state", SosState.HANDOFF_UNCONFIRMED.name)
+                    put("created_at", System.currentTimeMillis())
+                    if (interrupted[1] == null) putNull("draft_ciphertext") else put("draft_ciphertext", interrupted[1] as String)
+                    if (interrupted[2] == null) putNull("recipients_ciphertext") else put("recipients_ciphertext", interrupted[2] as String)
+                    if (interrupted[3] == null) putNull("location_ciphertext") else put("location_ciphertext", interrupted[3] as String)
+                }
+                db.insertOrThrow("sos_events", null, values)
+                db.execSQL("DELETE FROM sos_events WHERE id NOT IN (SELECT id FROM sos_events ORDER BY id DESC LIMIT 200)")
+                recoveredEventId = eventId
+            }
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+        return recoveredEventId
+    }
+
     fun latestSosState(): SosState? {
         readableDatabase.rawQuery("SELECT state FROM sos_events ORDER BY id DESC LIMIT 1", null).use { cursor ->
             if (!cursor.moveToFirst()) return null
