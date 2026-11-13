@@ -35,7 +35,7 @@ fun NationalDataPanel(database:ResQDatabase,modifier:Modifier=Modifier){
   val snapshot=withContext(Dispatchers.IO){
    listOf(repository.coverage(),repository.searchBarangays(query,50),repository.searchContacts(query,50),repository.searchEvacuationCenters(query,50))
   }
-  coverage=snapshot[0] as ph.resq.app.core.NationalReferenceCoverage
+  coverage=snapshot[0] as ph.resq.app.core.NationalCoverageSnapshot
   results=snapshot[1] as List<ph.resq.app.core.BarangayReference>
   contacts=snapshot[2] as List<ph.resq.app.core.PublicEmergencyContact>
   centers=snapshot[3] as List<ph.resq.app.core.NationalEvacuationCenter>
