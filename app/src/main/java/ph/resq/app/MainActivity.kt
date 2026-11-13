@@ -335,15 +335,31 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     var directoryMetadata by remember { mutableStateOf(runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()) }
     var advisoryItems by remember { mutableStateOf(runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList())) }
     var evacuationItems by remember { mutableStateOf(emptyList<Pair<ph.resq.app.core.EvacuationCenter, Boolean>>()) }
-    var offlineImportStatus by remember { mutableStateOf("Walang offline dataset na na-import sa session na ito.") }
+    var offlineImportStatus by remember { mutableStateOf("Pumili ng JSON dataset mula sa source na iyong na-verify.") }
+    var offlineImporting by remember { mutableStateOf(false) }
+    val uiScope = rememberCoroutineScope()
     val offlineImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
-            offlineImportStatus = runCatching { OfflineDatasetImporter.importDataset(context, uri, offlineDataRepository, hazardDataRepository) }
-                .getOrElse { "Import failed: " + (it.message ?: "invalid dataset") }
-            directoryMetadata = runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()
-            directoryResults = runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList())
-            evacuationItems = runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList())
-            advisoryItems = runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList())
+            uiScope.launch {
+                offlineImporting = true
+                offlineImportStatus = "Importing and validating offline dataset…"
+                try {
+                    val result = withContext(Dispatchers.IO) {
+                        runCatching { OfflineDatasetImporter.importDataset(context, uri, offlineDataRepository, hazardDataRepository) }
+                    }
+                    if (result.isSuccess) {
+                        offlineImportStatus = result.getOrThrow()
+                        directoryMetadata = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.datasetMetadata() }.getOrNull() }
+                        directoryResults = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList()) }
+                        evacuationItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList()) }
+                        advisoryItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList()) }
+                    } else {
+                        offlineImportStatus = "Import failed: " + (result.exceptionOrNull()?.message ?: "invalid dataset")
+                    }
+                } finally {
+                    offlineImporting = false
+                }
+            }
         }
     }
     val voiceRecorder = remember { EncryptedVoiceNoteRecorder.cleanupStaleRawFiles(context); EncryptedVoiceNoteRecorder() }
@@ -1084,7 +1100,10 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Text("Offline directory and local hazard cache", style = MaterialTheme.typography.titleLarge)
         Text("Hinahanap lamang nito ang data na na-import na sa device. Walang live PAGASA/LGU feed at hindi ito nangangahulugang kumpleto ang nationwide coverage.")
         Text("Ang JSON metadata ay hindi digital signature. I-import lamang ang file matapos mong beripikahin ang opisyal na source, lisensya at petsa; walang live download na ginagawa.")
-        Button(onClick = { offlineImportLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("IMPORT OFFLINE JSON") }
+        Button(enabled = !offlineImporting, onClick = { offlineImportLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) {
+            Text(if (offlineImporting) "IMPORTING — PLEASE WAIT" else "IMPORT OFFLINE JSON")
+        }
+        if (offlineImporting) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         Text(offlineImportStatus)
         OutlinedTextField(value = offlineQuery, onValueChange = { offlineQuery = it.take(120) }, label = { Text("Barangay, lugar, agency o evacuation center") }, modifier = Modifier.fillMaxWidth())
         Button(onClick = {
