@@ -16,13 +16,15 @@ object SosStateMachine {
     private val transitions = mapOf(
         SosState.IDLE to setOf(SosState.QUEUED, SosState.CANCELLED),
         SosState.QUEUED to setOf(SosState.SENDING, SosState.HANDED_OFF, SosState.CANCELLED, SosState.FAILED),
-        SosState.SENDING to setOf(SosState.HANDED_OFF, SosState.DELIVERED, SosState.RETRY_PENDING, SosState.FAILED, SosState.CANCELLED),
-        SosState.HANDED_OFF to setOf(SosState.DELIVERED, SosState.ACKNOWLEDGED, SosState.FAILED),
-        SosState.DELIVERED to setOf(SosState.ACKNOWLEDGED, SosState.FAILED),
+        SosState.SENDING to setOf(SosState.HANDED_OFF, SosState.RETRY_PENDING, SosState.FAILED, SosState.CANCELLED),
+        SosState.HANDED_OFF to setOf(SosState.FAILED),
+        SosState.DELIVERED to emptySet(),
         SosState.ACKNOWLEDGED to emptySet(),
         SosState.CANCELLED to emptySet(),
         SosState.RETRY_PENDING to setOf(SosState.SENDING, SosState.CANCELLED, SosState.FAILED),
         SosState.FAILED to setOf(SosState.QUEUED)
     )
-    fun canTransition(from: SosState, to: SosState): Boolean = transitions[from]?.contains(to) == true
+    /** Delivery and acknowledgement are unreachable until receipt-verifying transports exist. */
+    fun canTransition(from: SosState, to: SosState): Boolean =
+        to !in setOf(SosState.DELIVERED, SosState.ACKNOWLEDGED) && transitions[from]?.contains(to) == true
 }

@@ -1,6 +1,7 @@
 package ph.resq.app.core
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -109,6 +110,60 @@ class ResQDatabaseTest {
     fun appStatePersistsBatterySnapshot() {
         database.putAppState("low_battery_snapshot", "Battery <=5% (4%)")
         assertEquals("Battery <=5% (4%)", database.getAppState("low_battery_snapshot"))
+    }
+
+    @Test
+    fun sosIntentAndRecipientSnapshotAreDurableBeforeExternalHandoff() {
+        val draft = "Kailangan ng tulong. Location: 7.1,125.6"
+        val recipients = "+639171234567;+639181234567"
+        val location = "Fresh fix: 7.1,125.6 • accuracy 12m"
+        database.recordSosEvent(SosState.QUEUED, draft, recipients, location)
+        val event = database.latestSosEventSnapshot()
+        assertEquals(SosState.QUEUED, event?.state)
+        assertTrue(event != null && event.eventId.isNotBlank())
+        assertEquals(draft, event?.draft)
+        assertEquals(recipients, event?.recipients)
+        assertEquals(location, event?.location)
+        assertTrue((event?.createdAt ?: 0L) > 0L)
+    }
+
+    @Test
+    fun sosStateTransitionsKeepTheSameStableEventId() {
+        database.recordSosEvent(SosState.QUEUED, "SOS draft", "+639171234567", "last known")
+        val queuedId = database.latestSosEventSnapshot()?.eventId
+        database.recordSosEvent(SosState.SENDING, "SOS draft", "+639171234567", "last known")
+        val sending = database.latestSosEventSnapshot()
+        assertEquals(SosState.SENDING, sending?.state)
+        assertEquals(queuedId, sending?.eventId)
+    }
+
+    @Test
+    fun databaseRejectsUnverifiedDeliveryAndAcknowledgementTransitions() {
+        database.recordSosEvent(SosState.QUEUED, "SOS draft", "+639171234567", "last known")
+        database.recordSosEvent(SosState.SENDING, "SOS draft", "+639171234567", "last known")
+        database.recordSosEvent(SosState.HANDED_OFF, "SOS draft", "+639171234567", "last known")
+        val eventId = database.latestSosEventSnapshot()?.eventId
+        assertTrue(runCatching { database.recordSosEvent(SosState.DELIVERED, "SOS draft", "+639171234567", "last known") }.isFailure)
+        assertTrue(runCatching { database.recordSosEvent(SosState.ACKNOWLEDGED, "SOS draft", "+639171234567", "last known") }.isFailure)
+        assertEquals(eventId, database.latestSosEventSnapshot()?.eventId)
+        assertEquals(SosState.HANDED_OFF, database.latestSosEventSnapshot()?.state)
+    }
+
+    @Test
+    fun schemaSevenMigrationAssignsStableEventIdsWithoutDroppingLegacySosRows() {
+        database.close()
+        context.deleteDatabase("ph_resq_local.db")
+        val legacy = SQLiteDatabase.openOrCreateDatabase(context.getDatabasePath("ph_resq_local.db"), null)
+        legacy.execSQL("CREATE TABLE sos_events (id INTEGER PRIMARY KEY AUTOINCREMENT, state TEXT NOT NULL, created_at INTEGER NOT NULL, draft_ciphertext TEXT, recipients_ciphertext TEXT, location_ciphertext TEXT)")
+        legacy.execSQL("INSERT INTO sos_events(state,created_at) VALUES('QUEUED',1234)")
+        legacy.version = 7
+        legacy.close()
+
+        database = ResQDatabase(context, testCipher())
+        val migrated = database.latestSosEventSnapshot()
+        assertEquals(SosState.QUEUED, migrated?.state)
+        assertTrue(migrated != null && migrated.eventId.isNotBlank())
+        assertEquals(1234L, migrated?.createdAt)
     }
 
     @Test

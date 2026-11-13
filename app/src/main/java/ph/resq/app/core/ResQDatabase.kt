@@ -106,8 +106,13 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
             val eventId = if (state == SosState.QUEUED) {
                 UUID.randomUUID().toString()
             } else {
-                db.rawQuery("SELECT event_id FROM sos_events ORDER BY id DESC LIMIT 1", null).use { cursor ->
-                    if (cursor.moveToFirst()) cursor.getString(0) else UUID.randomUUID().toString()
+                db.rawQuery("SELECT event_id,state FROM sos_events ORDER BY id DESC LIMIT 1", null).use { cursor ->
+                    check(cursor.moveToFirst()) { "A new SOS event must begin in QUEUED state." }
+                    val previousState = SosState.valueOf(cursor.getString(1))
+                    check(SosStateMachine.canTransition(previousState, state)) {
+                        "Illegal SOS transition: ${previousState.name} -> ${state.name}"
+                    }
+                    cursor.getString(0)
                 }
             }
             val values = ContentValues().apply {
