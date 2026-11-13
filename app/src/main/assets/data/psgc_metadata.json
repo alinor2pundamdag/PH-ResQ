@@ -1,0 +1,39 @@
+{
+  "dataset": "Philippine Standard Geographic Code — PH-ResQ offline identity reference",
+  "version": "2026-Q3-identity-overlay",
+  "as_of": "2026-09-30",
+  "expected_barangays": 42010,
+  "verified_counts": {
+    "regions": 18,
+    "barangays": 42010,
+    "unique_psgc_codes": 42010,
+    "duplicate_psgc_codes": 0
+  },
+  "official_source": "https://psa.gov.ph/classification/psgc",
+  "official_q3_release": "https://psa.gov.ph/content/third-quarter-2026-psgc-updates-correction-name-one-barangay",
+  "official_q3_workbook": "https://psa.gov.ph/system/files/scd/PSGC-3Q-2026-Publication-Datafile.xlsx",
+  "derived_from_repository": "https://github.com/Tenasia/ph-psgc/tree/2026-Q2",
+  "derived_from_commit": "3d7528b6625e4e7990ac1b96d89505a6bab157ec",
+  "q3_correction": {
+    "psgc_code": "1001322005",
+    "municipality": "Cabanglasan",
+    "province": "Bukidnon",
+    "old_name": "Lambangan",
+    "correct_name": "Lambagan",
+    "reference_no": "2026-331"
+  },
+  "fields": [
+    "psgc_code",
+    "region",
+    "province",
+    "city_municipality",
+    "barangay"
+  ],
+  "urban_rural": "Intentionally null. The Q3 2026 PSA workbook updates urban/rural classifications from the 2024 Census; this identity bundle has not imported that column from the Q3 workbook.",
+  "notes": [
+    "All 42,010 barangay identities and unique 10-digit PSGC codes are bundled across 12 CSV shards.",
+    "The source repository snapshot is Q2 2026. The only Q3 name correction published by PSA is applied explicitly.",
+    "The dataset is an offline identity/hierarchy reference, not a barangay polygon/boundary dataset.",
+    "PSA is the authoritative source. Tenasia/ph-psgc is a third-party PSA-derived distributor; PH-ResQ is not affiliated with PSA."
+  ]
+}
