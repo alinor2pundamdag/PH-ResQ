@@ -64,6 +64,8 @@ class NationalDatasetImporterTest{
   assertTrue(repository.searchContacts("Quezon",100).any{it.officeName=="Quezon Provincial DRRMO"})
   val contactRows=repository.searchContacts("",250)
   assertEquals(201,contactRows.size)
+  assertTrue(contactRows.any{it.psgcCode==null})
+  assertTrue(contactRows.none{it.psgcCode=="null"})
   val contactCoverage=repository.coverage()
   assertEquals(201,contactCoverage.publicContactRecords)
   assertEquals(48,contactCoverage.barangayContactRecords)
