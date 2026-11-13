@@ -22,3 +22,6 @@ The consent screen uses a weighted vertical-scroll body and a fixed action card 
 - TalkBack announces title, notice sections, and both actions in logical order.
 - Accept is not triggered by scroll or accidental touch; decline never reaches the main screen.
 - Reinstall/clear-data behavior is documented; do not claim consent survives app data removal.
+
+## Device compatibility and settings integration
+Consent and privacy settings are stored independently of current device capability. The UI must re-evaluate permission/capability state after resume and permission results. Compact-screen, font-scale, landscape, TalkBack and API-boundary cases are tracked in `TEST_ACCEPTANCE_MATRIX.md` (T-001A/B, T-043–T-047). See `SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md`; do not infer permission from a saved preference.

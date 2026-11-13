@@ -53,17 +53,21 @@ Every result records commit SHA, test ID, build variant, OS/API, device model, s
 - Verify licensed map renderer/package and offline rendering before claiming offline maps are complete.
 - Confirm cell-broadcast copy does not imply the app intercepts system broadcasts.
 
-## 4. P1 tests
+## 4. Device compatibility and adaptive runtime tests
+
+Use `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md` as the normative support policy. API-level emulator coverage is required at API 26, 28, 29, 30, 31, 32, 33, 34 and 35 plus the newest stable API available at execution time. Physical-device coverage must include low-memory, mid-range and high-end devices, multiple OEM families, no-SIM/telephony-absent behavior, and two devices for radio interoperability. Record exact model/API/ABI, app SHA, permission state, battery mode and network. See T-045–T-054 in the acceptance matrix. An emulator PASS does not prove BLE/Wi-Fi Direct or OEM background behavior.
+
+## 5. P1 tests
 
 - Cold start, search latency on realistic dataset, memory, battery use, APK size, offline data package size.
 - Family check-in local/remote semantics, queue idempotency and recovery.
 - Clock changes, timezone changes, reboot, task removal, app upgrade and storage pressure.
 - Multiple Android versions and device manufacturers for permissions, BLE, notification and foreground-service behavior.
 
-## 5. Stop-ship conditions
+## 6. Stop-ship conditions
 
 Any P0 failure; data loss of a pending SOS; duplicate dispatch caused by recovery; false delivered/acknowledged UI; plaintext sensitive values in logs/backups; unauthenticated mesh ACK; invalid or unlicensed bundled data; unrecoverable schema migration; or an APK whose source SHA does not match the intended commit.
 
-## 6. Evidence and release gate
+## 7. Evidence and release gate
 
 Use the current `TEST_ACCEPTANCE_MATRIX.md` as the execution ledger. A successful CI run must match the intended PR head SHA and contain the APK, `BUILD_METADATA.txt`, and `SHA256SUMS`. Physical-device and data-source acceptance are separate release gates; unsigned debug/release APKs are for controlled testing only and are not a production release.

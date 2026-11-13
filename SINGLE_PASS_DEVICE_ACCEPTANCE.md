@@ -15,6 +15,8 @@
 
 ## Minimum test setup
 
+Use `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md` and `SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md` to select the device matrix and capability checks. The run must include API-level boundaries and at least two OEM families; do not claim global Android compatibility from a single handset.
+
 1. **Primary Android phone:** target candidate device, fresh install and upgrade path where relevant.
 2. **Second Android phone:** required for peer discovery, Wi-Fi Direct connection/transfer, mesh packet/ACK/replay scenarios, and interoperability.
 3. **SIM/network states:** available SIM and mobile data; then airplane mode/offline; then denied/no-SIM cases where applicable.
@@ -26,7 +28,7 @@ If a feature inherently requires an extra environment (for example, a supported 
 
 ## One-session execution order
 
-Run all applicable cases in `TEST_ACCEPTANCE_MATRIX.md` during the same planned session, grouped as follows:
+Run all applicable cases in `TEST_ACCEPTANCE_MATRIX.md` (currently T-001 through T-054) during the same planned session, grouped as follows:
 
 1. Install, consent, permissions, privacy controls, and clean/upgrade launch.
 2. SOS hold, accessible alternative, cancellation, contact selection, location freshness, message handoff, voice-note sharing, and visible foreground status.

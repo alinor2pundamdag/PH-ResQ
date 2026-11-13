@@ -64,6 +64,11 @@ The current app includes versioned consent and privacy notice; encrypted emergen
 - [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) — implementation gates and exit evidence
 - [PATCH_NOTES.md](PATCH_NOTES.md) — Architecture Collection inventory and revision notes
 - [FEATURE_TRACEABILITY.md](FEATURE_TRACEABILITY.md) — feature-to-test traceability
+- [ARCHITECTURE_COLLECTION.md](ARCHITECTURE_COLLECTION.md) — full architecture-document index and source-of-truth hierarchy
+- [CRITICAL_ARCHITECTURE_AUDIT.md](CRITICAL_ARCHITECTURE_AUDIT.md) — current source map and critical remediation register
+- [ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md](ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md) — Android support tiers and adaptive capability policy
+- [SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md](SETTINGS_DEVICE_INTEGRATION_CONTRACTS.md) — settings/device/UI integration contracts
+- [PERSISTENCE_RECOVERY_ARCHITECTURE.md](PERSISTENCE_RECOVERY_ARCHITECTURE.md) — persistence and recovery invariants
 - [OFFLINE_DATA_IMPORT.md](OFFLINE_DATA_IMPORT.md) — JSON formats and safe import limitations
 - [TEST_ACCEPTANCE_MATRIX.md](TEST_ACCEPTANCE_MATRIX.md) — measurable acceptance tests
 - [SINGLE_PASS_DEVICE_ACCEPTANCE.md](SINGLE_PASS_DEVICE_ACCEPTANCE.md) — one consolidated physical-device test session and report template

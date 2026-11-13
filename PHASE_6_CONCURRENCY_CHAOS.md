@@ -48,3 +48,7 @@ Current automated tests cover selected core utilities, database behavior, datase
 - The release gate in `MASTER_PLAN.md` is met with evidence for the current revision.
 
 Related: `TEST_ACCEPTANCE_MATRIX.md` T-005 through T-027.
+
+
+## Device adaptation and persistence recovery
+Chaos tests must include capability loss during an operation (permission revoked, Bluetooth disabled, notification channel disabled), process death/reboot, low storage, and key invalidation. Expected behavior is defined in `ANDROID_COMPATIBILITY_AND_ADAPTIVE_RUNTIME.md` and `PERSISTENCE_RECOVERY_ARCHITECTURE.md`; map outcomes to T-046 and T-049–T-053. No scenario may silently reset data or report unavailable transport as successful.
