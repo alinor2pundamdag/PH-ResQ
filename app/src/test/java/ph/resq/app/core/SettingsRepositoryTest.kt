@@ -31,7 +31,8 @@ class SettingsRepositoryTest {
     @Test fun invalidAudioPreferenceIsClampedOnReadAndWrite() {
         val context = RuntimeEnvironment.getApplication()
         val repository = SettingsRepository(context)
-        repository.setVoicePlaybackVolume(Float.NaN)
+        context.getSharedPreferences("ph_resq_local", 0).edit()
+            .putFloat("voice_playback_volume", Float.NaN).commit()
         assertEquals(SafeVolumePolicy.DEFAULT, repository.voicePlaybackVolume, 0.001f)
         repository.setVoicePlaybackVolume(1.0f)
         assertEquals(SafeVolumePolicy.MAX, repository.voicePlaybackVolume, 0.001f)

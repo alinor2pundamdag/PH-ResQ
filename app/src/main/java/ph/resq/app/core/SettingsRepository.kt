@@ -18,9 +18,9 @@ class SettingsRepository(context: Context) {
         get() = preferences.getBoolean(KEY_REDUCE_MOTION, false)
 
     val voicePlaybackVolume: Float
-        get() = SafeVolumePolicy.clamp(
-            preferences.getFloat(KEY_VOICE_PLAYBACK_VOLUME, SafeVolumePolicy.DEFAULT)
-        )
+        get() = runCatching {
+            SafeVolumePolicy.clamp(preferences.getFloat(KEY_VOICE_PLAYBACK_VOLUME, SafeVolumePolicy.DEFAULT))
+        }.getOrDefault(SafeVolumePolicy.DEFAULT)
 
     fun setHighContrast(enabled: Boolean) {
         preferences.edit().putBoolean(KEY_HIGH_CONTRAST, enabled).apply()
