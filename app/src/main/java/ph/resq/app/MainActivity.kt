@@ -1,6 +1,8 @@
 package ph.resq.app
 
 import android.Manifest
+import android.bluetooth.BluetoothAdapter
+import android.location.LocationManager
 import android.app.Activity
 import android.graphics.Bitmap
 import android.content.ClipData
@@ -15,6 +17,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -160,6 +163,24 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    DisposableEffect(context) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    BluetoothAdapter.ACTION_STATE_CHANGED,
+                    PowerManager.ACTION_POWER_SAVE_MODE_CHANGED,
+                    LocationManager.MODE_CHANGED_ACTION -> capabilityProfile = DeviceCapabilityProfile.detect(context)
+                }
+            }
+        }
+        val filter = IntentFilter().apply {
+            addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+            addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
+            addAction(LocationManager.MODE_CHANGED_ACTION)
+        }
+        ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
+        onDispose { runCatching { context.unregisterReceiver(receiver) } }
     }
     var medicalName by remember { mutableStateOf("") }
     var medicalBloodType by remember { mutableStateOf("") }
