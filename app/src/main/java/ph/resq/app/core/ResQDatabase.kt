@@ -128,7 +128,7 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
     ): String {
         val db = writableDatabase
         db.beginTransaction()
-        try {
+        return try {
             val resolvedEventId = if (state == SosState.QUEUED) {
                 UUID.randomUUID().toString()
             } else {
