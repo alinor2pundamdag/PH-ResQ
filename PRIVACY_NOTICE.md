@@ -1,6 +1,6 @@
 # PH-ResQ Privacy and Safety Notice
 
-**Notice version:** 2026-11-02-v2  
+**Notice version:** 2026-11-13-v3  
 **Status:** Early-build notice; requires legal/privacy review before public release.
 
 This notice is shown on first launch and whenever the policy version changes. The user must explicitly Accept to enter the main screen. Declining exits the activity and clears acceptance. The notice content scrolls independently while Accept and Decline remain in a fixed action area. Acceptance is persisted with the exact policy version and timestamp. The main screen provides a review/withdraw control; withdrawing clears acceptance and returns to this gate. Withdrawing consent does not itself delete previously stored app data.
@@ -11,7 +11,7 @@ This notice is shown on first launch and whenever the policy version changes. Th
 - SOS event state is stored in the local SQLite database. SOS draft, recipient-list and location text fields are encrypted before insertion.
 - Last-known location text is stored encrypted locally after the user grants location permission and requests a lookup. The location may be stale and is not live tracking.
 - Search history, hotline bookmarks and family check-ins are stored locally in SQLite. They are not remotely synchronized in this build.
-- A voice note is recorded only after the user chooses the recording control and grants microphone permission. The temporary recording is encrypted at rest and the raw temporary file is deleted after encryption or on a later app startup if left behind.
+- A voice note is recorded only after the user chooses the recording control and grants microphone permission. During recording, Android writes a temporary raw M4A file to the app-private cache. When recording stops, PH-ResQ encrypts it into app-private files and attempts to delete the raw file; stale raw files are cleaned on a later app startup. File deletion is not a guarantee of forensic erasure.
 - BLE discovery runs only after the user starts a scan and grants the required permission. The current scan detects advertisements only; it does not transmit SOS data.
 - Consent acceptance stores the current policy version and acceptance timestamp in local app preferences.
 

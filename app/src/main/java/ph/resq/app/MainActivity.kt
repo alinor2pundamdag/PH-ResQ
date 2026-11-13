@@ -247,7 +247,12 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         onDispose { runCatching { context.unregisterReceiver(receiver) } }
     }
     val fieldCipher = remember { EncryptedFieldCipher() }
-    var contactsRaw by remember { mutableStateOf(if (pinVaultEnabled) "" else (runCatching { vault.loadContacts() }.getOrNull() ?: "")) }
+    val initialContactsLoad = remember {
+        if (pinVaultEnabled) Result.success("") else runCatching { vault.loadContacts() }
+    }
+    var contactsLoadAccessible by remember { mutableStateOf(initialContactsLoad.isSuccess) }
+    var contactsLoadError by remember { mutableStateOf(initialContactsLoad.exceptionOrNull()?.message ?: "") }
+    var contactsRaw by remember { mutableStateOf(initialContactsLoad.getOrDefault("")) }
     var locationLine by remember {
         mutableStateOf(
             runCatching { fieldCipher.decrypt(prefs.getString("last_location_line_cipher", null)) }.getOrNull()
@@ -497,6 +502,10 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     }
 
     fun prepareSos() {
+        if (!pinVaultEnabled && !contactsLoadAccessible) {
+            Toast.makeText(context, "Hindi mabasa nang ligtas ang naka-save na contacts. Hindi babaguhin o papalitan ang naka-encrypt na data.", Toast.LENGTH_LONG).show()
+            return
+        }
         if (pinVaultEnabled && !pinVaultUnlocked) {
             Toast.makeText(context, "I-unlock muna ang PIN-protected emergency contacts.", Toast.LENGTH_LONG).show()
             return
@@ -782,6 +791,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                             if (secret == null) pinVaultStatus = "Maling PIN o hindi mabuksan ang vault."
                             else {
                                 contactsRaw = secret
+                                contactsLoadAccessible = true
+                                contactsLoadError = ""
                                 pinVaultUnlocked = true
                                 pinVaultStatus = "Vault unlocked for this app session."
                             }
@@ -790,13 +801,29 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                         } finally { pinVaultPin = "" }
                     }, modifier = Modifier.fillMaxWidth()) { Text("UNLOCK CONTACT VAULT") }
                 } else {
+                    if (!pinVaultEnabled && !contactsLoadAccessible) {
+                        Text("Hindi ma-decrypt ang dating contacts. Nananatiling buo ang encrypted data; naka-block ang pag-edit at SOS upang maiwasan ang aksidenteng overwrite.")
+                        Text(contactsLoadError)
+                        Button(onClick = {
+                            val result = runCatching { vault.loadContacts() }
+                            if (result.isSuccess) {
+                                contactsRaw = result.getOrDefault("")
+                                contactsLoadAccessible = true
+                                contactsLoadError = ""
+                            } else {
+                                contactsLoadError = result.exceptionOrNull()?.message ?: "Decryption failed."
+                            }
+                        }, modifier = Modifier.fillMaxWidth()) { Text("RETRY SAFE CONTACT LOAD") }
+                    }
                     OutlinedTextField(value = contactsRaw, onValueChange = {
                         contactsRaw = it
                         if (!pinVaultEnabled) {
-                            val saved = runCatching { vault.saveContacts(it) }.isSuccess
-                            if (!saved) Toast.makeText(context, "Hindi ligtas na na-save ang contacts. Huwag umasa sa storage na ito.", Toast.LENGTH_LONG).show()
+                            val saveResult = runCatching { vault.saveContacts(it) }
+                            contactsLoadAccessible = saveResult.isSuccess
+                            contactsLoadError = saveResult.exceptionOrNull()?.message ?: ""
+                            if (!saveResult.isSuccess) Toast.makeText(context, "Hindi ligtas na na-save ang contacts. Naka-block ang SOS.", Toast.LENGTH_LONG).show()
                         }
-                    }, enabled = pinVaultUnlocked, label = { Text("Hal. +639171234567, 09181234567") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
+                    }, enabled = pinVaultUnlocked && contactsLoadAccessible, label = { Text("Hal. +639171234567, 09181234567") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
                     Text("Valid-looking contacts: " + ContactList.parse(contactsRaw).size)
                     if (!pinVaultEnabled) {
                         OutlinedTextField(value = pinVaultPin, onValueChange = { pinVaultPin = it.filter(Char::isDigit).take(12) }, label = { Text("Optional new vault PIN (6+ digits)") }, modifier = Modifier.fillMaxWidth())
@@ -806,6 +833,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                                 check(prefs.edit().putBoolean("pin_vault_enabled", true).commit())
                                 pinVaultEnabled = true
                                 pinVaultUnlocked = true
+                                contactsLoadAccessible = true
+                                contactsLoadError = ""
                                 runCatching { vault.clearContacts() }
                                 pinVaultStatus = "PIN vault enabled. Walang recovery flow; itago ang PIN nang ligtas."
                             } catch (error: Exception) {

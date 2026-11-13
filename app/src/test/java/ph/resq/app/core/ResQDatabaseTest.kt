@@ -107,6 +107,20 @@ class ResQDatabaseTest {
     }
 
     @Test
+    fun localVaultFailsClosedWhenKeystoreCipherCannotDecryptAndPreservesCiphertext() {
+        context.getSharedPreferences("ph_resq_encrypted_local", Context.MODE_PRIVATE).edit().clear().commit()
+        val vault = LocalVault(context, EncryptedFieldCipher("test_local_vault_key", testKeyProvider = {
+            SecretKeySpec(ByteArray(32) { 0x21 }, "AES")
+        }))
+        vault.saveContacts("+639171234567")
+        val wrongKeyVault = LocalVault(context, EncryptedFieldCipher("test_local_vault_key", testKeyProvider = {
+            SecretKeySpec(ByteArray(32) { 0x42 }, "AES")
+        }))
+        assertTrue(runCatching { wrongKeyVault.loadContacts() }.isFailure)
+        assertEquals("+639171234567", vault.loadContacts())
+    }
+
+    @Test
     fun appStatePersistsBatterySnapshot() {
         database.putAppState("low_battery_snapshot", "Battery <=5% (4%)")
         assertEquals("Battery <=5% (4%)", database.getAppState("low_battery_snapshot"))
