@@ -69,7 +69,13 @@ class SosStatusForegroundService : Service() {
             .setCategory(Notification.CATEGORY_STATUS)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
-            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop status", stopPendingIntent)
+            .addAction(
+                Notification.Action.Builder(
+                    android.R.drawable.ic_menu_close_clear_cancel,
+                    "Stop status",
+                    stopPendingIntent
+                ).build()
+            )
             .build()
     }
 
