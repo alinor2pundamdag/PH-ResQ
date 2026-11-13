@@ -88,11 +88,11 @@ jobs:
           cp app/build/outputs/bundle/release/app-release.aab build/distributions/PH-ResQ-release.aab
           sha256sum build/distributions/* > build/evidence/SHA256SUMS
           test -s build/evidence/SHA256SUMS
-      - name: Upload APKs and build evidence
+      - name: Upload APK, AAB and build evidence
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: ph-resq-apk-builds
+          name: ph-resq-release-builds
           path: |
             build/distributions/*
             build/evidence/*
