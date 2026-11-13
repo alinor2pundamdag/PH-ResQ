@@ -337,6 +337,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     var evacuationItems by remember { mutableStateOf(emptyList<Pair<ph.resq.app.core.EvacuationCenter, Boolean>>()) }
     var offlineImportStatus by remember { mutableStateOf("Pumili ng JSON dataset mula sa source na iyong na-verify.") }
     var offlineImporting by remember { mutableStateOf(false) }
+    var offlineSearching by remember { mutableStateOf(false) }
     val uiScope = rememberCoroutineScope()
     val offlineImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
@@ -1139,27 +1140,38 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         if (offlineImporting) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         Text(offlineImportStatus)
         OutlinedTextField(value = offlineQuery, onValueChange = { offlineQuery = it.take(120) }, label = { Text("Barangay, lugar, agency o evacuation center") }, modifier = Modifier.fillMaxWidth())
-        Button(onClick = {
-            val location = LastKnownLocation.read(context)
-            if (location == null) {
-                Toast.makeText(context, "Walang huling lokasyon. I-enable ang location permission at kumuha muna ng fix.", Toast.LENGTH_LONG).show()
-            } else {
-                directoryResults = runCatching {
-                    offlineDataRepository.searchNearby(location.latitude, location.longitude, radiusKm = 25.0, limit = 100).map { it.record }
-                }.getOrDefault(emptyList())
-                if (directoryResults.isEmpty()) Toast.makeText(context, "Walang imported directory record na may coordinates sa loob ng 25 km.", Toast.LENGTH_LONG).show()
+        Button(enabled = !offlineSearching && !offlineImporting, onClick = {
+            uiScope.launch {
+                offlineSearching = true
+                try {
+                    val result = withContext(Dispatchers.IO) {
+                        val location = LastKnownLocation.read(context)
+                        if (location == null) null else offlineDataRepository.searchNearby(location.latitude, location.longitude, radiusKm = 25.0, limit = 100).map { it.record }
+                    }
+                    if (result == null) Toast.makeText(context, "Walang huling lokasyon. I-enable ang location permission at kumuha muna ng fix.", Toast.LENGTH_LONG).show()
+                    else {
+                        directoryResults = result
+                        if (result.isEmpty()) Toast.makeText(context, "Walang imported directory record na may coordinates sa loob ng 25 km.", Toast.LENGTH_LONG).show()
+                    }
+                } finally { offlineSearching = false }
             }
         }, modifier = Modifier.fillMaxWidth()) { Text("SEARCH NEAR LAST-KNOWN LOCATION (25 KM)") }
         Text("Gumagamit lamang ito ng huling kilalang lokasyon; maaaring luma ang fix. Hindi ito nagsisimula ng bagong GPS request.")
-        Button(onClick = {
-            directoryResults = runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList())
-            directoryMetadata = runCatching { offlineDataRepository.datasetMetadata() }.getOrNull()
-            evacuationItems = runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList())
-            advisoryItems = runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList())
-            if (directoryResults.isEmpty() && evacuationItems.isEmpty() && advisoryItems.isEmpty()) {
-                Toast.makeText(context, "Walang local directory/advisory data na available. Hindi nag-download ng data.", Toast.LENGTH_LONG).show()
+        Button(enabled = !offlineSearching && !offlineImporting, onClick = {
+            uiScope.launch {
+                offlineSearching = true
+                try {
+                    directoryResults = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.searchDirectory(offlineQuery, 100) }.getOrDefault(emptyList()) }
+                    directoryMetadata = withContext(Dispatchers.IO) { runCatching { offlineDataRepository.datasetMetadata() }.getOrNull() }
+                    evacuationItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.searchEvacuationCenters(offlineQuery) }.getOrDefault(emptyList()) }
+                    advisoryItems = withContext(Dispatchers.IO) { runCatching { hazardDataRepository.advisories() }.getOrDefault(emptyList()) }
+                    if (directoryResults.isEmpty() && evacuationItems.isEmpty() && advisoryItems.isEmpty()) {
+                        Toast.makeText(context, "Walang local directory/advisory data na available. Hindi nag-download ng data.", Toast.LENGTH_LONG).show()
+                    }
+                } finally { offlineSearching = false }
             }
-        }, modifier = Modifier.fillMaxWidth()) { Text("SEARCH SAVED OFFLINE DATA") }
+        }, modifier = Modifier.fillMaxWidth()) { Text(if (offlineSearching) "SEARCHING…" else "SEARCH SAVED OFFLINE DATA") }
+        if (offlineSearching) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         directoryMetadata?.let { meta ->
             Text("Directory dataset: ${meta["version"] ?: "unknown"} • records: ${meta["recordCount"] ?: "unknown"}")
             Text("Source: ${meta["sourceUrl"] ?: "unknown"} • license: ${meta["license"] ?: "unknown"}")
