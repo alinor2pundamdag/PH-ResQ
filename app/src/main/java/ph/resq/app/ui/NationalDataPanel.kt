@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -119,9 +120,21 @@ fun NationalDataPanel(database:ResQDatabase,modifier:Modifier=Modifier){
     Text("Contacts cross-checked or call-verified: ${it.verifiedContacts}")
    }
    OutlinedTextField(value=query,onValueChange={query=it.take(120)},label={Text("Search barangay, PSGC code, office or evacuation site")},modifier=Modifier.fillMaxWidth())
-   Button(enabled=!importing,onClick={scope.launch{
-    refreshData()
-   }},modifier=Modifier.fillMaxWidth()){Text("SEARCH NATIONAL REFERENCE DATA")}
+   Button(enabled=!importing,onClick={
+    importing=true
+    scope.launch{
+     try{
+      refreshData()
+      status="National reference data refreshed from the on-device database."
+     }catch(cancelled:CancellationException){
+      throw cancelled
+     }catch(error:Exception){
+      status="Could not refresh national reference data: ${error.message ?: "database error"}"
+     }finally{
+      importing=false
+     }
+    }
+   },modifier=Modifier.fillMaxWidth()){Text(if(importing)"REFRESHING…" else "SEARCH NATIONAL REFERENCE DATA")}
    results.take(20).forEach{Text("${it.barangay} • ${it.cityMunicipality}, ${it.province} • PSGC ${it.psgcCode}",style=MaterialTheme.typography.bodySmall)}
    contacts.take(20).forEach{contact->
     val reviewDue=contact.expiresAt?.let{it<=System.currentTimeMillis()}?:true
