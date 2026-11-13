@@ -424,7 +424,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         // SQLite is the source of truth; this preference is only a fast UI restore hint.
         prefs.edit().putString("sos_state", next.name)
             .putLong("sos_state_updated_at", System.currentTimeMillis()).commit()
-        true
+        return true
     }
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
