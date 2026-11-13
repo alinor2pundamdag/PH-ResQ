@@ -2,6 +2,9 @@ package ph.resq.app.ui
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -52,6 +55,15 @@ import ph.resq.app.core.NationalDatasetImporter
    Button(onClick={csvLauncher.launch(arrayOf("text/csv","text/comma-separated-values","application/vnd.ms-excel"))},modifier=Modifier.fillMaxWidth()){Text("IMPORT COMPLETE PSA BARANGAY CSV")}
    Button(onClick={contactsLauncher.launch(arrayOf("application/json","text/json"))},modifier=Modifier.fillMaxWidth()){Text("IMPORT PUBLIC EMERGENCY CONTACTS JSON")}
    Button(onClick={evacuationLauncher.launch(arrayOf("application/json","text/json"))},modifier=Modifier.fillMaxWidth()){Text("IMPORT EVACUATION CENTERS JSON")}
+   Button(onClick={
+    val contactCount=runCatching{NationalDatasetImporter.importBundledPublicContacts(context,repository)}.getOrElse{0}
+    val centerCount=runCatching{NationalDatasetImporter.importBundledEvacuationCenters(context,repository)}.getOrElse{0}
+    status="Loaded bundled sources: $contactCount contacts and $centerCount Bay evacuation-center records. Older records are marked review-due; no live phone verification has been performed."
+    coverage=runCatching{repository.coverage()}.getOrNull()
+    contacts=runCatching{repository.searchContacts(query,50)}.getOrDefault(emptyList())
+    centers=runCatching{repository.searchEvacuationCenters(query,50)}.getOrDefault(emptyList())
+   },modifier=Modifier.fillMaxWidth()){Text("LOAD STARTER DATA: PASIG / MARINDUQUE / LAPUYAN + BAY")}
+
    Text(status,style=MaterialTheme.typography.bodySmall)
    coverage?.let{
     Text("PSA Q3-2026 reference: ${it.loadedBarangays} / ${it.expectedBarangays} barangays (${String.format("%.2f",it.barangayCoveragePercent)}%)")
@@ -62,7 +74,11 @@ import ph.resq.app.core.NationalDatasetImporter
    OutlinedTextField(value=query,onValueChange={query=it.take(120)},label={Text("Search barangay, PSGC code or office")},modifier=Modifier.fillMaxWidth())
    Button(onClick={results=runCatching{repository.searchBarangays(query,50)}.getOrDefault(emptyList());contacts=runCatching{repository.searchContacts(query,50)}.getOrDefault(emptyList());centers=runCatching{repository.searchEvacuationCenters(query,50)}.getOrDefault(emptyList())},modifier=Modifier.fillMaxWidth()){Text("SEARCH NATIONAL REFERENCE DATA")}
    results.take(20).forEach{Text("${it.barangay} • ${it.cityMunicipality}, ${it.province} • PSGC ${it.psgcCode}",style=MaterialTheme.typography.bodySmall)}
-   contacts.take(20).forEach{Text("${it.officeName} • ${it.phone} • ${it.verification}",style=MaterialTheme.typography.bodySmall);Text("${it.sourceTitle} • ${it.sourceUrl}",style=MaterialTheme.typography.labelSmall)}
+   contacts.take(20).forEach{
+    val reviewDue=it.expiresAt?.let{expiry->expiry<System.currentTimeMillis()}?:false
+    Text("${it.officeName} • ${it.phone} • ${it.verification}${if(reviewDue)" • REVIEW DUE" else ""}",modifier=Modifier.fillMaxWidth().clickable{context.startActivity(Intent(Intent.ACTION_DIAL,Uri.parse("tel:${it.phone}")))},style=MaterialTheme.typography.bodySmall)
+    Text("${it.sourceTitle} • ${it.sourceUrl}",style=MaterialTheme.typography.labelSmall)
+   }
    centers.take(20).forEach{Text("${it.name} • ${it.capacity?.let { n -> "$n ${it.capacityUnit.lowercase()}" } ?: "capacity unknown"} • ${it.operationalStatus} • ${it.verification}",style=MaterialTheme.typography.bodySmall);Text("${it.address} • ${it.sourceTitle}",style=MaterialTheme.typography.labelSmall)}
    Text("Coverage remains incomplete until source datasets are imported and independently checked. DILG does not publish a single consolidated nationwide operational-center database.",style=MaterialTheme.typography.bodySmall)
   }
