@@ -27,6 +27,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.animation.core.Animatable
@@ -172,7 +173,6 @@ private fun ResQRoot() {
     }
 }
 
-@Composable
 private enum class HomeSection(val label: String, val icon: String) {
     EMERGENCY("Emergency", "🚨"),
     DIRECTORY("Directory", "🗺️"),
@@ -619,7 +619,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     var selectedSection by remember { mutableStateOf(HomeSection.EMERGENCY) }
     val adaptiveContentWidth = if (availableWidth >= 900.dp) 820.dp else 720.dp
     val adaptiveLayoutLabel = when { availableWidth >= 900.dp -> "EXPANDED TABLET"; availableWidth >= 600.dp -> "MEDIUM"; else -> "COMPACT PHONE" }
-    Column(Modifier.fillMaxWidth().widthIn(max = adaptiveContentWidth).align(Alignment.TopCenter).padding(start = if (availableWidth >= 600.dp) 88.dp else 0.dp).verticalScroll(rememberScrollState()).padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 104.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(Modifier.fillMaxWidth().widthIn(max = adaptiveContentWidth).align(Alignment.TopCenter).padding(start = if (availableWidth >= 600.dp) 88.dp else 0.dp).animateContentSize().verticalScroll(rememberScrollState()).padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 104.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(
             Modifier.fillMaxWidth().height(8.dp).graphicsLayer(rotationZ = visibleWave)
                 .background(Brush.horizontalGradient(listOf(Color.Blue, Color.Red, Color.White, Color.Yellow, Color.White, Color.Red, Color.Blue)))
@@ -1100,7 +1100,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         }
 
         Text("Directory, maps, mesh and vault", style = MaterialTheme.typography.titleLarge)
-                Text("Hindi pa kumpleto: walang verified nationwide data package o offline map renderer, BLE/Wi-Fi emergency transport, o remote sync. Ang PIN vault ay integrated ngunit wala pang recovery/backup o duress mode.")
+                Text("Available ang nationwide offline-map package for download; actual rendering and airplane-mode operation still need your device verification. BLE currently discovers nearby devices only—no emergency payload transport or Wi-Fi Direct mesh is implemented. Family check-in is locally queued, not remotely delivered. The PIN vault still needs recovery/backup and a documented threat-model review.")
             }
         }
         }
