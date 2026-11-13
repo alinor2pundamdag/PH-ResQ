@@ -28,14 +28,14 @@ If a feature inherently requires an extra environment (for example, a supported 
 
 ## One-session execution order
 
-Run all applicable cases in `TEST_ACCEPTANCE_MATRIX.md` (currently T-001 through T-054) during the same planned session, grouped as follows:
+Run all applicable cases in `TEST_ACCEPTANCE_MATRIX.md` (currently T-001 through T-057) during the same planned session, grouped as follows:
 
 1. Install, consent, permissions, privacy controls, and clean/upgrade launch.
-2. SOS hold, accessible alternative, cancellation, contact selection, location freshness, message handoff, voice-note sharing, and visible foreground status.
+2. SOS hold progress, short-tap cancellation, accessible alternative, contact selection, fresh/stale/future location behavior, message handoff, voice-note sharing, and visible foreground status.
 3. Encryption/vault lockout, Medical ID QR disclosure, volume/reduce-motion/high-contrast, notification denial, and permission revocation.
 4. Offline directory/search/nearby search, advisories, evacuation records, stale-data handling, map cache/rendering, import validation, and integrity/tamper checks.
 5. Family check-in, persistence across activity/process restart and reboot, migration/recovery/corruption/low-storage scenarios.
-6. BLE discovery, Wi-Fi Direct pairing/transfer, authenticated packet handling, queue/retry/ACK/replay, duplicate/out-of-order messages, and multi-hop behavior where implemented.
+6. BLE discovery, Wi-Fi Direct pairing/transfer, authenticated packet handling, queue/retry/ACK/replay, duplicate/out-of-order messages, and multi-hop behavior only where the transport is actually implemented. Mark Wi-Fi Direct, authenticated BLE payload transport and multi-hop relay BLOCKED/NOT IMPLEMENTED in this candidate.
 7. Network/SIM/GPS/Bluetooth/Wi-Fi/notification denial, battery saver, low battery, process death, reboot, and recovery.
 8. Accessibility: TalkBack, large text, contrast, touch targets, reduce-motion, and emergency-control reachability.
 9. Re-run all failed cases after fixes; do not replace a failed result with a later pass without retaining both attempts and the fix commit.
@@ -82,4 +82,4 @@ Known limitations and unavailable test setups:
 
 ## Critical boundaries
 
-A single consolidated report can cover all features, but the physical test setup may use two or more devices and multiple radio/network states. One phone cannot prove peer-to-peer transport or multi-hop behavior. A green CI run proves only the checks encoded in that workflow; it does not prove carrier delivery, nationwide data completeness, map licensing, radio interoperability, accessibility on every device, or emergency-service readiness.
+A single consolidated report can cover all features, but the physical test setup may use two or more devices and multiple radio/network states. One phone cannot prove peer-to-peer transport or multi-hop behavior. The current workflow runs lint, unit/Robolectric tests, debug/release assembly, exact-SHA verification, and APK/evidence upload; it does not run physical-device or Android instrumentation tests. A green CI run proves only the checks encoded in that workflow; it does not prove carrier delivery, nationwide data completeness, map licensing, radio interoperability, accessibility on every device, or emergency-service readiness.
