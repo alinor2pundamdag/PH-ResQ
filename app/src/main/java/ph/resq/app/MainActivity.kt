@@ -55,6 +55,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -166,6 +170,15 @@ private fun ResQRoot() {
             }
         }
     }
+}
+
+@Composable
+private enum class HomeSection(val label: String, val icon: String) {
+    EMERGENCY("Emergency", "🚨"),
+    DIRECTORY("Directory", "🗺️"),
+    PEOPLE("People", "👥"),
+    DEVICE("Device", "📡"),
+    SETTINGS("Settings", "⚙️")
 }
 
 @Composable
@@ -603,20 +616,23 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     val visibleColorPhase = animationValues.second
     BoxWithConstraints(Modifier.fillMaxSize().safeContentPadding()) {
     val availableWidth = maxWidth
+    var selectedSection by remember { mutableStateOf(HomeSection.EMERGENCY) }
     val adaptiveContentWidth = if (availableWidth >= 900.dp) 820.dp else 720.dp
     val adaptiveLayoutLabel = when { availableWidth >= 900.dp -> "EXPANDED TABLET"; availableWidth >= 600.dp -> "MEDIUM"; else -> "COMPACT PHONE" }
-    Column(Modifier.fillMaxWidth().widthIn(max = adaptiveContentWidth).align(Alignment.TopCenter).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(Modifier.fillMaxWidth().widthIn(max = adaptiveContentWidth).align(Alignment.TopCenter).padding(start = if (availableWidth >= 600.dp) 88.dp else 0.dp).verticalScroll(rememberScrollState()).padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 104.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(
             Modifier.fillMaxWidth().height(8.dp).graphicsLayer(rotationZ = visibleWave)
                 .background(Brush.horizontalGradient(listOf(Color.Blue, Color.Red, Color.White, Color.Yellow, Color.White, Color.Red, Color.Blue)))
         )
         Text("PH-ResQ", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = Color(red = visibleColorPhase, green = 0f, blue = 1f - visibleColorPhase))
+        if (selectedSection == HomeSection.EMERGENCY) {
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Emergency cell broadcasts", style = MaterialTheme.typography.titleLarge)
                 Text("Ang government/carrier emergency alerts ay pinamamahalaan ng Android at mobile network. Hindi inaangking binabasa o hinaharang ng PH-ResQ ang lahat ng cell broadcasts.")
                 Text("Suriin ang Emergency alerts / Wireless emergency alerts sa system settings ng device at panatilihing naka-enable ang mga alertong naaangkop sa iyong lugar.")
             }
+        }
         }
         Text("Emergency-first • offline-aware • early build")
         Card(Modifier.fillMaxWidth()) {
@@ -669,6 +685,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 OutlinedTextField(value = messageNote, onValueChange = { messageNote = it.take(240) }, label = { Text("Optional na mensahe") }, modifier = Modifier.fillMaxWidth())
             }
         }
+        if (selectedSection == HomeSection.SETTINGS) {
         Button(onClick = onToggleHighContrast, modifier = Modifier.fillMaxWidth()) {
             Text("HIGH CONTRAST: " + if (MaterialTheme.colorScheme.background == Color.Black) "ON — tap to disable" else "OFF — tap to enable")
         }
@@ -681,6 +698,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         Button(onClick = onReviewPrivacy, modifier = Modifier.fillMaxWidth()) {
             Text("REVIEW PRIVACY NOTICE")
         }
+        }
+        if (selectedSection == HomeSection.DEVICE) {
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("DEVICE COMPATIBILITY", style = MaterialTheme.typography.titleLarge)
@@ -721,6 +740,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                     Text("REFRESH DEVICE CHECK")
                 }
             }
+        }
+        if (selectedSection == HomeSection.DIRECTORY) {
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -787,6 +808,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }
                 Text("Kailangan ng network/phone service. Ang pag-open ng dialer o SMS app ay hindi patunay ng koneksyon, delivery, o pagsagot.")
             }
+        }
+        if (selectedSection == HomeSection.PEOPLE) {
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -872,6 +895,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Text(if (pinVaultEnabled) "PIN-derived AES-GCM. Walang PIN recovery o duress mode; pagkawala ng PIN ay maaaring permanenteng mawala ang contacts." else "Default: Android Keystore AES-GCM. Optional PIN vault adds a PIN-derived encryption layer.")
             }
         }
+        if (selectedSection == HomeSection.DEVICE) {
+        }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Last-known location", style = MaterialTheme.typography.titleLarge)
@@ -892,6 +917,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }) { Text("Request permission and read last-known location") }
             }
         }
+        if (selectedSection == HomeSection.DEVICE) {
+        }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Nearby BLE devices", style = MaterialTheme.typography.titleLarge)
@@ -907,6 +934,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }, modifier = Modifier.fillMaxWidth()) { Text("SCAN NEARBY DEVICES (15s)") }
                 blePeers.take(10).forEach { peer -> Text(peer.label + " • RSSI " + peer.rssi + " dBm (approximate proximity only)") }
             }
+        }
+        if (selectedSection == HomeSection.PEOPLE) {
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -952,6 +981,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }
             }
         }
+        if (selectedSection == HomeSection.PEOPLE) {
+        }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Ligtas Ako check-in", style = MaterialTheme.typography.titleLarge)
@@ -972,6 +1003,8 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                     }
                 }) { Text("Save check-in locally") }
             }
+        }
+        if (selectedSection == HomeSection.PEOPLE) {
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -998,12 +1031,16 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 }
             }
         }
+        if (selectedSection == HomeSection.DEVICE) {
+        }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Low-battery snapshot", style = MaterialTheme.typography.titleLarge)
                 Text(batterySnapshot)
                 Text("Best-effort: naitatala kapag bukas ang app at nakatanggap ito ng battery broadcast; hindi ito kapalit ng OS-level guaranteed callback.")
             }
+        }
+        if (selectedSection == HomeSection.DIRECTORY) {
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1066,7 +1103,33 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Text("Hindi pa kumpleto: walang verified nationwide data package o offline map renderer, BLE/Wi-Fi emergency transport, o remote sync. Ang PIN vault ay integrated ngunit wala pang recovery/backup o duress mode.")
             }
         }
+        }
         Text("Ang SMS handoff ay hindi patunay ng delivery. Sa agarang panganib, gamitin ang available na opisyal na emergency channel.")
+    }
+    if (availableWidth >= 600.dp) {
+        NavigationRail(modifier = Modifier.align(Alignment.CenterStart).padding(vertical = 16.dp)) {
+            HomeSection.values().forEach { section ->
+                NavigationRailItem(
+                    selected = selectedSection == section,
+                    onClick = { selectedSection = section },
+                    icon = { Text(section.icon) },
+                    label = { Text(section.label) },
+                    alwaysShowLabel = false
+                )
+            }
+        }
+    } else {
+        NavigationBar(modifier = Modifier.align(Alignment.BottomCenter)) {
+            HomeSection.values().forEach { section ->
+                NavigationBarItem(
+                    selected = selectedSection == section,
+                    onClick = { selectedSection = section },
+                    icon = { Text(section.icon) },
+                    label = { Text(section.label) },
+                    alwaysShowLabel = true
+                )
+            }
+        }
     }
     }
 }
