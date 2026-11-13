@@ -1257,7 +1257,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 NavigationBarItem(
                     selected = selectedSection == section,
                     onClick = { selectedSection = section },
-                    icon = { Text(section.icon) },
+                    icon = { Icon(imageVector = section.icon, contentDescription = section.label) },
                     label = { Text(section.label) },
                     alwaysShowLabel = true
                 )
