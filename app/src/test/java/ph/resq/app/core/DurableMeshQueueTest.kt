@@ -33,11 +33,12 @@ class DurableMeshQueueTest {
         val envelope = MeshEnvelope("msg-1", "rotating-token", now, 4, 0, "SOS test payload".toByteArray())
         assertTrue(queue.enqueue(envelope, key, now = now))
         assertFalse(queue.enqueue(envelope, key, now = now))
+        val goodAck = DurableMeshQueue.createAckMac("msg-1", "peer-7", key)
+        assertFalse(queue.acknowledge("msg-1", "peer-7", goodAck, key, now)) // cannot ACK a packet never marked SENT
         val pending = queue.pending(now = now).single()
         assertEquals("msg-1", pending.messageId)
         assertEquals("SOS test payload", MeshEnvelopeCodec.decode(pending.packet, key, now).payload.toString(Charsets.UTF_8))
         assertTrue(queue.markSent(pending.rowId))
-        val goodAck = DurableMeshQueue.createAckMac("msg-1", "peer-7", key)
         assertFalse(queue.acknowledge("msg-1", "peer-7", ByteArray(32), key, now))
         assertTrue(queue.acknowledge("msg-1", "peer-7", goodAck, key, now))
         assertTrue(queue.pending(now = now).isEmpty())

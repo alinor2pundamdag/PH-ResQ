@@ -272,10 +272,12 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         val recovery = withContext(Dispatchers.IO) {
             runCatching {
                 val count = database.reconcileInterruptedSosHandoffs()
-                count to (database.latestSosState() to database.latestSosEventSnapshot()?.eventId)
+                count to (database.latestSosState() to database.latestSosEventId())
             }.getOrNull()
         }
-        if (recovery != null && recovery.first > 0) {
+        if (recovery == null) {
+            sosRecoveryNotice = "Hindi ma-verify ang dating SOS status dahil may local storage error. Huwag ipagpalagay na naipadala ang mensahe; suriin ang messaging app bago gumawa ng panibagong attempt."
+        } else if (recovery.first > 0) {
             state = recovery.second.first ?: state
             activeSosEventId = recovery.second.second
             sosRecoveryNotice = "${recovery.first} interrupted SOS event(s) recovered. Review the messaging app; PH-ResQ did not resend anything."
@@ -578,19 +580,24 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         capabilityProfile = DeviceCapabilityProfile.detect(context)
     }
 
-    val flagTransition = rememberInfiniteTransition(label = "phFlag")
-    val wave by flagTransition.animateFloat(
-        initialValue = -1.4f, targetValue = 1.4f,
-        animationSpec = infiniteRepeatable(tween(1800, easing = LinearEasing), repeatMode = RepeatMode.Reverse),
-        label = "flagWave"
-    )
-    val colorPhase by flagTransition.animateFloat(
-        initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(5000, easing = LinearEasing), repeatMode = RepeatMode.Reverse),
-        label = "flagTitleColor"
-    )
-    val visibleWave = if (reduceMotion) 0f else wave
-    val visibleColorPhase = if (reduceMotion) 0f else colorPhase
+    val animationValues = if (reduceMotion) {
+        0f to 0f
+    } else {
+        val flagTransition = rememberInfiniteTransition(label = "phFlag")
+        val wave by flagTransition.animateFloat(
+            initialValue = -1.4f, targetValue = 1.4f,
+            animationSpec = infiniteRepeatable(tween(1800, easing = LinearEasing), repeatMode = RepeatMode.Reverse),
+            label = "flagWave"
+        )
+        val colorPhase by flagTransition.animateFloat(
+            initialValue = 0f, targetValue = 1f,
+            animationSpec = infiniteRepeatable(tween(5000, easing = LinearEasing), repeatMode = RepeatMode.Reverse),
+            label = "flagTitleColor"
+        )
+        wave to colorPhase
+    }
+    val visibleWave = animationValues.first
+    val visibleColorPhase = animationValues.second
     BoxWithConstraints(Modifier.fillMaxSize().safeContentPadding()) {
     val availableWidth = maxWidth
     val adaptiveContentWidth = if (availableWidth >= 900.dp) 820.dp else 720.dp

@@ -104,7 +104,7 @@ class DurableMeshQueue(private val database: ResQDatabase, private val cipher: E
         val expected = createAckMac(messageId, peerToken, sharedKey)
         if (!MessageDigest.isEqual(expected, ackMac)) return false
         val values = ContentValues().apply { put("status", "ACKED"); put("acked_by", peerToken); put("acked_at", now); putNull("last_error") }
-        return database.writableDatabase.update("mesh_queue", values, "message_id = ? AND status NOT IN ('FAILED','EXPIRED') AND expires_at >= ?", arrayOf(messageId, now.toString())) == 1
+        return database.writableDatabase.update("mesh_queue", values, "message_id = ? AND status IN ('SENT','RETRY') AND expires_at >= ?", arrayOf(messageId, now.toString())) == 1
     }
 
     /** Durable replay suppression for a packet already authenticated/decoded by the caller. */

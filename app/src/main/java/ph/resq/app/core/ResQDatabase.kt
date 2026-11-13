@@ -388,6 +388,13 @@ class ResQDatabase(context: Context, private val fieldCipher: EncryptedFieldCiph
         return recoveredCount
     }
 
+    /** Read the event identifier without decrypting its payload; safe when the Keystore key is unavailable. */
+    fun latestSosEventId(): String? {
+        readableDatabase.rawQuery("SELECT event_id FROM sos_events ORDER BY id DESC LIMIT 1", null).use { cursor ->
+            return if (cursor.moveToFirst()) cursor.getString(0) else null
+        }
+    }
+
     fun latestSosState(): SosState? {
         readableDatabase.rawQuery("SELECT state FROM sos_events ORDER BY id DESC LIMIT 1", null).use { cursor ->
             if (!cursor.moveToFirst()) return null
