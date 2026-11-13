@@ -21,6 +21,7 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
    db.insertWithOnConflict("dataset_meta",null,m,SQLiteDatabase.CONFLICT_REPLACE);db.setTransactionSuccessful()
   } finally {db.endTransaction()}
   linkContactsToBarangays()
+  linkEvacuationCentersToBarangays()
   return records.size
  }
  private fun normalizeLabel(value:String):String =
@@ -39,6 +40,12 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
    }
   }
   return null
+ }
+ private fun linkEvacuationCentersToBarangays(){
+  val db=database.writableDatabase
+  val pending=mutableListOf<Pair<String,String>>()
+  db.rawQuery("SELECT center_id,address FROM national_evacuation_centers WHERE psgc_code IS NULL",null).use{c->while(c.moveToNext())pending.add(c.getString(0) to c.getString(1))}
+  pending.forEach{(id,label)->resolveBarangayPsgc(label)?.let{code->db.execSQL("UPDATE national_evacuation_centers SET psgc_code=? WHERE center_id=?",arrayOf(code,id))}}
  }
  private fun linkContactsToBarangays() {
   val db=database.writableDatabase
@@ -74,7 +81,8 @@ class NationalReferenceRepository(private val database:ResQDatabase) {
   require(c.name.isNotBlank()&&c.address.isNotBlank()&&c.sourceUrl.startsWith("https://")&&c.sourceTitle.isNotBlank())
   require((c.latitude==null)==(c.longitude==null));if(c.latitude!=null)require(c.latitude.isFinite()&&c.latitude in -90.0..90.0&&c.longitude!!.isFinite()&&c.longitude in -180.0..180.0)
   require(c.capacity==null||c.capacity in 1..1_000_000);require(c.capacityUnit in setOf("PERSONS","FAMILIES","HOUSEHOLDS","UNKNOWN"));require(c.operationalStatus in setOf("OPEN","LIMITED","FULL","CLOSED","UNKNOWN","UNDER_CONSTRUCTION"))
-  val v=ContentValues().apply{put("center_id",c.id);put("psgc_code",c.psgcCode);put("name",c.name);put("address",c.address);put("facility_type",c.facilityType);if(c.latitude==null)putNull("latitude")else put("latitude",c.latitude);if(c.longitude==null)putNull("longitude")else put("longitude",c.longitude);if(c.capacity==null)putNull("capacity")else put("capacity",c.capacity);put("capacity_unit",c.capacityUnit);put("operational_status",c.operationalStatus);put("source_url",c.sourceUrl);put("source_title",c.sourceTitle);put("verification",c.verification.name);if(c.verifiedAt==null)putNull("verified_at")else put("verified_at",c.verifiedAt);put("updated_at",System.currentTimeMillis())}
+  val resolvedCode=c.psgcCode?:resolveBarangayPsgc(c.address)
+  val v=ContentValues().apply{put("center_id",c.id);put("psgc_code",resolvedCode);put("name",c.name);put("address",c.address);put("facility_type",c.facilityType);if(c.latitude==null)putNull("latitude")else put("latitude",c.latitude);if(c.longitude==null)putNull("longitude")else put("longitude",c.longitude);if(c.capacity==null)putNull("capacity")else put("capacity",c.capacity);put("capacity_unit",c.capacityUnit);put("operational_status",c.operationalStatus);put("source_url",c.sourceUrl);put("source_title",c.sourceTitle);put("verification",c.verification.name);if(c.verifiedAt==null)putNull("verified_at")else put("verified_at",c.verifiedAt);put("updated_at",System.currentTimeMillis())}
   database.writableDatabase.insertWithOnConflict("national_evacuation_centers",null,v,SQLiteDatabase.CONFLICT_REPLACE)
  }
 
