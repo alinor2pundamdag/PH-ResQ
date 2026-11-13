@@ -1050,12 +1050,53 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         PremiumCard {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Offline Medical ID QR", style = MaterialTheme.typography.titleLarge)
-                Text("Gumawa lamang ng QR kapag pinili mong ibahagi ang impormasyon. Hindi naka-encrypt ang QR: maaaring mabasa ng sinumang makakita o kumuha ng larawan nito. Huwag ilagay ang impormasyong ayaw mong ibunyag.")
-                OutlinedTextField(value = medicalName, onValueChange = { medicalName = it.take(80); medicalQrBitmap = null }, label = { Text("Pangalan (required)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = medicalBloodType, onValueChange = { medicalBloodType = it.take(20); medicalQrBitmap = null }, label = { Text("Blood type (optional)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = medicalAllergies, onValueChange = { medicalAllergies = it.take(160); medicalQrBitmap = null }, label = { Text("Allergies (optional)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = medicalMedications, onValueChange = { medicalMedications = it.take(160); medicalQrBitmap = null }, label = { Text("Medications (optional)") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = medicalEmergencyContact, onValueChange = { medicalEmergencyContact = it.take(40); medicalQrBitmap = null }, label = { Text("Emergency contact (optional)") }, modifier = Modifier.fillMaxWidth())
+                Text("The profile is encrypted locally with Android Keystore and is not uploaded or synced. A generated QR is plaintext and can be read by anyone who sees or photographs it. Share only fields you intentionally disclose.")
+                OutlinedTextField(value = medicalName, onValueChange = { medicalName = it.take(80); medicalQrBitmap = null; medicalProfileSaved = false; medicalStoreStatus = "Unsaved Medical ID edits." }, label = { Text("Pangalan (required)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalBloodType, onValueChange = { medicalBloodType = it.take(20); medicalQrBitmap = null; medicalProfileSaved = false; medicalStoreStatus = "Unsaved Medical ID edits." }, label = { Text("Blood type (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalAllergies, onValueChange = { medicalAllergies = it.take(160); medicalQrBitmap = null; medicalProfileSaved = false; medicalStoreStatus = "Unsaved Medical ID edits." }, label = { Text("Allergies (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalMedications, onValueChange = { medicalMedications = it.take(160); medicalQrBitmap = null; medicalProfileSaved = false; medicalStoreStatus = "Unsaved Medical ID edits." }, label = { Text("Medications (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = medicalEmergencyContact, onValueChange = { medicalEmergencyContact = it.take(40); medicalQrBitmap = null; medicalProfileSaved = false; medicalStoreStatus = "Unsaved Medical ID edits." }, label = { Text("Emergency contact (optional)") }, modifier = Modifier.fillMaxWidth())
+                Text(medicalStoreStatus, style = MaterialTheme.typography.bodySmall)
+                Button(
+                    enabled = medicalName.isNotBlank() && !medicalProfileUnreadable,
+                    onClick = {
+                        val result = runCatching {
+                            medicalIdStore.save(MedicalIdProfile(medicalName, medicalBloodType, medicalAllergies, medicalMedications, medicalEmergencyContact))
+                        }
+                        if (result.isSuccess) {
+                            medicalProfileStored = true
+                            medicalProfileSaved = true
+                            medicalStoreStatus = "Medical ID saved encrypted on this device."
+                        } else {
+                            medicalStoreStatus = "Save failed: " + (result.exceptionOrNull()?.message ?: "storage error")
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text(if (medicalProfileSaved) "SAVE ENCRYPTED MEDICAL ID" else "SAVE CHANGES ENCRYPTED") }
+                Button(onClick = { confirmMedicalIdDelete = true }, enabled = medicalProfileStored, modifier = Modifier.fillMaxWidth()) { Text("DELETE SAVED MEDICAL ID") }
+                if (confirmMedicalIdDelete) {
+                    AlertDialog(
+                        onDismissRequest = { confirmMedicalIdDelete = false },
+                        title = { Text("Delete saved Medical ID?") },
+                        text = { Text("This permanently removes the encrypted local profile. QR screenshots or copies already shared cannot be recalled.") },
+                        confirmButton = {
+                            Button(onClick = {
+                                val result = runCatching { medicalIdStore.clear() }
+                                if (result.isSuccess) {
+                                    medicalProfileStored = false
+                                    medicalProfileUnreadable = false
+                                    medicalProfileSaved = false
+                                    medicalName = ""; medicalBloodType = ""; medicalAllergies = ""; medicalMedications = ""; medicalEmergencyContact = ""
+                                    medicalQrBitmap = null
+                                    medicalStoreStatus = "Saved Medical ID deleted from this device."
+                                    medicalQrStatus = "Walang QR na ginawa."
+                                } else medicalStoreStatus = "Delete failed: " + (result.exceptionOrNull()?.message ?: "storage error")
+                                confirmMedicalIdDelete = false
+                            }) { Text("DELETE") }
+                        },
+                        dismissButton = { Button(onClick = { confirmMedicalIdDelete = false }) { Text("CANCEL") } }
+                    )
+                }
                 Text(medicalQrStatus)
                 Button(onClick = {
                     try {
