@@ -84,11 +84,22 @@ data class DeviceCapabilityProfile(
                 cap("wifi_direct", CapabilityState.AVAILABLE, "WIFI_DIRECT_FEATURE_DECLARED")
             } else cap("wifi_direct", CapabilityState.UNSUPPORTED, "NO_WIFI_DIRECT_FEATURE")
 
+            val locationManager = app.getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
+            val locationEnabled = runCatching {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    locationManager?.isLocationEnabled == true
+                } else {
+                    locationManager?.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) == true ||
+                        locationManager?.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER) == true
+                }
+            }.getOrDefault(false)
             val location = when {
                 !granted(Manifest.permission.ACCESS_COARSE_LOCATION) &&
                     !granted(Manifest.permission.ACCESS_FINE_LOCATION) ->
                     cap("location", CapabilityState.DENIED, "LOCATION_PERMISSION_REQUIRED", Manifest.permission.ACCESS_COARSE_LOCATION)
-                else -> cap("location", CapabilityState.AVAILABLE, "LOCATION_PERMISSION_GRANTED")
+                !locationEnabled ->
+                    cap("location", CapabilityState.DISABLED, "DEVICE_LOCATION_SERVICES_DISABLED")
+                else -> cap("location", CapabilityState.AVAILABLE, "LOCATION_PERMISSION_AND_PROVIDER_READY")
             }
 
             val microphone = if (!feature(PackageManager.FEATURE_MICROPHONE)) {

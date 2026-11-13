@@ -62,9 +62,9 @@ object FeaturePolicyCoordinator {
             ),
             EffectiveFeaturePolicy(
                 "messaging_handoff",
-                if (telephony.state == CapabilityState.AVAILABLE) FeatureAvailability.READY else FeatureAvailability.DEGRADED,
-                if (telephony.state == CapabilityState.AVAILABLE) "user_confirmed_messaging_app_handoff" else "share_or_copy_fallback",
-                if (telephony.state == CapabilityState.AVAILABLE) "Telephony hardware detected; an SMS app, SIM and carrier service are still not guaranteed." else "No telephony hardware detected; retain the SOS draft and offer copy/share fallback."
+                FeatureAvailability.DEGRADED,
+                if (telephony.state == CapabilityState.AVAILABLE) "user_confirmed_resolver_check" else "share_or_copy_fallback",
+                if (telephony.state == CapabilityState.AVAILABLE) "Telephony hardware is only a hint; verify that a messaging app resolves and let the user confirm. SIM, carrier service and delivery are not guaranteed." else "No telephony hardware detected; retain the SOS draft and offer copy/share fallback."
             ),
             EffectiveFeaturePolicy(
                 "wifi_direct_transfer",

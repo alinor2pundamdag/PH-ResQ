@@ -43,4 +43,12 @@ class FeaturePolicyCoordinatorTest {
         val policies = FeaturePolicyCoordinator.evaluate(profile(mapOf("wifi_direct" to CapabilityState.AVAILABLE)))
         assertEquals(FeatureAvailability.BLOCKED, policies.first { it.featureId == "wifi_direct_transfer" }.availability)
     }
+
+    @Test fun telephonyHardwareNeverClaimsSmsDeliveryOrAvailability() {
+        val policies = FeaturePolicyCoordinator.evaluate(profile(mapOf("telephony" to CapabilityState.AVAILABLE)))
+        val messaging = policies.first { it.featureId == "messaging_handoff" }
+        assertEquals(FeatureAvailability.DEGRADED, messaging.availability)
+        assertEquals("user_confirmed_resolver_check", messaging.effectiveMode)
+        assertTrue(messaging.reason.contains("SIM, carrier service and delivery are not guaranteed"))
+    }
 }
