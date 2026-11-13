@@ -69,7 +69,8 @@ jobs:
             https://download.geofabrik.de/asia/philippines-latest.osm.pbf.md5 \
             -o "$RUNNER_TEMP/philippines.osm.pbf.md5"
           cd "$RUNNER_TEMP"
-          md5sum -c philippines.osm.pbf.md5
+          expected_md5="$(awk '{print $1}' philippines.osm.pbf.md5)"
+          echo "$expected_md5  philippines.osm.pbf" | md5sum -c -
 
       - name: Generate Mapsforge country map
         shell: bash
