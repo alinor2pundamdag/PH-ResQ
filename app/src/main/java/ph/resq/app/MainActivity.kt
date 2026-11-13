@@ -361,6 +361,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
     val blePermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
+        capabilityProfile = DeviceCapabilityProfile.detect(context)
         if (result.values.all { it }) beginBleScan()
         else bleStatus = "Bluetooth permission denied; discovery not started."
     }
@@ -384,6 +385,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         } else {
             voiceStatus = "Microphone permission denied; walang recording."
         }
+        capabilityProfile = DeviceCapabilityProfile.detect(context)
     }
     fun setSosState(next: SosState, draft: String? = null, recipients: String? = null) {
         state = next
@@ -400,6 +402,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
             "Huling lokasyon (hindi live guarantee): " + LastKnownLocation.format(location)
         }
         runCatching { prefs.edit().putString("last_location_line_cipher", fieldCipher.encrypt(locationLine)).remove("last_location_line").apply() }
+        capabilityProfile = DeviceCapabilityProfile.detect(context)
     }
 
     val freshLocationPermissionLauncher = rememberLauncherForActivityResult(
@@ -421,6 +424,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         } else {
             freshLocationStatus = "Location permission denied; walang bagong fix."
         }
+        capabilityProfile = DeviceCapabilityProfile.detect(context)
     }
 
     fun prepareSos() {
@@ -492,6 +496,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
         } else {
             "Notifications are disabled. SOS handoff still works, but persistent status may not appear."
         }
+        capabilityProfile = DeviceCapabilityProfile.detect(context)
     }
 
     val flagTransition = rememberInfiniteTransition(label = "phFlag")
@@ -542,7 +547,7 @@ private fun HomeScreen(onToggleHighContrast: () -> Unit, onReviewPrivacy: () -> 
                 Text("Available storage: ${capabilityProfile.availableStorageBytes / (1024L * 1024L)} MB • Battery saver: ${if (capabilityProfile.batterySaverEnabled) "ON" else "OFF"}")
                 listOf(
                     "telephony" to "Phone / SIM capability", "location" to "Location permission",
-                    "ble" to "Bluetooth LE", "wifi_direct" to "Wi-Fi Direct hardware",
+                    "ble" to "Bluetooth LE", "wifi_direct" to "Wi-Fi Direct feature (transport not implemented)",
                     "microphone" to "Microphone", "notifications" to "Notifications",
                     "keystore" to "Android Keystore"
                 ).forEach { (id, label) ->
