@@ -49,7 +49,15 @@ object NationalDatasetImporter{
    val source=required("source_url");val host=runCatching{android.net.Uri.parse(source).host.orEmpty().lowercase()}.getOrDefault("")
    val verification=if(host.endsWith(".gov.ph")||host=="gov.ph")ContactVerification.OFFICIAL_GOVERNMENT_SOURCE else ContactVerification.UNVERIFIED_SOCIAL
    val expiry=o.optLong("expires_at",-1L).takeIf{it>=0}
-   repository.addPublicContact(PublicEmergencyContact(required("id"),o.optString("psgc_code").takeIf{it.isNotBlank()},required("scope").uppercase(),required("category").uppercase(),required("office_name"),required("phone"),source,required("source_title"),verification,null,expiry));imported++
+   val recordId=required("id")
+   val rawPsgc=o.optString("psgc_code","").trim()
+   val psgc=rawPsgc.takeIf{it.isNotBlank()&&!it.equals("null",ignoreCase=true)}
+   try{
+    repository.addPublicContact(PublicEmergencyContact(recordId,psgc,required("scope").uppercase(),required("category").uppercase(),required("office_name"),required("phone"),source,required("source_title"),verification,null,expiry))
+   }catch(error:IllegalArgumentException){
+    throw IllegalArgumentException("Contact record ${i+1} ($recordId) rejected: ${error.message}",error)
+   }
+   imported++
   };return imported
  }
  fun importEvacuationCentersJson(context:Context,uri:Uri,repository:NationalReferenceRepository):Int =
